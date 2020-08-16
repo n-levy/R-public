@@ -1,14 +1,19 @@
+###################################################################################
+############  Plotting text from Google Trends and LinkedIn over time  ############ 
+###################################################################################
 
-# installing the package
+# installing the packages
 # install.packages("gtrendsR")
+#install.packages("Rlinkedin")
 
 ## loading the library 
 library(gtrendsR)
+library(Rlinkedin)
 
 # setting the time period
 time_period<-"2016-01-01 2018-07-18"
 
-# creating some exploratory charts
+# creating some exploratory plots
 res_trend <- gtrends(c("נהג אוטובוס"),geo=c("IL"), time=time_period)
 plot(res_trend)
 
