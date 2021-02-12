@@ -1,3 +1,10 @@
+#################################
+######### Matching ##############
+#################################
+
+####### Sample code provided by Coursera #########
+
+
 ###################
 #RHC Example
 
@@ -119,4 +126,96 @@ diffy<-y_trt-y_con
 
 #paired t-test
 t.test(diffy)
+
+
+### Quiz ###
+
+### Data analysis project - analyze data in R using propensity score matching ###
+
+# Installing packages and loading libraries
+
+install.packages("tableone")
+
+install.packages("Matching")
+
+install.packages("MatchIt")
+
+library(tableone)
+
+library(Matching)
+
+# Loading the data
+
+library(MatchIt)
+
+data(lalonde)
+names(lalonde)
+
+# Find the standardized differences for all of the confounding variables (pre-matching).
+
+# define xvars
+class(lalonde$race)
+lalonde$black<-0
+lalonde$black[lalonde$race=="black"]<-1
+table(lalonde$black, lalonde$race)
+
+lalonde$hispan<-0
+lalonde$hispan[lalonde$race=="hispan"]<-1
+table(lalonde$hispan, lalonde$race)
+
+
+xvars<-c("age", "educ", "black", "hispan", "married", "nodegree", "re74", "re75", "re78")
+
+#look at a table 1
+table1<- CreateTableOne(vars=xvars,strata="treat", data=lalonde, test=FALSE)
+## include standardized mean difference (SMD)
+print(table1,smd=TRUE)
+
+# fit a propensity score model. logistic regression
+
+psmodel<-glm(treat~age+educ+race+married+nodegree+re74+re75,
+             family=binomial(),data=lalonde)
+
+#show coefficients etc
+summary(psmodel)
+#create propensity score
+pscore<-psmodel$fitted.values
+
+min(pscore)
+max(pscore)
+
+# carrying out propensity score matching
+set.seed(931139)
+psmatch<-Match(Tr=lalonde$treat,M=1,X=pscore,replace=FALSE)
+matched<-lalonde[unlist(psmatch[c("index.treated","index.control")]), ]
+xvars<-c("age", "educ", "black", "hispan", "married", "nodegree", "re74", "re75") # removing re78 from xvars
+
+#get standardized differences
+matchedtab1<-CreateTableOne(vars=xvars, strata ="treat", 
+                            data=matched, test = FALSE)
+print(matchedtab1, smd = TRUE)
+
+# Re-do the matching, but use a caliper this time. Set the caliper=0.1 in the options in the Match function.
+set.seed(931139)
+
+psmatch<-Match(Tr=lalonde$treat,M=1,X=pscore,replace=FALSE, caliper=0.1)
+matched<-lalonde[unlist(psmatch[c("index.treated","index.control")]), ]
+
+#get standardized differences
+matchedtab1<-CreateTableOne(vars=c(xvars, "re78"), strata ="treat", 
+                            data=matched, test = FALSE)
+print(matchedtab1, smd = TRUE)
+
+#outcome analysis
+y_trt<-matched$re78[matched$treat==1]
+y_con<-matched$re78[matched$treat==0]
+
+#pairwise difference
+diffy<-y_trt-y_con
+diff
+
+#paired t-test
+t.test(diffy)
+
+# Carry out a paired t-test for the effect of treatment on earnings. What are the values of the 95% confidence interval?
 
