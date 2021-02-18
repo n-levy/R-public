@@ -158,5 +158,5 @@ msm <- (svyglm(died ~ treatment, design = svydesign(~ 1, weights = ~wt,
 coef(msm)
 confint(msm)
 
-
+test
 
