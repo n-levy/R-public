@@ -2,6 +2,7 @@
 #RHC Example
 
 #install packages (if needed)
+install.packages("rlang")
 install.packages("tableone")
 install.packages("ipw")
 install.packages("sandwich")
@@ -158,5 +159,72 @@ msm <- (svyglm(died ~ treatment, design = svydesign(~ 1, weights = ~wt,
 coef(msm)
 confint(msm)
 
+# Assignment
+# For this assignment we will use data from Lalonde (1986),
+# that aimed to evaluate the impact of  National
+# Supported Work (NSW) Demonstration, which is a labor training program, on post-intervention
+# income levels. Interest is in estimating the causal effect of this training
+# program on income.
 
+# First load the packages TableOne, Matching, ipw, and survey:
+
+install.packages("tableone")
+
+install.packages("Matching")
+
+install.packages("ipw")
+
+install.packages("survey")
+
+install.packages("MatchIt")
+
+library(tableone)
+
+library(Matching)
+
+library(ipw) 
+
+library(survey)
+
+# Now load the lalonde data (which is in the MatchIt package):
+  
+library(MatchIt)
+
+data(lalonde)
+
+dim(lalonde)
+
+names(lalonde)
+
+unique(lalonde$race)
+
+lalonde$black<-as.numeric(lalonde$race=="black")
+
+lalonde$hispan<-as.numeric(lalonde$race=="hispan")
+
+xvars<-c("age", "educ", "black", "hispan", "married", "nodegree", 
+         "re74", "re75")
+
+#propensity score model
+psmodel <- glm(treat ~ age + educ + black + hispan + married + 
+                 nodegree + re74 + re75, data = lalonde,
+               family  = binomial(link ="logit"))
+
+## value of propensity score for each subject
+lalonde$ps <-predict(psmodel, type = "response")
+
+#create weights
+# library(dplyr)
+weight<- ifelse(lalonde$treat==1,1/(lalonde$ps),1/(1-lalonde$ps))
+max(weight)
+min(weight)
+
+#apply weights to data
+weighteddata<-svydesign(ids = ~ 1, data =lalonde, weights = ~ weight)
+
+#weighted table 1
+weightedtable <-svyCreateTableOne(vars = xvars, strata = "treat", 
+                                  data = weighteddata, test = FALSE)
+## Show table with SMD
+print(weightedtable, smd = TRUE)
 
