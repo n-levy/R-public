@@ -54,3 +54,78 @@ removed <- anti_join(temp, validation)
 edx <- rbind(edx, removed)
 
 rm(dl, ratings, movies, test_index, temp, movielens, removed)
+
+###################################################################
+####### Assessment 1: Quiz: MovieLens Dataset #####################
+###################################################################
+
+dim(edx)
+class(edx)
+nrow(edx)
+ncol(edx)
+names(edx)
+sum(edx$rating==0)
+sum(edx$rating==3)
+
+# their answer:
+edx %>% filter(rating == 3) %>% tally()
+
+length(unique(edx$movieId))
+
+# their answer:
+n_distinct(edx$movieId)
+
+length(unique(edx$userId))
+
+# their answer:
+n_distinct(edx$userId)
+
+sum(grepl( "Drama", edx$genres, fixed = TRUE))
+sum(grepl( "Comedy", edx$genres, fixed = TRUE))
+sum(grepl( "Thriller", edx$genres, fixed = TRUE))
+sum(grepl( "Romance", edx$genres, fixed = TRUE))
+
+# their answer:
+# str_detect
+genres = c("Drama", "Comedy", "Thriller", "Romance")
+sapply(genres, function(g) {
+  sum(str_detect(edx$genres, g))
+})
+
+# separate_rows, much slower!
+edx %>% separate_rows(genres, sep = "\\|") %>%
+  group_by(genres) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+sum(is.na(edx$rating))
+df<-as.data.frame(table(edx$movieId))
+head(df)
+index<-which(df$Freq==max(df$Freq))
+index
+edx$title[index]
+sum(grepl("Forrest Gump",edx$title, fixed=TRUE))
+sum(grepl("Jurassic Park",edx$title, fixed=TRUE))
+sum(grepl("Pulp Fiction",edx$title, fixed=TRUE))
+sum(grepl("Shawshank",edx$title, fixed=TRUE))
+sum(grepl("Speed 2: Cruise Control",edx$title, fixed=TRUE))
+
+# their answer:
+edx %>% group_by(movieId, title) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+df<-as.data.frame(table(edx$rating))
+df1<-df[order(-df$Freq),]
+df1
+
+# their answer:
+edx %>% group_by(rating) %>% summarize(count = n()) %>% top_n(5) %>%
+  arrange(desc(count))
+
+# their answer:
+edx %>%
+  group_by(rating) %>%
+  summarize(count = n()) %>%
+  ggplot(aes(x = rating, y = count)) +
+  geom_line()
