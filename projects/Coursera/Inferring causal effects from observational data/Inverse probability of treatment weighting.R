@@ -2,7 +2,6 @@
 #RHC Example
 
 #install packages (if needed)
-install.packages("rlang")
 install.packages("tableone")
 install.packages("ipw")
 install.packages("sandwich")
@@ -178,6 +177,8 @@ install.packages("survey")
 
 install.packages("MatchIt")
 
+install.packages("lifecycle")
+
 library(tableone)
 
 library(Matching)
@@ -189,6 +190,8 @@ library(survey)
 # Now load the lalonde data (which is in the MatchIt package):
   
 library(MatchIt)
+
+library (lifecycle)
 
 data(lalonde)
 
@@ -227,4 +230,43 @@ weightedtable <-svyCreateTableOne(vars = xvars, strata = "treat",
                                   data = weighteddata, test = FALSE)
 ## Show table with SMD
 print(weightedtable, smd = TRUE)
+
+# install.packages("rlang")
+
+#first fit propensity score model to get weights
+weightmodel<-ipwpoint(exposure= treat, family = "binomial", link ="logit",
+                      denominator= ~ age + educ + black + hispan + married + 
+                        nodegree + re74 + re75, data=lalonde)
+#numeric summary of weights
+summary(weightmodel$ipw.weights)
+
+#plot of weights
+ipwplot(weights = weightmodel$ipw.weights, logscale = FALSE,
+        main = "weights", xlim = c(0, 22))
+lalonde$wt<-weightmodel$ipw.weights
+
+#fit a marginal structural model (risk difference)
+msm <- (svyglm(re78 ~ treat, design = svydesign(~ 1, weights = ~wt,
+                                                    data =lalonde)))
+coef(msm)
+confint(msm)
+
+# fit propensity score model to get weights, but truncated
+weightmodel<-ipwpoint(exposure= treat, family = "binomial", link ="logit",
+                      denominator= ~ age + educ + black + hispan + married + 
+                        nodegree + re74 + re75, data=lalonde, trunc = .01)
+
+#numeric summary of weights
+summary(weightmodel$weights.trun)
+#plot of weights
+ipwplot(weights = weightmodel$weights.trun, logscale = FALSE,
+        main = "weights", xlim = c(0, 22))
+
+lalonde$wt<-weightmodel$weights.trun
+
+#fit a marginal structural model (risk difference)
+msm <- (svyglm(re78 ~ treat, design = svydesign(~ 1, weights = ~wt,
+                                                data =lalonde)))
+coef(msm)
+confint(msm)
 
