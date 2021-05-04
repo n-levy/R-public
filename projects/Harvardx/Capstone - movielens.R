@@ -129,5 +129,3 @@ edx %>%
   summarize(count = n()) %>%
   ggplot(aes(x = rating, y = count)) +
   geom_line()
-
-# test 4 May 1
