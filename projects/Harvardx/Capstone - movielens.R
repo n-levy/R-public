@@ -130,4 +130,4 @@ edx %>%
   ggplot(aes(x = rating, y = count)) +
   geom_line()
 
-
+# email
