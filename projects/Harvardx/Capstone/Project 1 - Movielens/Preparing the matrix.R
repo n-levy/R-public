@@ -8,6 +8,10 @@ library(tidyverse)
 library(caret)
 library(data.table)
 
+### Increasing the amount of memory allocated to RStudio ###
+memory.limit()
+memory.limit(size = 10^13)
+
 ### Exploring the training set ###
 dim(edx)
 names(edx)
@@ -35,8 +39,4 @@ n_nonmissing<-sum(!is.na(trainmat)) # counting nonmissing values
 p_nonmissing<-n_nonmissing/(n_missing+n_nonmissing) # calculating the percentage of nonmissing values
 p_nonmissing 
 rm(n_missing, n_nonmissing, p_nonmissing) # removing these variables
-
-getwd()
-
-
 
