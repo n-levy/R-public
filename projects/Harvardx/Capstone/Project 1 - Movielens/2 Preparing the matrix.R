@@ -37,6 +37,8 @@ histogram(ratings_per_movie$n, breaks=30)
 boxplot(ratings_per_movie$n)
 summary(ratings_per_movie$n) 
 
+rm(ratings_per_movie)
+
 # distribution of the ratings per user
 ratings_per_user<-edx %>%
   filter(!is.na(rating))  %>%
@@ -45,6 +47,8 @@ ratings_per_user<-edx %>%
 histogram(ratings_per_user$n, breaks=30)  
 boxplot(ratings_per_user$n)
 summary(ratings_per_user$n) 
+
+rm(ratings_per_user)
 
 ### Creating a matrix of ratings with userIds (rows) by movieIds (columns) ###
 trainmat<-pivot_wider(edx, id_cols = userId, names_from = title, values_from = rating, values_fn=length, names_sep = "_", names_repair = "check_unique")
@@ -58,3 +62,4 @@ p_nonmissing<-n_nonmissing/(n_missing+n_nonmissing) # calculating the percentage
 p_nonmissing 
 rm(n_missing, n_nonmissing, p_nonmissing) # removing these variables
 
+# rm(trainmat)
