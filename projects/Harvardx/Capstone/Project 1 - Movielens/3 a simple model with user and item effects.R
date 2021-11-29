@@ -38,7 +38,7 @@ mu <- mean(core$rating)
 mu
 
 # checking the root mean squared error
-naive_rmse <- RMSE(sub$rating, mu_hat)
+naive_rmse <- RMSE(sub$rating, mu)
 naive_rmse
 
 # creating a results table
@@ -56,7 +56,10 @@ qplot(b_i, data = movie_avgs, bins = 10, color = I("black"))
 predicted_ratings <- mu + sub %>% 
   left_join(movie_avgs, by='movieId') %>%
   pull(b_i)
-RMSE(predicted_ratings, sub$rating)
+movie_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+
+rmse_results <- rbind(rmse_results, c("With movie effects", movie_effects_rmse))
+rmse_results
 
 ### adding user effects ###
 # examining the average rating per user
@@ -82,24 +85,14 @@ predicted_ratings <- sub %>%
   left_join(user_avgs, by='userId') %>%
   mutate(pred = mu + b_i + b_u) %>%
   pull(pred)
-RMSE(predicted_ratings, sub$rating)
+movie_and_user_effects_rmse<-RMSE(predicted_ratings, sub$rating)
 
+rmse_results <- rbind(rmse_results, c("With movie and user effects", movie_and_user_effects_rmse))
 rmse_results
+
 
 # Version 2 - validation method is "k-fold cross-validation"
 
 # Define training control
 set.seed(123) 
-train.control <- trainControl(method = "cv", number = 10)
-
-# compute the average rating for all movies
-edx$mu <- mean(core$rating)
-
-# Train the model
-model <- train(rating ~ mu, data = edx, method = "lm",
-               trControl = train.control)
-# Summarize the results
-print(model)
-
-
 
