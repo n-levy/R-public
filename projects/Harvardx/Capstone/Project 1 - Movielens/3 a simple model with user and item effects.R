@@ -3,6 +3,15 @@
 ####################################################################################
 
 
+### Loading libraries ###
+library(tidyverse)
+library(caret)
+library(data.table)
+library(dplyr)
+
+
+# Version 1 - validation method is "Leave One Out Cross Validation (LOOCV)"
+
 ### creating a subset of the training set, for testing the model ###
 # I am avoiding calling this a validation set, 
 # so it will not be confused with the test set, which edx called a 'validation set'
@@ -74,4 +83,23 @@ predicted_ratings <- sub %>%
   mutate(pred = mu + b_i + b_u) %>%
   pull(pred)
 RMSE(predicted_ratings, sub$rating)
+
+rmse_results
+
+# Version 2 - validation method is "k-fold cross-validation"
+
+# Define training control
+set.seed(123) 
+train.control <- trainControl(method = "cv", number = 10)
+
+# compute the average rating for all movies
+edx$mu <- mean(core$rating)
+
+# Train the model
+model <- train(rating ~ mu, data = edx, method = "lm",
+               trControl = train.control)
+# Summarize the results
+print(model)
+
+
 
