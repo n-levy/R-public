@@ -10,14 +10,16 @@ library(data.table)
 library(dplyr)
 
 
-# Version 1 - validation method is "Leave One Out Cross Validation (LOOCV)"
+# Validation method is "Leave One Out Cross Validation (LOOCV)"
 
 ### creating a subset of the training set, for testing the model ###
 # I am avoiding calling this a validation set, 
-# so it will not be confused with the test set, which edx called a 'validation set'
-# will simply be called the core test set 'core' and the subset 'sub'
-# Validation set will be 15% of the training set
-sub_index <- createDataPartition(y = edx$rating, times = 1, p = 0.1, list = FALSE)
+# since edx called the test set 'validation set'.
+# To avoid confusion, the core training set will be called 'core' and the subset of the training set
+# for validation will be called 'sub'.
+
+# The 'sub' set will be 15% of the training set
+sub_index <- createDataPartition(y = edx$rating, times = 1, p = 0.15, list = FALSE)
 core <- edx[-sub_index,]
 temp <- edx[sub_index,]
 
@@ -88,11 +90,6 @@ predicted_ratings <- sub %>%
 movie_and_user_effects_rmse<-RMSE(predicted_ratings, sub$rating)
 
 rmse_results <- rbind(rmse_results, c("With movie and user effects", movie_and_user_effects_rmse))
+rmse_results$RMSE<-as.numeric(rmse_results$RMSE)
+rmse_results$RMSE<-round(rmse_results$RMSE,3)
 rmse_results
-
-
-# Version 2 - validation method is "k-fold cross-validation"
-
-# Define training control
-set.seed(123) 
-
