@@ -53,7 +53,36 @@ validation <- temp %>%
 removed <- anti_join(temp, validation)
 edx <- rbind(edx, removed)
 
-rm(dl, ratings, movies, test_index, temp, movielens, removed)
+### saving the training and test sets ###
+getwd()
+setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+# 
+# saveRDS(movies, file="movies")
+# saveRDS(ratings, file="ratings")
+# saveRDS(edx, file="edx")
+# saveRDS(validation, file="validation")
+# saveRDS(movielens, file="movielens")
+# saveRDS(core, file="core")
+# saveRDS(sub, file="sub")
+# 
+# # removing unnecessary files
+# rm(dl, ratings, movies, test_index, temp, movielens, removed)
+# 
+# # removing large files so R will start faster
+# rm(validation, ratings)
+# 
+# # removing all files
+rm(list = ls())
+
+# loading the data files
+setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+# ratings<-readRDS("ratings")
+# movies<-readRDS("movies")
+# movielens<-readRDS("movielens")
+# core<-readRDS("core")
+# sub<-readRDS("sub")
+# validation<-readRDS("validation")
+edx<-readRDS("edx")
 
 ###################################################################
 ####### Assessment 1: Quiz: MovieLens Dataset #####################
