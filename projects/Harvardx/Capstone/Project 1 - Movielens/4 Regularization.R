@@ -21,14 +21,14 @@
 lambda <- 3
 mu <- mean(core$rating)
 
-movie_reg_avgs <- core %>% 
-  group_by(movieId) %>% 
-  summarize(b_i = sum(rating - mu)/(n()+lambda), n_i = n())
-
 user_avgs <- core %>% 
-  left_join(movie_avgs, by='movieId') %>%
-  group_by(userId) %>%
-  summarize(b_u = sum(rating - mu-b_i)/(n()+lambda), n_i = n())
+  group_by(userId) %>% 
+  summarize(b_u = mean(rating - mu))
+
+movie_avgs <- core %>% 
+  left_join(user_avgs, by='userId') %>%
+  group_by(movieId) %>%
+  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())
 
 # Maing a plot to see how the estimates shrunk
 # tibble(original = movie_avgs$b_i, 

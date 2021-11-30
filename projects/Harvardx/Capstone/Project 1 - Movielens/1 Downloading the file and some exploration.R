@@ -64,7 +64,8 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # saveRDS(movielens, file="movielens")
 # saveRDS(core, file="core")
 # saveRDS(sub, file="sub")
-# 
+# saveRDS(trainmat, file="trainmat")
+
 # # removing unnecessary files
 # rm(dl, ratings, movies, test_index, temp, movielens, removed)
 # 
