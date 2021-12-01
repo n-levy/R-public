@@ -21,7 +21,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # # movielens<-readRDS("movielens")
 #  core<-readRDS("core")
 #  sub<-readRDS("sub")
-validation<-readRDS("validation")
+# validation<-readRDS("validation")
 edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
@@ -30,7 +30,7 @@ edx<-readRDS("edx")
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
 # Creating a sample of 0.1% of the training data, to try out the method #
 set.seed(123) 
-sampling_rate<-0.2
+sampling_rate<-0.01
 sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 samp <- edx[sample_index,]
 
@@ -48,13 +48,13 @@ dim(users_and_ratings_training_set)
 # head(users_and_ratings_training_set)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat_full <- as(users_and_ratings_training_set, "realRatingMatrix")
-dim(trainmat_full)
+trainmat <- as(users_and_ratings_training_set, "realRatingMatrix")
+dim(trainmat)
+class(trainmat)
 
 # removing items with less than a certain number ratings, for regularization 
-min_num_ratings<-20
-trainmat<- trainmat_full[colCounts(trainmat) > min_num_ratings]
-# trainmat<-trainmat_full
+min_num_ratings<-30
+trainmat<- trainmat[colCounts(trainmat) > min_num_ratings]
 
 # exploring the matrix
 dim(trainmat)
@@ -80,7 +80,7 @@ set.seed(123)
 
 # Setting up the evaluation scheme
 scheme <- trainmat %>% 
-  evaluationScheme(method = "cross-validation",
+  evaluationScheme(method = "split",
                    k=1,
                    train  = 0.9,  # 90% data train
                    given  = -1,
@@ -91,7 +91,8 @@ scheme
 
 
 
-
+# saving
+# saveRDS(scheme, file="scheme")
 
 # measuring the rating error
 result_rating_svdf <- evaluate(scheme, 
@@ -102,7 +103,7 @@ result_rating_svdf <- evaluate(scheme,
 
 result_rating_svd <- evaluate(scheme, 
                           method = "svd",
-                          parameter = list(normalize = "Z-score", k = 5),
+                          parameter = list(normalize = "Z-score", k = 1),
                           type  = "ratings"
 )
 
@@ -117,6 +118,30 @@ result_rating_random <- evaluate(scheme,
                           parameter = list(normalize = "Z-score", k = 5),
                           type  = "ratings"
 )
+
+# # Trying without normalization, see if the RMSE changes
+# 
+# scheme2 <- trainmat %>% 
+#   evaluationScheme(method = "cross-validation",
+#                    k=1,
+#                    train  = 0.9,  # 90% data train
+#                    given  = -1,
+#                    goodRating = 3
+#   )
+# 
+# scheme2
+# 
+# # saving
+# saveRDS(scheme2, file="scheme2")
+# 
+# 
+# result_rating_popular_not_normalized <- evaluate(scheme2, 
+#                                                  method = "popular",
+#                                                  parameter = list(normalize = "Z-score", k = 5),
+#                                                  type  = "ratings"
+# )
+
+
 
 # summarizing the mean of three performance measures from each fold
 result_rating_svdf@results %>% 
