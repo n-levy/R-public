@@ -29,44 +29,45 @@ edx<-readRDS("edx")
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
 # Creating a sample of 0.1% of the training data, to try out the method #
-set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
-sampling_rate<-0.01
+set.seed(123) 
+sampling_rate<-0.2
 sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 samp <- edx[sample_index,]
 
 # exploring the sample
-dim(samp)
-names(samp)
-head(samp)
-class(samp$userId)
-class(samp$movieId)
-class(samp$rating)
+# dim(samp)
+# names(samp)
+# head(samp)
+# class(samp$userId)
+# class(samp$movieId)
+# class(samp$rating)
 
 # converting the training set into a matrix
 users_and_ratings_training_set<-cbind.data.frame(samp$userId, samp$movieId, samp$rating)
 dim(users_and_ratings_training_set)
-head(users_and_ratings_training_set)
+# head(users_and_ratings_training_set)
 
 # converting the matrix into a "realRatingMatrix")
 trainmat_full <- as(users_and_ratings_training_set, "realRatingMatrix")
 dim(trainmat_full)
 
 # removing items with less than a certain number ratings, for regularization 
-min_num_ratings<-30
+min_num_ratings<-20
 trainmat<- trainmat_full[colCounts(trainmat) > min_num_ratings]
+# trainmat<-trainmat_full
 
 # exploring the matrix
 dim(trainmat)
-trainmat@data[1500:1510, 2001:2009]
+# trainmat@data[1500:1510, 2001:2009]
 
 # normalizing the values
 normalize(trainmat, method = "Z-score")
 
 # saving
-saveRDS(trainmat, file="trainmat")
+# saveRDS(trainmat, file="trainmat")
 
 # checking the initial/default parameters of the SVDF model
-recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
+# recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
 
 # recommending
 # recom_svdf <- Recommender(data = trainmat,
@@ -79,7 +80,8 @@ set.seed(123)
 
 # Setting up the evaluation scheme
 scheme <- trainmat %>% 
-  evaluationScheme(method = "split",
+  evaluationScheme(method = "cross-validation",
+                   k=1,
                    train  = 0.9,  # 90% data train
                    given  = -1,
                    goodRating = 0
@@ -87,15 +89,61 @@ scheme <- trainmat %>%
 
 scheme
 
+
+
+
+
 # measuring the rating error
-result_rating <- evaluate(scheme, 
+result_rating_svdf <- evaluate(scheme, 
                           method = "svdf",
                           parameter = list(normalize = "Z-score", k = 5),
                           type  = "ratings"
 )
 
+result_rating_svd <- evaluate(scheme, 
+                          method = "svd",
+                          parameter = list(normalize = "Z-score", k = 5),
+                          type  = "ratings"
+)
+
+result_rating_popular <- evaluate(scheme, 
+                          method = "popular",
+                          parameter = list(normalize = "Z-score"),
+                          type  = "ratings"
+)
+
+result_rating_random <- evaluate(scheme, 
+                          method = "random",
+                          parameter = list(normalize = "Z-score", k = 5),
+                          type  = "ratings"
+)
+
 # summarizing the mean of three performance measures from each fold
-result_rating@results %>% 
+result_rating_svdf@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+result_rating_svd@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+result_rating_popular@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+result_rating_random@results %>% 
   map(function(x) x@cm) %>% 
   unlist() %>% 
   matrix(ncol = 3, byrow = T) %>% 
@@ -105,48 +153,48 @@ result_rating@results %>%
 
 ### Comparing models
 # specifying the algorithms
-algorithms <- list(
-  "Random items" = list(name = "RANDOM"),
-  "Popular items" = list(name = "POPULAR"),
-  "SVD" = list(name = "SVD"),
-  "ALS" = list(name = "ALS"),
-  "item-based CF" = list(name = "IBCF"))
-
-### Running the algorithms
-result_error <- evaluate(scheme, 
-                         algorithms, 
-                         type  = "ratings"
-)
-
-### Visualizing the results
-get_error <- function(x){
-  x %>% 
-    map(function(x) x@cm) %>% 
-    unlist() %>% 
-    matrix(ncol = 3, byrow = T) %>% 
-    as.data.frame() %>% 
-    summarise_all(mean) %>% 
-    setNames(c("RMSE", "MSE", "MAE"))
-}
-
-result_error_svdf <- result_rating@results %>% 
-  get_error() %>% 
-  mutate(method = "Funk SVD")
-
-map2_df(.x = result_error@.Data, 
-        .y = c("Random", "Popular", "SVD", "ALS", "IBCF"), 
-        .f = function(x,y) x@results %>% get_error() %>% mutate(method = y)) %>% 
-  bind_rows(result_error_svdf) %>%
-  pivot_longer(-method) %>% 
-  mutate(method = tidytext::reorder_within(method, -value, name)) %>% 
-  ggplot(aes(y =  method, 
-             x =  value)) +
-  geom_segment(aes(x = 0, xend = value, yend = method)) +
-  geom_point(size = 2.5, color = "firebrick" ) +
-  tidytext::scale_y_reordered() +
-  labs(y = NULL, x = NULL, title = "Model Comparison") +
-  facet_wrap(~name, scales = "free_y") +
-  theme_minimal()
+# algorithms <- list(
+#   "Random items" = list(name = "RANDOM"),
+#   "Popular items" = list(name = "POPULAR"),
+#   "SVD" = list(name = "SVD"),
+#   "UBCF" = list(name = "UBCF"),
+#   "item-based CF" = list(name = "IBCF"))
+# 
+# ### Running the algorithms
+# result_error <- evaluate(scheme, 
+#                          algorithms, 
+#                          type  = "ratings"
+# )
+# 
+# ### Visualizing the results
+# get_error <- function(x){
+#   x %>% 
+#     map(function(x) x@cm) %>% 
+#     unlist() %>% 
+#     matrix(ncol = 3, byrow = T) %>% 
+#     as.data.frame() %>% 
+#     summarise_all(mean) %>% 
+#     setNames(c("RMSE", "MSE", "MAE"))
+# }
+# 
+# result_error_svdf <- result_rating@results %>% 
+#   get_error() %>% 
+#   mutate(method = "Funk SVD")
+# 
+# map2_df(.x = result_error@.Data, 
+#         .y = c("Random", "Popular", "SVD", "UBCF", "IBCF"), 
+#         .f = function(x,y) x@results %>% get_error() %>% mutate(method = y)) %>% 
+#   bind_rows(result_error_svdf) %>%
+#   pivot_longer(-method) %>% 
+#   mutate(method = tidytext::reorder_within(method, -value, name)) %>% 
+#   ggplot(aes(y =  method, 
+#              x =  value)) +
+#   geom_segment(aes(x = 0, xend = value, yend = method)) +
+#   geom_point(size = 2.5, color = "firebrick" ) +
+#   tidytext::scale_y_reordered() +
+#   labs(y = NULL, x = NULL, title = "Model Comparison") +
+#   facet_wrap(~name, scales = "free_y") +
+#   theme_minimal()
   
 # <This is where I reached> *
 
