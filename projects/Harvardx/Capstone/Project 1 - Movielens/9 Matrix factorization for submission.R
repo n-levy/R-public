@@ -94,7 +94,7 @@ result_rating <- evaluate(scheme,
                           type  = "ratings"
 )
 
-# summarize the mean of each performance measures from each fold
+# summarizing the mean of three performance measures from each fold
 result_rating@results %>% 
   map(function(x) x@cm) %>% 
   unlist() %>% 
@@ -102,6 +102,53 @@ result_rating@results %>%
   as.data.frame() %>% 
   summarise_all(mean) %>% 
   setNames(c("RMSE", "MSE", "MAE"))
+
+### Comparing models
+# specifying the algorithms
+algorithms <- list(
+  "Random items" = list(name = "RANDOM"),
+  "Popular items" = list(name = "POPULAR"),
+  "SVD" = list(name = "SVD"),
+  "ALS" = list(name = "ALS"),
+  "item-based CF" = list(name = "IBCF"))
+
+### Running the algorithms
+result_error <- evaluate(scheme, 
+                         algorithms, 
+                         type  = "ratings"
+)
+
+### Visualizing the results
+get_error <- function(x){
+  x %>% 
+    map(function(x) x@cm) %>% 
+    unlist() %>% 
+    matrix(ncol = 3, byrow = T) %>% 
+    as.data.frame() %>% 
+    summarise_all(mean) %>% 
+    setNames(c("RMSE", "MSE", "MAE"))
+}
+
+result_error_svdf <- result_rating@results %>% 
+  get_error() %>% 
+  mutate(method = "Funk SVD")
+
+map2_df(.x = result_error@.Data, 
+        .y = c("Random", "Popular", "SVD", "ALS", "IBCF"), 
+        .f = function(x,y) x@results %>% get_error() %>% mutate(method = y)) %>% 
+  bind_rows(result_error_svdf) %>%
+  pivot_longer(-method) %>% 
+  mutate(method = tidytext::reorder_within(method, -value, name)) %>% 
+  ggplot(aes(y =  method, 
+             x =  value)) +
+  geom_segment(aes(x = 0, xend = value, yend = method)) +
+  geom_point(size = 2.5, color = "firebrick" ) +
+  tidytext::scale_y_reordered() +
+  labs(y = NULL, x = NULL, title = "Model Comparison") +
+  facet_wrap(~name, scales = "free_y") +
+  theme_minimal()
+  
+# <This is where I reached> *
 
 # # converting the test set into a matrix
 # users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
