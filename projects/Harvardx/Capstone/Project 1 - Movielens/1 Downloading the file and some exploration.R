@@ -1,6 +1,6 @@
-##########################################################
-# Create edx set, validation set (final hold-out test set)
-##########################################################
+##############################################################
+# Create edx set, validation set (final hold-out test set) ###
+##############################################################
 
 # Note: this process could take a couple of minutes
 
