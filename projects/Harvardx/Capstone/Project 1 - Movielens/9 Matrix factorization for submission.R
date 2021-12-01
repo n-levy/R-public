@@ -11,10 +11,10 @@ library(dplyr)
 library(recommenderlab)
 library(Matrix)
 # library(BBmisc)
-library(DT)
-library(pander)
+# library(DT)
+# library(pander)
 
-# # loading the data files
+# # loading  data files
 setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 # # ratings<-readRDS("ratings")
 # # movies<-readRDS("movies")
@@ -23,63 +23,119 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 #  sub<-readRDS("sub")
 validation<-readRDS("validation")
 edx<-readRDS("edx")
-trainmat<-readRDS("trainmat")
-testmat<-readRDS("testmat")
-
+# trainmat<-readRDS("trainmat")
+# testmat<-readRDS("testmat")
 
 ### Preparing the data ###
-
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
+# Creating a sample of 0.1% of the training data, to try out the method #
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+sampling_rate<-0.01
+sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
+samp <- edx[sample_index,]
+
+# exploring the sample
+dim(samp)
+names(samp)
+head(samp)
+class(samp$userId)
+class(samp$movieId)
+class(samp$rating)
 
 # converting the training set into a matrix
-names(edx)
-users_and_ratings_training_set<-cbind.data.frame(edx$userId, edx$movieId, edx$rating)
+users_and_ratings_training_set<-cbind.data.frame(samp$userId, samp$movieId, samp$rating)
 dim(users_and_ratings_training_set)
+head(users_and_ratings_training_set)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat <- as(users_and_ratings_training_set, "realRatingMatrix")
-dim(trainmat)
+trainmat_full <- as(users_and_ratings_training_set, "realRatingMatrix")
+dim(trainmat_full)
 
-# removing items with less than 50 ratings, for regularization 
-trainmat_regularized <- trainmat[colCounts(trainmat) > 50]
+# removing items with less than a certain number ratings, for regularization 
+min_num_ratings<-30
+trainmat<- trainmat_full[colCounts(trainmat) > min_num_ratings]
+
+# exploring the matrix
+dim(trainmat)
+trainmat@data[1500:1510, 2001:2009]
+
+# normalizing the values
+normalize(trainmat, method = "Z-score")
 
 # saving
 saveRDS(trainmat, file="trainmat")
 
-# converting the test set into a matrix
-users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
-dim(users_and_ratings_test_set)
+# checking the initial/default parameters of the SVDF model
+recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
 
-# converting the matrix into a "realRatingMatrix")
-testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
-dim(testmat)
+# recommending
+# recom_svdf <- Recommender(data = trainmat,
+#                           method = "SVDF",
+#                           parameter = list(normalize = "Z-score")
+# )
 
-# saving
-saveRDS(testmat, file="testmat")
+# Evaluating the model by cross-validation
+set.seed(123)
 
-rm(users_and_ratings_training_set, users_and_ratings_test_set)
+# Setting up the evaluation scheme
+scheme <- trainmat %>% 
+  evaluationScheme(method = "split",
+                   train  = 0.9,  # 90% data train
+                   given  = -1,
+                   goodRating = 0
+  )
 
+scheme
+
+# measuring the rating error
+result_rating <- evaluate(scheme, 
+                          method = "svdf",
+                          parameter = list(normalize = "Z-score", k = 5),
+                          type  = "ratings"
+)
+
+# summarize the mean of each performance measures from each fold
+result_rating@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+# # converting the test set into a matrix
+# users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
+# dim(users_and_ratings_test_set)
+# 
+# # converting the matrix into a "realRatingMatrix")
+# testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
+# dim(testmat)
+# 
+# # saving
+# saveRDS(testmat, file="testmat")
+# 
+# rm(users_and_ratings_training_set, users_and_ratings_test_set)
+# 
 ### Matrix factorization of training matrix ###
 train <- as(trainmat_regularized, "matrix")
 
-# saving
-saveRDS(train, file="train")
+# exploring the matrix
+head(train)
+train@data[1:9, 2001:2009]
+
+# 
+# # saving
+# saveRDS(train, file="train")
 
 ### running Funk Singular Value Decomposition
 fsvd <- funkSVD(train, verbose = TRUE)
+class(fsvd)
 
 # saving
 saveRDS(fsvd, file="fsvd")
 
-# removing items with less than 50 ratings, for regularization 
-# reached here. the matrix should be bigger, I don't understand
-# why it has only 10 columns
-trainmat_regularized <- trainmat[colCounts(trainmat) > 100]
-minrowcnt <- min(rowCounts(trainmat))
-dim(trainmat_regularized)
 
-# saving
-saveRDS(trainmat_regularized, file="trainmat_regularized")
+
 
 
 ### preparingn for k-fold evaluation ###
@@ -117,3 +173,5 @@ rm(user_avgs)
 rm(movie_avgs, movie_reg_avgs)
 rm(testmat)
 rm(trainmat)
+
+# Source: https://rpubs.com/Argaadya/recommender-svdf
