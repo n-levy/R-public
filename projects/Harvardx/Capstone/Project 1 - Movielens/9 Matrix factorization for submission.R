@@ -14,6 +14,12 @@ library(Matrix)
 # library(DT)
 # library(pander)
 
+### Increasing memory
+# Checking memory limit
+memory.limit()
+# Change memory limit
+memory.limit(size = 10^9)
+
 # # loading  data files
 setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 # # ratings<-readRDS("ratings")
@@ -30,7 +36,7 @@ edx<-readRDS("edx")
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
 # Creating a sample of 0.1% of the training data, to try out the method #
 set.seed(123) 
-sampling_rate<-0.01
+sampling_rate<-1
 sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 samp <- edx[sample_index,]
 
@@ -89,19 +95,17 @@ scheme <- trainmat %>%
 
 scheme
 
-
-
 # saving
-# saveRDS(scheme, file="scheme")
+saveRDS(scheme, file="full_scheme")
 
 # measuring the rating error
-result_rating_svdf <- evaluate(scheme, 
-                          method = "svdf",
-                          parameter = list(normalize = "Z-score", k = 5),
-                          type  = "ratings"
-)
-
-result_rating_svd <- evaluate(scheme, 
+# result_rating_svdf <- evaluate(scheme, 
+#                           method = "svdf",
+#                           parameter = list(normalize = "Z-score", k = 5),
+#                           type  = "ratings"
+# )
+ 
+result_rating_svd <- evaluate(scheme,
                           method = "svd",
                           parameter = list(normalize = "Z-score", k = 1),
                           type  = "ratings"
@@ -110,12 +114,6 @@ result_rating_svd <- evaluate(scheme,
 result_rating_popular <- evaluate(scheme, 
                           method = "popular",
                           parameter = list(normalize = "Z-score"),
-                          type  = "ratings"
-)
-
-result_rating_random <- evaluate(scheme, 
-                          method = "random",
-                          parameter = list(normalize = "Z-score", k = 5),
                           type  = "ratings"
 )
 
@@ -144,31 +142,23 @@ result_rating_random <- evaluate(scheme,
 
 
 # summarizing the mean of three performance measures from each fold
-result_rating_svdf@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-result_rating_svd@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
+# result_rating_svdf@results %>% 
+#   map(function(x) x@cm) %>% 
+#   unlist() %>% 
+#   matrix(ncol = 3, byrow = T) %>% 
+#   as.data.frame() %>% 
+#   summarise_all(mean) %>% 
+#   setNames(c("RMSE", "MSE", "MAE"))
+# 
+# result_rating_svd@results %>% 
+#   map(function(x) x@cm) %>% 
+#   unlist() %>% 
+#   matrix(ncol = 3, byrow = T) %>% 
+#   as.data.frame() %>% 
+#   summarise_all(mean) %>% 
+#   setNames(c("RMSE", "MSE", "MAE"))
 
 result_rating_popular@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-result_rating_random@results %>% 
   map(function(x) x@cm) %>% 
   unlist() %>% 
   matrix(ncol = 3, byrow = T) %>% 
