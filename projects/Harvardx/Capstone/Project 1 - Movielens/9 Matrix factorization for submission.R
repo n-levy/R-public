@@ -14,6 +14,9 @@ library(Matrix)
 # library(DT)
 # library(pander)
 
+# Clearing unusued memory
+invisible(gc())
+
 ### Increasing memory
 # Checking memory limit
 memory.limit()
@@ -119,7 +122,7 @@ result_rating_popular <- evaluate(scheme,
 
 result_rating_als <- evaluate(scheme,
                                method = "als",
-                               parameter = list(normalize = "Z-score", k = 5),
+                               parameter = list(normalize = "Z-score"),
                                type  = "ratings"
 )
 
@@ -200,13 +203,13 @@ rmse_popular
 #   summarise_all(mean) %>% 
 #   setNames(c("RMSE", "MSE", "MAE"))
 
-result_rating_popular@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
+# result_rating_popular@results %>% 
+#   map(function(x) x@cm) %>% 
+#   unlist() %>% 
+#   matrix(ncol = 3, byrow = T) %>% 
+#   as.data.frame() %>% 
+#   summarise_all(mean) %>% 
+#   setNames(c("RMSE", "MSE", "MAE"))
 
 ### Comparing models
 # specifying the algorithms
@@ -325,6 +328,8 @@ rm(user_avgs)
 rm(movie_avgs, movie_reg_avgs)
 rm(testmat)
 rm(trainmat)
-
+rm(samp, scheme2, train, trainmat_full, trainmat_regularized, users_and_ratings_training_set)
+rm(algorithms, fsvd, rec, recom_svdf, result_rating, result_rating_random, sample_index, temp)
+rm(result_rating_popular)
 # Source 1: https://rpubs.com/Argaadya/recommender-svdf
 # Source 2: https://mono33.github.io/MovieLensProject/
