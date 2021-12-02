@@ -14,7 +14,7 @@ library(irlba)
 library(recommenderlab)
 library(SlopeOne)
 library(recosystem)
-library(h2o)
+# library(h2o)
 
 # data exploration
 class(edx)

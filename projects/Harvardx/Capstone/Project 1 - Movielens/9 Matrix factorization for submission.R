@@ -31,6 +31,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
+rm(movielens, movies, ratings, removed, temp, test_index, validation)
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -96,7 +97,7 @@ scheme <- trainmat %>%
 scheme
 
 # saving
-saveRDS(scheme, file="full_scheme")
+saveRDS(scheme, file="scheme")
 
 # measuring the rating error
 result_rating_svdf <- evaluate(scheme,
@@ -125,6 +126,16 @@ result_rating_als <- evaluate(scheme,
 
 
 ###############################################################################
+
+result_rating_popular@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+
 # Alternative method
 #Calculation of rmse for popular method 
 set.seed(123)
