@@ -17,7 +17,7 @@ library(recosystem)
 # library(h2o)
 
 # # loading  data files
-# setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 # # ratings<-readRDS("ratings")
 # # movies<-readRDS("movies")
 # # movielens<-readRDS("movielens")
@@ -32,7 +32,7 @@ edx<-readRDS("edx")
 
 #clear unusued memory and increase memory limit
 invisible(gc())
-# invisible(memory.limit(size = 56000))
+invisible(memory.limit(size = 56000))
 
 #c. Matrix Factorization with parallel stochastic gradient descent
 
@@ -61,8 +61,8 @@ write.table(valid.copy, file = "validset.txt" , sep = " " , row.names = FALSE, c
 #  data_file(): Specifies a data set from a file in the hard disk. 
 
 set.seed(123) # This is a randomized algorithm
-train_set <- data_file(system.file("dat", "trainset.txt" , package = "recosystem"))
-valid_set <- data_file(system.file("dat", "validset.txt" , package = "recosystem"))
+# train_set <- system.file("dat", "trainset.txt" , package = "recosystem")
+# valid_set <- system.file("dat", "validset.txt" , package = "recosystem")
 
 train_set <- data_file(system.file("dat", "trainset.txt" , package = "recosystem"))
 valid_set <- data_file(system.file("dat", "validset.txt" , package = "recosystem"))
