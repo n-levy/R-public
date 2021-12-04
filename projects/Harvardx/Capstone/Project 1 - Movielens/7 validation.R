@@ -17,6 +17,7 @@ library(Matrix)
 # cleaning the environment
 # rm(list = ls())
 rm(edx, result_rating_svdf_10, samp, scheme_10, testmat_full, users_and_ratings_test_set)
+rm(rec)
 
 ### Increasing memory
 # Checking memory limit
@@ -26,6 +27,10 @@ rm(edx, result_rating_svdf_10, samp, scheme_10, testmat_full, users_and_ratings_
 
 # cleaning memory
 invisible(gc())
+
+# # loading  data files
+# setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+ # rec<-readRDS("rec")
 
 # converting the testing set into a matrix
 users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
@@ -63,61 +68,25 @@ dim(testmat)
 # Evaluating the model by cross-validation
 set.seed(123, sample.kind="Rounding")
 
-# Setting up the evaluation scheme
-scheme_test <- testmat %>% 
-  evaluationScheme(method = "split",
-                   k=1,
-                   test  = 0.9,  # 90% data test
-                   given  = -8,
-                   goodRating = 3
-  )
 
-scheme_10
+recomendations <- Recommender(trainmat, method = "svdf")
 
 # saving
-saveRDS(scheme_10, file="scheme_10")
+saveRDS(rec, file="rec")
 
-# measuring the rating error
-result_rating_svdf_10 <- evaluate(scheme_10,
-                                  method = "svdf",
-                                  parameter = list(normalize = "Z-score", k = 5),
-                                  type  = "ratings"
-)
+#Making prediction on validation set:
+predictions <- predict(rec, testmat, type="ratings")
 
-# saving 
-saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+predmat<-predict(testmat, out_file(pred_file)) 
 
+# creating a prediction matrix
+as(predmat, "matrix")
 
-result_rating_svd <- evaluate(scheme,
-                              method = "svd",
-                              parameter = list(normalize = "Z-score", k = 5),
-                              type  = "ratings"
-)
+# calculating RMSE
+RMSE(testmat, predmat)
 
+#####
 
-result_rating_popular <- evaluate(scheme, 
-                                  method = "popular",
-                                  parameter = list(normalize = "Z-score"),
-                                  type  = "ratings"
-)
-
-result_rating_als <- evaluate(scheme,
-                              method = "als",
-                              parameter = list(normalize = "Z-score", k = 5),
-                              type  = "ratings"
-)
-
-
-result_rating_svdf_10@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-# items_to_recommend<-10
-# UBCF_prediction <- predict(object = testmat, newdata = testmat, n = items_to_recommend, 
-#                              type = "ratings")
 rm(edx)
 rm(users_and_ratings)
 rm(validation)
