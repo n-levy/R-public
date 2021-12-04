@@ -69,8 +69,11 @@ trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
 dim(trainmat_reduced)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat_reduced <- as(users_and_ratings_training_set, "realRatingMatrix")
-dim(trainmat_full)
+trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
+dim(trainmat_reduced)
+
+# saving
+saveRDS(trainmat_reduced, file="trainmat_reduced")
 
 # class(trainmat)
 
@@ -81,20 +84,23 @@ print(min_n_movies)
 min_n_users <- quantile(colCounts(trainmat_full), 0.9)
 print(min_n_users)
 
-trainmat <- trainmat_full[rowCounts(trainmat_full) > min_n_movies,
-                          colCounts(trainmat_full) > min_n_users]
+trainmat_final <- trainmat_reduced[colCounts(trainmat_full) > min_n_users,]
+dim(trainmat_final)
 
-dim(trainmat_full)
-dim(trainmat)
+# saving
+saveRDS(trainmat_final, file="trainmat_final")
+
+# trainmat <- trainmat_full[rowCounts(trainmat_full) > min_n_movies,
+#                           colCounts(trainmat_full) > min_n_users]
 
 # checking number of ratings per item
-number_of_ratings<-colCounts(trainmat)
+number_of_ratings<-colCounts(trainmat_final)
 min(number_of_ratings)
 max(number_of_ratings)
 
 # exploring the matrix
-dim(trainmat)
-# trainmat@data[1500:1510, 2001:2009]
+dim(trainmat_final)
+trainmat_final@data[1500:1510, 2001:2009]
 
 # normalizing the values
 # normalize(trainmat, method = "Z-score")
@@ -115,7 +121,7 @@ dim(trainmat)
 set.seed(123, sample.kind="Rounding")
 
 # Setting up the evaluation scheme
-scheme_10 <- trainmat %>% 
+scheme <- trainmat_final %>% 
   evaluationScheme(method = "split",
                    k=1,
                    train  = 0.9,  # 90% data train
@@ -123,10 +129,10 @@ scheme_10 <- trainmat %>%
                    goodRating = 3
   )
 
-scheme_10
+scheme
 
 # saving
-saveRDS(scheme_10, file="scheme_10")
+saveRDS(scheme, file="scheme")
 
 # measuring the rating error
 result_rating_svdf_10 <- evaluate(scheme_10,
@@ -139,24 +145,24 @@ result_rating_svdf_10 <- evaluate(scheme_10,
 saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
 
 
-result_rating_svd <- evaluate(scheme,
-                              method = "svd",
-                              parameter = list(normalize = "Z-score", k = 5),
-                              type  = "ratings"
-)
-
-
-result_rating_popular <- evaluate(scheme, 
-                                  method = "popular",
-                                  parameter = list(normalize = "Z-score"),
-                                  type  = "ratings"
-)
-
-result_rating_als <- evaluate(scheme,
-                              method = "als",
-                              parameter = list(normalize = "Z-score", k = 5),
-                              type  = "ratings"
-)
+# result_rating_svd <- evaluate(scheme,
+#                               method = "svd",
+#                               parameter = list(normalize = "Z-score", k = 5),
+#                               type  = "ratings"
+# )
+# 
+# 
+# result_rating_popular <- evaluate(scheme, 
+#                                   method = "popular",
+#                                   parameter = list(normalize = "Z-score"),
+#                                   type  = "ratings"
+# )
+# 
+# result_rating_als <- evaluate(scheme,
+#                               method = "als",
+#                               parameter = list(normalize = "Z-score", k = 5),
+#                               type  = "ratings"
+# )
 
 
 result_rating_svdf_10@results %>% 
