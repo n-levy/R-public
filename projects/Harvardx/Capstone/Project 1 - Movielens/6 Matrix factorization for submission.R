@@ -78,11 +78,11 @@ saveRDS(trainmat_reduced, file="trainmat_reduced")
 # class(trainmat)
 
 # removing items with few ratings because of low confidence in these ratings
-min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
-print(min_n_movies)
+# min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
+# print(min_n_movies)
 
-min_n_users <- quantile(colCounts(trainmat_full), 0.9)
-print(min_n_users)
+min_n_users <- quantile(colCounts(trainmat_full), 0.95)
+min_n_users
 
 trainmat_final <- trainmat_reduced[colCounts(trainmat_full) > min_n_users,]
 dim(trainmat_final)
@@ -135,14 +135,14 @@ scheme
 saveRDS(scheme, file="scheme")
 
 # measuring the rating error
-result_rating_svdf_10 <- evaluate(scheme_10,
+result_rating_svdf <- evaluate(scheme,
                                   method = "svdf",
                                   parameter = list(normalize = "Z-score", k = 5),
                                   type  = "ratings"
 )
 
 # saving 
-saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+saveRDS(result_rating_svdf, file="result_rating_svdf_10")
 
 
 # result_rating_svd <- evaluate(scheme,
@@ -165,7 +165,7 @@ saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
 # )
 
 
-result_rating_svdf_10@results %>% 
+result_rating_svdf@results %>% 
   map(function(x) x@cm) %>% 
   unlist() %>% 
   matrix(ncol = 3, byrow = T) %>% 

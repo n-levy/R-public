@@ -31,7 +31,7 @@ invisible(gc())
 # # loading  data files
 # setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
  # rec<-readRDS("rec")
-edx<-readRDS("edx")
+# edx<-readRDS("edx")
 
 # converting the testing set into a matrix
 users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
@@ -68,23 +68,26 @@ dim(testmat)
 # Evaluating the model by cross-validation
 set.seed(123, sample.kind="Rounding")
 
-
-recomendations <- Recommender(trainmat, method = "svdf")
-recomendations
+recommendations <- Recommender(trainmat_final, method = "svdf")
+recommendations
 
 # saving
-saveRDS(rec, file="rec")
+saveRDS(rec, file="recommendations")
 
 #Making prediction on validation set:
 predictions <- predict(recomendations, testmat, type="ratings")
+predictions
 
-predmat<-predict(testmat, out_file(pred_file)) 
+class(predictions)
+# saving
+saveRDS(predictions, file="predictions")
 
-# creating a prediction matrix
-as(predmat, "matrix")
+# turning the results into a matrix
+predmat<-as(predictions, "matrix")
+class(predmat)
 
 # calculating RMSE
-RMSE(testmat, predmat)
+RMSE(testmat, predictions, na.rm=T)
 
 #####
 
