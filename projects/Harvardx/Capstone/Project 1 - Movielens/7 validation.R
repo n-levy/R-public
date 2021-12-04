@@ -31,13 +31,13 @@ invisible(gc())
 # # loading  data files
 # setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
  # rec<-readRDS("rec")
+edx<-readRDS("edx")
 
 # converting the testing set into a matrix
 users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
 dim(users_and_ratings_test_set)
 # head(users_and_ratings_test_set)
 
-# converting the matrix into a "realRatingMatrix")
 testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
 dim(testmat)
 
@@ -70,12 +70,13 @@ set.seed(123, sample.kind="Rounding")
 
 
 recomendations <- Recommender(trainmat, method = "svdf")
+recomendations
 
 # saving
 saveRDS(rec, file="rec")
 
 #Making prediction on validation set:
-predictions <- predict(rec, testmat, type="ratings")
+predictions <- predict(recomendations, testmat, type="ratings")
 
 predmat<-predict(testmat, out_file(pred_file)) 
 

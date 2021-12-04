@@ -56,13 +56,20 @@ samp<-edx
 # class(samp$movieId)
 # class(samp$rating)
 
+# removing movies in the training set that do not appear in the test set
+edx_reduced <- edx %>% 
+  semi_join(validation, by = "movieId") 
+
 # converting the training set into a matrix
-users_and_ratings_training_set<-cbind.data.frame(samp$userId, samp$movieId, samp$rating)
-dim(users_and_ratings_training_set)
-# head(users_and_ratings_training_set)
+users_and_ratings_train_set<-cbind.data.frame(edx_reduced$userId, edx_reduced$movieId, edx_reduced$rating)
+dim(users_and_ratings_train_set)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat_full <- as(users_and_ratings_training_set, "realRatingMatrix")
+trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
+dim(trainmat_reduced)
+
+# converting the matrix into a "realRatingMatrix")
+trainmat_reduced <- as(users_and_ratings_training_set, "realRatingMatrix")
 dim(trainmat_full)
 
 # class(trainmat)
