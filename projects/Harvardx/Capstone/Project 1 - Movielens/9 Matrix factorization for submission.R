@@ -5,7 +5,7 @@
 ### Loading libraries ###
 library(tidyverse)
 library(caret)
-library(data.table)
+# library(data.table)
 library(dplyr)
 # library(kableExtra)
 library(recommenderlab)
@@ -14,14 +14,20 @@ library(Matrix)
 # library(DT)
 # library(pander)
 
+# cleaning the environment
+# rm(list = ls())
+
 ### Increasing memory
 # Checking memory limit
-memory.limit()
+# memory.limit()
 # Change memory limit
-memory.limit(size = 10^9)
+# memory.limit(size = 10^9)
+
+# cleaning memory
+invisible(gc())
 
 # # loading  data files
-setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+# setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 # # ratings<-readRDS("ratings")
 # # movies<-readRDS("movies")
 # # movielens<-readRDS("movielens")
@@ -31,6 +37,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
+# scheme_10<-readRDS("scheme_10")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -38,7 +45,8 @@ edx<-readRDS("edx")
 set.seed(123) 
 sampling_rate<-1
 sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
-samp <- edx[sample_index,]
+# samp <- edx[sample_index,]
+samp<-edx
 
 # exploring the sample
 # dim(samp)
@@ -54,20 +62,35 @@ dim(users_and_ratings_training_set)
 # head(users_and_ratings_training_set)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat <- as(users_and_ratings_training_set, "realRatingMatrix")
-dim(trainmat)
-class(trainmat)
+trainmat_full <- as(users_and_ratings_training_set, "realRatingMatrix")
+dim(trainmat_full)
 
-# removing items with less than a certain number ratings, for regularization 
-min_num_ratings<-30
-trainmat<- trainmat[colCounts(trainmat) > min_num_ratings]
+# class(trainmat)
+
+# removing items with few ratings because of low confidence in these ratings
+min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
+print(min_n_movies)
+
+min_n_users <- quantile(colCounts(trainmat_full), 0.9)
+print(min_n_users)
+
+trainmat <- trainmat_full[rowCounts(trainmat_full) > min_n_movies,
+                          colCounts(trainmat_full) > min_n_users]
+
+dim(trainmat_full)
+dim(trainmat)
+
+# checking number of ratings per item
+number_of_ratings<-colCounts(trainmat)
+min(number_of_ratings)
+max(number_of_ratings)
 
 # exploring the matrix
 dim(trainmat)
 # trainmat@data[1500:1510, 2001:2009]
 
 # normalizing the values
-normalize(trainmat, method = "Z-score")
+# normalize(trainmat, method = "Z-score")
 
 # saving
 # saveRDS(trainmat, file="trainmat")
@@ -82,40 +105,104 @@ normalize(trainmat, method = "Z-score")
 # )
 
 # Evaluating the model by cross-validation
-set.seed(123)
+set.seed(123, sample.kind="Rounding")
 
 # Setting up the evaluation scheme
-scheme <- trainmat %>% 
+scheme_10 <- trainmat %>% 
   evaluationScheme(method = "split",
                    k=1,
                    train  = 0.9,  # 90% data train
-                   given  = -1,
-                   goodRating = 0
+                   given  = -8,
+                   goodRating = 3
   )
 
-scheme
+scheme_10
 
 # saving
-saveRDS(scheme, file="full_scheme")
+saveRDS(scheme_10, file="scheme_10")
 
 # measuring the rating error
-# result_rating_svdf <- evaluate(scheme, 
-#                           method = "svdf",
-#                           parameter = list(normalize = "Z-score", k = 5),
-#                           type  = "ratings"
-# )
+result_rating_svdf_10 <- evaluate(scheme_10,
+                                  method = "svdf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+# saving 
+saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+
 
 result_rating_svd <- evaluate(scheme,
                               method = "svd",
-                              parameter = list(normalize = "Z-score", k = 1),
+                              parameter = list(normalize = "Z-score", k = 5),
                               type  = "ratings"
 )
+
 
 result_rating_popular <- evaluate(scheme, 
                                   method = "popular",
                                   parameter = list(normalize = "Z-score"),
                                   type  = "ratings"
 )
+
+result_rating_als <- evaluate(scheme,
+                              method = "als",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
+
+
+###############################################################################
+
+result_rating_svdf_10@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+result_rating_popular@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+# Alternative method
+#Calculation of rmse for popular method 
+set.seed(123)
+# a. POPULAR , UBCF and IBCF algorithms of the recommenderlab package
+
+model_pop <- Recommender(ratings_movies, method = "POPULAR", 
+                         param=list(normalize = "center"))
+
+#prediction example on the first 10 users
+pred_pop <- predict(model_pop, ratings_movies[1:10], type="ratings")
+as(pred_pop, "matrix")[,1:10]
+
+#Calculation of rmse for popular method 
+set.seed(1)
+e <- evaluationScheme(ratings_movies, method="split", train=0.7, given=-5)
+#5 ratings of 30% of users are excluded for testing
+
+model_pop <- Recommender(getData(e, "train"), "POPULAR")
+
+prediction_pop <- predict(model_pop, getData(e, "known"), type="ratings")
+
+rmse_popular <- calcPredictionAccuracy(prediction_pop, getData(e, "unknown"))[1]
+rmse_popular
+
+e <- evaluationScheme(trainmat, method="split", train=0.7, given=-5)
+#5 ratings of 30% of users are excluded for testing
+
+model_pop <- Recommender(getData(e, "train"), "POPULAR")
+
+prediction_pop <- predict(model_pop, getData(e, "known"), type="ratings")
+
+rmse_popular <- calcPredictionAccuracy(prediction_pop, getData(e, "unknown"))[1]
+rmse_popular
 
 # # Trying without normalization, see if the RMSE changes
 # 
@@ -245,9 +332,6 @@ class(fsvd)
 saveRDS(fsvd, file="fsvd")
 
 
-
-
-
 ### preparingn for k-fold evaluation ###
 set.seed(123)
 
@@ -282,6 +366,10 @@ rm(validation)
 rm(user_avgs)
 rm(movie_avgs, movie_reg_avgs)
 rm(testmat)
-rm(trainmat)
+rm(trainmat_full)
+rm(samp)
+rm(users_and_ratings_training_set)
+# rm(list = ls())
 
-# Source: https://rpubs.com/Argaadya/recommender-svdf
+# Source 1: https://rpubs.com/Argaadya/recommender-svdf
+# Source 2: https://mono33.github.io/MovieLensProject/
