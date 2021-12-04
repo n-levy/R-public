@@ -31,6 +31,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
+rm(movielens, movies, ratings, removed, temp, test_index, validation)
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -58,9 +59,9 @@ trainmat <- as(users_and_ratings_training_set, "realRatingMatrix")
 dim(trainmat)
 class(trainmat)
 
-# removing items with less than a certain number ratings, for regularization 
-min_num_ratings<-30
-trainmat<- trainmat[colCounts(trainmat) > min_num_ratings]
+# removing items with few ratings because of low confidence in these ratings
+# min_num_ratings<-30
+# trainmat<- trainmat[colCounts(trainmat) > min_num_ratings]
 
 # exploring the matrix
 dim(trainmat)
@@ -96,26 +97,78 @@ scheme <- trainmat %>%
 scheme
 
 # saving
-saveRDS(scheme, file="full_scheme")
+saveRDS(scheme, file="scheme")
 
 # measuring the rating error
-# result_rating_svdf <- evaluate(scheme, 
-#                           method = "svdf",
-#                           parameter = list(normalize = "Z-score", k = 5),
-#                           type  = "ratings"
-# )
- 
-result_rating_svd <- evaluate(scheme,
-                          method = "svd",
-                          parameter = list(normalize = "Z-score", k = 1),
+result_rating_svdf <- evaluate(scheme,
+                          method = "svdf",
+                          parameter = list(normalize = "Z-score", k = 5),
                           type  = "ratings"
 )
+ 
+# result_rating_svd <- evaluate(scheme,
+#                           method = "svd",
+#                           parameter = list(normalize = "Z-score", k = 1),
+#                           type  = "ratings"
+# )
 
 result_rating_popular <- evaluate(scheme, 
                           method = "popular",
                           parameter = list(normalize = "Z-score"),
                           type  = "ratings"
 )
+
+result_rating_als <- evaluate(scheme,
+                               method = "als",
+                               parameter = list(normalize = "Z-score", k = 5),
+                               type  = "ratings"
+)
+
+
+###############################################################################
+
+result_rating_popular@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+
+# Alternative method
+#Calculation of rmse for popular method 
+set.seed(123)
+# a. POPULAR , UBCF and IBCF algorithms of the recommenderlab package
+
+model_pop <- Recommender(ratings_movies, method = "POPULAR", 
+                         param=list(normalize = "center"))
+
+#prediction example on the first 10 users
+pred_pop <- predict(model_pop, ratings_movies[1:10], type="ratings")
+as(pred_pop, "matrix")[,1:10]
+
+#Calculation of rmse for popular method 
+set.seed(1)
+e <- evaluationScheme(ratings_movies, method="split", train=0.7, given=-5)
+#5 ratings of 30% of users are excluded for testing
+
+model_pop <- Recommender(getData(e, "train"), "POPULAR")
+
+prediction_pop <- predict(model_pop, getData(e, "known"), type="ratings")
+
+rmse_popular <- calcPredictionAccuracy(prediction_pop, getData(e, "unknown"))[1]
+rmse_popular
+
+e <- evaluationScheme(trainmat, method="split", train=0.7, given=-5)
+#5 ratings of 30% of users are excluded for testing
+
+model_pop <- Recommender(getData(e, "train"), "POPULAR")
+
+prediction_pop <- predict(model_pop, getData(e, "known"), type="ratings")
+
+rmse_popular <- calcPredictionAccuracy(prediction_pop, getData(e, "unknown"))[1]
+rmse_popular
 
 # # Trying without normalization, see if the RMSE changes
 # 
@@ -284,4 +337,5 @@ rm(movie_avgs, movie_reg_avgs)
 rm(testmat)
 rm(trainmat)
 
-# Source: https://rpubs.com/Argaadya/recommender-svdf
+# Source 1: https://rpubs.com/Argaadya/recommender-svdf
+# Source 2: https://mono33.github.io/MovieLensProject/
