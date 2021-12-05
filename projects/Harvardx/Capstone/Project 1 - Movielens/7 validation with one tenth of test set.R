@@ -33,14 +33,16 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # movielens<-readRDS("movielens")
 # core<-readRDS("core")
 # sub<-readRDS("sub")
-validation<-readRDS("validation")
+# validation<-readRDS("validation")
 # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 # trainmat_reduced<-readRDS("trainmat_reduced")
-trainmat_final_10<-readRDS("trainmat_final_10")
+# trainmat_final_10<-readRDS("trainmat_final_10")
+recommendations_svdf_10<-readRDS("recommendations_svdf_10")
+recommendations_pop_10<-readRDS("recommendations_pop_10")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -261,6 +263,26 @@ dim(testmat)
 # saving
 saveRDS(testmat, file="testmat")
 
+# creating tenths of the testmat file
+dim(testmat)
+index<-seq(1:nrow(testmat))
+length(index)
+
+# splitting index into 10 equal parts
+splitted_index<-split(index,             # Applying split() function
+      cut(seq_along(index),
+          10,
+          labels = FALSE))
+splitted_index
+
+first_tenth<-as.vector(splitted_index[[1]])
+length(first_tenth)
+nrow(testmat)
+
+testmat_first<-testmat[first_tenth]
+dim(testmat_first)
+dim(testmat)
+
 # checking the initial/default parameters of the SVDF model
 # recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
 
@@ -274,6 +296,8 @@ Sys.time()
 
 # Creating the recommendations
 
+############   popular    #################
+
 Sys.time()
 
 recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
@@ -282,8 +306,26 @@ recommendations_pop_10
 Sys.time()
 
 # saving
-saveRDS(recommendations_pop, file="recommendations_pop")
+saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
+#Making prediction on validation set:
+predictions_pop_10 <- predict(recommendations_pop_10, testmat_first, type="ratings")
+predictions_pop_10
+
+Sys.time()
+
+class(predictions)
+
+# saving
+saveRDS(predictions, file="predictions")
+
+# turning the results into a matrix
+predmat<-as(predictions, "matrix")
+class(predmat)
+
+# calculating RMSE
+rmse_pop<-RMSE(testmat, predmat, na.rm=T)
+rmse_pop
 
 ############   svdf    #################
 
@@ -299,7 +341,7 @@ saveRDS(recommendations_svdf_10, file="recommendations_svdf_10")
 Sys.time()
 
 #Making prediction on validation set:
-predictions_svdf_10 <- predict(recommendations_svdf_10, testmat, type="ratings")
+predictions_svdf_10 <- predict(recommendations_svdf_10, testmat_first, type="ratings")
 predictions_svdf_10
 
 Sys.time()
