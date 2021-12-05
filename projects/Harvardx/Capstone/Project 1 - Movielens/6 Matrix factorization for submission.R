@@ -82,7 +82,7 @@ saveRDS(trainmat_reduced, file="trainmat_reduced")
 # min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
 # print(min_n_movies)
 
-min_n_users <- quantile(colCounts(trainmat_reduced), 0.9)
+min_n_users <- quantile(colCounts(trainmat_reduced), 0.99)
 min_n_users
 
 trainmat_final <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
@@ -268,16 +268,22 @@ saveRDS(testmat, file="testmat")
 #                           parameter = list(normalize = "Z-score")
 # )
 
+Sys.time()
+
 # Creating the recommendations
 recommendations <- Recommender(trainmat_final, method = "svdf")
 recommendations
+
+Sys.time()
 
 # saving
 saveRDS(recommendations, file="recommendations")
 
 #Making prediction on validation set:
-predictions <- predict(recomendations, testmat, type="ratings")
+predictions <- predict(recommendations, testmat, type="ratings")
 predictions
+
+Sys.time()
 
 class(predictions)
 
@@ -289,7 +295,7 @@ predmat<-as(predictions, "matrix")
 class(predmat)
 
 # calculating RMSE
-rmse_svdf<-RMSE(testmat, predictions, na.rm=T)
+rmse_svdf<-RMSE(testmat, predmat, na.rm=T)
 rmse_svdf
 
 ### end of script ###
