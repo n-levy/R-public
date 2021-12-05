@@ -34,12 +34,14 @@ invisible(gc())
 # core<-readRDS("core")
 # sub<-readRDS("sub")
 validation<-readRDS("validation")
- edx<-readRDS("edx")
+edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 trainmat_reduced<-readRDS("trainmat_reduced")
+recommendations_pop_10<-readRDS("recommendations_pop_10")
+testmat<-readRDS("testmat")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -76,6 +78,9 @@ dim(trainmat_reduced)
 
 # saving
 saveRDS(trainmat_reduced, file="trainmat_reduced")
+
+# removing unnecessary files
+rm(edx, edx_reduced, users_and_ratings_train_set)
 
 # class(trainmat)
 
@@ -132,7 +137,8 @@ scheme_10 <- trainmat_final_10 %>%
   )
 
 # scheme
-scheme_10<-scheme
+scheme_10
+
 # saving
 saveRDS(scheme_10, file="scheme_10")
 
@@ -281,7 +287,7 @@ recommendations_pop_10
 Sys.time()
 
 # saving
-saveRDS(recommendations_pop, file="recommendations_pop")
+saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
 Sys.time()
 
@@ -295,7 +301,7 @@ recommendations_svdf_10<-recommendations_svdf
 Sys.time()
 
 #Making prediction on validation set:
-predictions_10 <- predict(recommendations_svdf_10, testmat, type="ratings")
+predictions_pop_10 <- predict(recommendations_pop_10, testmat, type="ratings")
 predictions
 
 Sys.time()
@@ -303,7 +309,7 @@ Sys.time()
 class(predictions)
 
 # saving
-saveRDS(predictions, file="predictions")
+saveRDS(predictions_pop_10, file="predictions")
 
 # turning the results into a matrix
 predmat<-as(predictions, "matrix")
