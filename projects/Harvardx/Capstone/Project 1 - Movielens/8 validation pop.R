@@ -39,9 +39,11 @@ edx<-readRDS("edx")
 # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
-trainmat_reduced<-readRDS("trainmat_reduced")
+# trainmat_reduced<-readRDS("trainmat_reduced")
 recommendations_pop_10<-readRDS("recommendations_pop_10")
 testmat<-readRDS("testmat")
+
+rm(result_rating_svdf_10, scheme_10, trainmat, trainmat_reduced)
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
