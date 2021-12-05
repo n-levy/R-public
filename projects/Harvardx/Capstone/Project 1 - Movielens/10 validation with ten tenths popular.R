@@ -36,7 +36,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # validation<-readRDS("validation")
 # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
-# testmat<-readRDS("testmat")
+ # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 # trainmat_reduced<-readRDS("trainmat_reduced")
@@ -46,6 +46,7 @@ recommendations_pop_10<-readRDS("recommendations_pop_10")
 predictions_pop_10_1<-readRDS("predictions_pop_10_1")
 predictions_pop_10_2<-readRDS("predictions_pop_10_2")
 predictions_pop_10_3<-readRDS("predictions_pop_10_3")
+
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -69,6 +70,12 @@ predictions_pop_10_3<-readRDS("predictions_pop_10_3")
 ##################### Test Set ###################################################
 ##################################################################################
 
+# splitting index into 10 equal parts
+splitted_index<-split(index,             # Applying split() function
+                      cut(seq_along(index),
+                          10,
+                          labels = FALSE))
+
 tenth_1<-as.vector(splitted_index[[1]])
 tenth_2<-as.vector(splitted_index[[2]])
 tenth_3<-as.vector(splitted_index[[3]])
@@ -88,16 +95,21 @@ tenth_10<-as.vector(splitted_index[[10]])
 # nrow(testmat)
 
 # splitting the test set into ten parts
-testmat_1<-testmat[tenth_1]
-testmat_2<-testmat[tenth_2]
-testmat_3<-testmat[tenth_3]
-testmat_4<-testmat[tenth_4]
-testmat_5<-testmat[tenth_5]
-testmat_6<-testmat[tenth_6]
-testmat_7<-testmat[tenth_7]
-testmat_8<-testmat[tenth_8]
-testmat_9<-testmat[tenth_9]
-testmat_10<-testmat[tenth_10]
+testmat_10_1<-testmat[tenth_1]
+testmat_10_2<-testmat[tenth_2]
+testmat_10_3<-testmat[tenth_3]
+testmat_10_4<-testmat[tenth_4]
+testmat_10_5<-testmat[tenth_5]
+testmat_10_6<-testmat[tenth_6]
+testmat_10_7<-testmat[tenth_7]
+testmat_10_8<-testmat[tenth_8]
+testmat_10_9<-testmat[tenth_9]
+testmat_10_10<-testmat[tenth_10]
+
+# removing unnecessary files from the workspace
+rm(tenth_1, tenth_2, tenth_3, tenth_4, tenth_5)
+rm(tenth_6, tenth_7, tenth_8, tenth_9, tenth_10)
+
 
 # examining the tenths
 # dim(testmat_1)
@@ -199,75 +211,33 @@ rm(predictions_pop_10_10, predmat_pop_10_10)
 dim(testmat_first)
 testmat_first
 
-
-
 # examining the matrices
 testmat_first[1000:1100, 2000:2100]
 
 # turning testmats into a matrices
-testmat_10_1_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_1_matrix, file="testmat_1_matrix")
-rm(testmat_10_1_matrix)
+testmat_10_1_matrix<-as(testmat_10_1, "matrix")
+testmat_10_2_matrix<-as(testmat_10_2, "matrix")
+testmat_10_3_matrix<-as(testmat_10_3, "matrix")
+testmat_10_4_matrix<-as(testmat_10_4, "matrix")
+testmat_10_5_matrix<-as(testmat_10_5, "matrix")
+testmat_10_6_matrix<-as(testmat_10_6, "matrix")
+testmat_10_7_matrix<-as(testmat_10_7, "matrix")
+testmat_10_8_matrix<-as(testmat_10_8, "matrix")
+testmat_10_9_matrix<-as(testmat_10_9, "matrix")
+testmat_10_10_matrix<-as(testmat_10_10, "matrix")
 
-testmat_10_2_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_2_matrix, file="testmat_1_matrix")
-rm(testmat_10_2_matrix)
+# removing unnecessary files from the workspace
+rm(testmat_10_1, testmat_10_2, testmat_10_3, testmat_10_4, testmat_10_5)
+rm(testmat_10_6, testmat_10_7, testmat_10_8, testmat_10_9, testmat_10_10)
+rm(splitted_index, testmat)
 
-testmat_10_3_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_3_matrix, file="testmat_1_matrix")
-rm(testmat_10_3_matrix)
-
-testmat_10_4_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_4_matrix, file="testmat_1_matrix")
-rm(testmat_10_4_matrix)
-
-testmat_10_5_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_5_matrix, file="testmat_1_matrix")
-rm(testmat_10_5_matrix)
-
-testmat_10_6_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_6_matrix, file="testmat_1_matrix")
-rm(testmat_10_6_matrix)
-
-testmat_10_7_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_7_matrix, file="testmat_1_matrix")
-rm(testmat_10_7_matrix)
-
-testmat_10_8_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_8_matrix, file="testmat_1_matrix")
-rm(testmat_10_8_matrix)
-
-testmat_10_9_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_9_matrix, file="testmat_1_matrix")
-rm(testmat_10_9_matrix)
-
-testmat_10_10_matrix<-as(testmat_1, "matrix")
-saveRDS(testmat_10_10_matrix, file="testmat_1_matrix")
-rm(testmat_10_10_matrix)
-rm(testmat_1,testmat_2,testmat_3,testmat_4)
-rm(testmat_5,testmat_6,testmat_7,testmat_8)
-rm(testmat_9,testmat_10)
-
-### creating matrices of the differences between the predictions and the real values
-predmat_pop_10_1<-readRDS("predmat_pop_10_1")
-testmat_1_matrix<-readRDS("testmat_1_matrix")
-predictions_pop_10_1
-diffmat_10_1<-testmat_1_matrix-predmat_pop_10_1
-rm(testmat_1_matrix, predmat_pop_10_1)
-
-predmat_pop_10_2<-readRDS("predmat_pop_10_2")
-predictions_pop_10_2
-diffmat_1<-testmat_1_matrix-predmat_pop_10_2
-rm(testmat_1_matrix, predmat_pop_10_2)
+# calculating the differences
+predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_10_1, type="ratingMatrix")
+predmat_pop_10_1<-as(predictions_pop_10_1, "matrix")
+rm(predictions_pop_10_1)
+diffmat_10_1<-predmat_pop_10_1-testmat_10_1_matrix
 
 
-# sum(!is.na(diffmat_1[1000:1100, 2000:2100]))
-# sum(!is.na(testmat_first_matrix[1000:1100, 2000:2100]))
-# sum(is.na(predmat_pop_10[1000:1100, 2000:2100]))
-
-# predmat_pop_10[1500:1510, 2001:2009]
-
-# calculating the difference
 
 # calculating RMSE
 number_of_ratings_in_test<-sum(!is.na(testmat_first_matrix))
@@ -277,7 +247,6 @@ rmse_manual
 
 rmse_pop_10<-RMSE(testmat_first_matrix, predmat_pop_10, na.rm=T)
 rmse_pop_10
-
 
 # saving
 saveRDS(predictions_pop_10_1, file="predictions_pop_10")
@@ -303,9 +272,7 @@ testmat_first_matrix<-as(testmat_first, "matrix")
 # saving
 saveRDS(testmat_first_matrix, file="testmat_first_matrix")
 
-diffmat_1<-testmat_first_matrix-predmat_pop_10
 
-diffmat_1[1000:1100, 2000:2100]
 
 # sum(!is.na(diffmat_1[1000:1100, 2000:2100]))
 # sum(!is.na(testmat_first_matrix[1000:1100, 2000:2100]))
@@ -313,7 +280,10 @@ diffmat_1[1000:1100, 2000:2100]
 
 # predmat_pop_10[1500:1510, 2001:2009]
 
-# calculating the difference
+# calculating the differences
+readRDS()
+diffmat_1<-testmat_10_1-predmat_pop_10_1
+
 
 # calculating RMSE
 number_of_ratings_in_test<-sum(!is.na(testmat_first_matrix))
@@ -324,3 +294,5 @@ rmse_manual
 rmse_pop_10<-RMSE(testmat_first_matrix, predmat_pop_10, na.rm=T)
 rmse_pop_10
 
+rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
+rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
