@@ -39,7 +39,8 @@ invisible(gc())
  # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
- trainmat_reduced<-readRDS("trainmat_reduced")
+ # trainmat_reduced<-readRDS("trainmat_reduced")
+ trainmat_reduced<-readRDS("trainmat_final_10")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -272,22 +273,34 @@ saveRDS(testmat, file="testmat")
 Sys.time()
 
 # Creating the recommendations
-recommendations_svdf <- Recommender(trainmat_final, method = "svdf")
-recommendations_svdf
 
-recommendations_pop <- Recommender(trainmat_final_10, method = "popular")
-recommendations_pop
+Sys.time()
+
+recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+recommendations_pop_10
 
 Sys.time()
 
 # saving
 saveRDS(recommendations_pop, file="recommendations_pop")
 
+
+############   svdf    #################
+
+Sys.time()
+
+recommendations_svdf_10 <- Recommender(trainmat_final_10, method = "svdf")
+recommendations_svdf_10<-recommendations_svdf
+
+# rm(recommendations_svdf, scheme_10, trainmat_final_10, trainmat_reduced, validation)
+
+saveRDS(recommendations_svdf_10, file="recommendations_svdf_10")
+
 Sys.time()
 
 #Making prediction on validation set:
-predictions <- predict(recommendations_pop, testmat, type="ratings")
-predictions
+predictions_svdf_10 <- predict(recommendations_svdf_10, testmat, type="ratings")
+predictions_svdf_10
 
 Sys.time()
 
@@ -303,5 +316,37 @@ class(predmat)
 # calculating RMSE
 rmse_svdf<-RMSE(testmat, predmat, na.rm=T)
 rmse_svdf
+
+############   ibcf    #################
+
+Sys.time()
+
+recommendations_ibcf_10 <- Recommender(trainmat_final_10, method = "ibcf")
+recommendations_ibcf_10<-recommendations_ibcf
+
+# rm(recommendations_ibcf, scheme_10, trainmat_final_10, trainmat_reduced, validation)
+
+saveRDS(recommendations_ibcf_10, file="recommendations_ibcf_10")
+
+Sys.time()
+
+#Making prediction on validation set:
+predictions_ibcf_10 <- predict(recommendations_ibcf_10, testmat, type="ratings")
+predictions_ibcf_10
+
+Sys.time()
+
+class(predictions)
+
+# saving
+saveRDS(predictions, file="predictions")
+
+# turning the results into a matrix
+predmat<-as(predictions, "matrix")
+class(predmat)
+
+# calculating RMSE
+rmse_ibcf<-RMSE(testmat, predmat, na.rm=T)
+rmse_ibcf
 
 ### end of script ###
