@@ -231,33 +231,33 @@ Sys.time()
 
 Sys.time()
 
-recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+# recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
 
 Sys.time()
 
 # saving
-saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
 #Making prediction on validation set:
 predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
 date_time<-Sys.time()
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_2, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingMatrix")
-while((as.numeric(Sys.time()) - as.numeric(date_time))<10){} # adding a ten second break, other wise R gets stuck
+while((as.numeric(Sys.time()) - as.numeric(date_time))<30){} # adding a ten second break, other wise R gets stuck
 predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
 
 Sys.time()
