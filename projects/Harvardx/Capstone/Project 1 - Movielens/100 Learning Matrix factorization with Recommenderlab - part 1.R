@@ -67,6 +67,9 @@ train <- MovieLense100[1:50]
 rec <- Recommender(train, method = "POPULAR")
 rec
 
+class(rec)
+class(MovieLense100)
+
 ## create top-N recommendations for new users
 pre <- predict(rec, MovieLense100[101:102], n = 10)
 pre

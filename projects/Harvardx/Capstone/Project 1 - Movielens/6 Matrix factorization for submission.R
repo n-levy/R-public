@@ -279,6 +279,8 @@ Sys.time()
 # saving
 saveRDS(recommendations, file="recommendations")
 
+Sys.time()
+
 #Making prediction on validation set:
 predictions <- predict(recommendations, testmat, type="ratings")
 predictions
