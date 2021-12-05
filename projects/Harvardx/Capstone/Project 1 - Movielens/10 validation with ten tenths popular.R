@@ -196,24 +196,70 @@ predmat_pop_10_10<-as(predictions_pop_10_10, "matrix")
 saveRDS(predmat_pop_10_10, file="predmat_pop_10_10")
 rm(predictions_pop_10_10, predmat_pop_10_10)
 
-
 dim(testmat_first)
 testmat_first
 
-dim(predmat_pop_10)
+
 
 # examining the matrices
 testmat_first[1000:1100, 2000:2100]
 
-# turning testmat into a matrix
-testmat_first_matrix<-as(testmat_first, "matrix")
+# turning testmats into a matrices
+testmat_10_1_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_1_matrix, file="testmat_1_matrix")
+rm(testmat_10_1_matrix)
 
-# saving
-saveRDS(testmat_first_matrix, file="testmat_first_matrix")
+testmat_10_2_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_2_matrix, file="testmat_1_matrix")
+rm(testmat_10_2_matrix)
 
-diffmat_1<-testmat_first_matrix-predmat_pop_10
+testmat_10_3_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_3_matrix, file="testmat_1_matrix")
+rm(testmat_10_3_matrix)
 
-diffmat_1[1000:1100, 2000:2100]
+testmat_10_4_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_4_matrix, file="testmat_1_matrix")
+rm(testmat_10_4_matrix)
+
+testmat_10_5_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_5_matrix, file="testmat_1_matrix")
+rm(testmat_10_5_matrix)
+
+testmat_10_6_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_6_matrix, file="testmat_1_matrix")
+rm(testmat_10_6_matrix)
+
+testmat_10_7_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_7_matrix, file="testmat_1_matrix")
+rm(testmat_10_7_matrix)
+
+testmat_10_8_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_8_matrix, file="testmat_1_matrix")
+rm(testmat_10_8_matrix)
+
+testmat_10_9_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_9_matrix, file="testmat_1_matrix")
+rm(testmat_10_9_matrix)
+
+testmat_10_10_matrix<-as(testmat_1, "matrix")
+saveRDS(testmat_10_10_matrix, file="testmat_1_matrix")
+rm(testmat_10_10_matrix)
+rm(testmat_1,testmat_2,testmat_3,testmat_4)
+rm(testmat_5,testmat_6,testmat_7,testmat_8)
+rm(testmat_9,testmat_10)
+
+### creating matrices of the differences between the predictions and the real values
+predmat_pop_10_1<-readRDS("predmat_pop_10_1")
+testmat_1_matrix<-readRDS("testmat_1_matrix")
+predictions_pop_10_1
+diffmat_10_1<-testmat_1_matrix-predmat_pop_10_1
+rm(testmat_1_matrix, predmat_pop_10_1)
+
+predmat_pop_10_2<-readRDS("predmat_pop_10_2")
+predictions_pop_10_2
+diffmat_1<-testmat_1_matrix-predmat_pop_10_2
+rm(testmat_1_matrix, predmat_pop_10_2)
+
 
 # sum(!is.na(diffmat_1[1000:1100, 2000:2100]))
 # sum(!is.na(testmat_first_matrix[1000:1100, 2000:2100]))
