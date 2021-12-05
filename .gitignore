@@ -15,3 +15,6 @@ recommendations_pop_10
 trainmat_final_10
 trainmat_reduced
 recommendations_svdf_10
+predictions_pop_10
+predmat_pop_10
+testmat_first_matrix
