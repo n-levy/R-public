@@ -36,17 +36,26 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # validation<-readRDS("validation")
 # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
- # testmat<-readRDS("testmat")
+ testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 # trainmat_reduced<-readRDS("trainmat_reduced")
 trainmat_final_10<-readRDS("trainmat_final_10")
 # recommendations_svdf_10<-readRDS("recommendations_svdf_10")
-recommendations_pop_10<-readRDS("recommendations_pop_10")
-predictions_pop_10_1<-readRDS("predictions_pop_10_1")
-predictions_pop_10_2<-readRDS("predictions_pop_10_2")
-predictions_pop_10_3<-readRDS("predictions_pop_10_3")
-
+# recommendations_pop_10<-readRDS("recommendations_pop_10")
+# predictions_pop_10_1<-readRDS("predictions_pop_10_1")
+# predictions_pop_10_2<-readRDS("predictions_pop_10_2")
+# predictions_pop_10_3<-readRDS("predictions_pop_10_3")
+predmat_pop_10_1<-readRDS("predmat_pop_10_1")
+predmat_pop_10_2<-readRDS("predmat_pop_10_2")
+predmat_pop_10_3<-readRDS("predmat_pop_10_3")
+predmat_pop_10_4<-readRDS("predmat_pop_10_4")
+predmat_pop_10_5<-readRDS("predmat_pop_10_5")
+predmat_pop_10_6<-readRDS("predmat_pop_10_6")
+predmat_pop_10_7<-readRDS("predmat_pop_10_7")
+predmat_pop_10_8<-readRDS("predmat_pop_10_8")
+predmat_pop_10_9<-readRDS("predmat_pop_10_9")
+predmat_pop_10_10<-readRDS("predmat_pop_10_10")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -70,6 +79,8 @@ predictions_pop_10_3<-readRDS("predictions_pop_10_3")
 ##################### Test Set ###################################################
 ##################################################################################
 
+index<-seq(1:nrow(testmat))
+
 # splitting index into 10 equal parts
 splitted_index<-split(index,             # Applying split() function
                       cut(seq_along(index),
@@ -91,8 +102,8 @@ tenth_10<-as.vector(splitted_index[[10]])
 # in the test set
 # total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
 #   length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
-# total
-# nrow(testmat)
+#  total
+#  nrow(testmat)
 
 # splitting the test set into ten parts
 testmat_10_1<-testmat[tenth_1]
@@ -296,3 +307,5 @@ rmse_pop_10
 
 rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
 rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
+rm(recommendations_pop, testmat_real, trainmat_real)
+rm(list=ls())
