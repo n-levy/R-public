@@ -286,6 +286,28 @@ Sys.time()
 # saving
 saveRDS(recommendations_pop, file="recommendations_pop")
 
+#Making prediction on validation set:
+predictions_pop <- predict(recommendations_pop, testmat, type="ratingMatrix")
+predictions_pop
+
+Sys.time()
+
+class(predictions_pop)
+
+# saving
+saveRDS(predictions_pop, file="predictions_pop")
+
+# turning the results into a matrix
+predmat_pop<-as(predictions_pop, "matrix")
+class(predictions_pop)
+
+# calculating RMSE
+rmse_pop<-RMSE(testmat, predmat_pop, na.rm=T)
+rmse_pop
+
+# saving
+saveRDS(rmse_pop, file="rmse_pop")
+
 
 ############   svdf    #################
 
@@ -301,7 +323,7 @@ saveRDS(recommendations_svdf, file="recommendations_svdf")
 Sys.time()
 
 #Making prediction on validation set:
-predictions_svdf <- predict(recommendations_svdf, testmat, type="ratingsMatrix")
+predictions_svdf <- predict(recommendations_svdf, testmat, type="ratingMatrix")
 predictions_svdf
 
 Sys.time()
