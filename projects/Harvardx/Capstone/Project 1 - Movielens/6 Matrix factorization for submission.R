@@ -119,7 +119,7 @@ saveRDS(trainmat_final, file="trainmat_final")
 # )
 
 # Evaluating the model by cross-validation
-# set.seed(123, sample.kind="Rounding")
+# set.seed(1, sample.kind="Rounding")
 
 # Setting up the evaluation scheme
 scheme <- trainmat_final %>% 
@@ -159,51 +159,51 @@ result_rating_popular@results %>%
 Sys.time()
 
 # saving 
-saveRDS(result_rating_pop, file="result_rating_pop")
+saveRDS(result_rating_popular, file="result_rating_popular")
 
 ### svd ###
 # evaluating
-result_rating_svd <- evaluate(scheme,
-                              method = "svd",
-                              parameter = list(normalize = "Z-score", k = 5),
-                              type  = "ratings"
-)
-
-# examining the results
-result_rating_svd@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-Sys.time()
+# result_rating_svd <- evaluate(scheme,
+#                               method = "svd",
+#                               parameter = list(normalize = "Z-score", k = 5),
+#                               type  = "ratings"
+# )
+# 
+# # examining the results
+# result_rating_svd@results %>% 
+#   map(function(x) x@cm) %>% 
+#   unlist() %>% 
+#   matrix(ncol = 3, byrow = T) %>% 
+#   as.data.frame() %>% 
+#   summarise_all(mean) %>% 
+#   setNames(c("RMSE", "MSE", "MAE"))
+# 
+# Sys.time()
 
 # saving 
-saveRDS(result_rating_svd, file="result_rating_svd")
+# saveRDS(result_rating_svd, file="result_rating_svd")
 
 ### als ###
 # evaluating
-result_rating_als <- evaluate(scheme,
-                              method = "als",
-                              parameter = list(normalize = "Z-score"),
-                              type  = "ratings"
-)
-
-# examining the results
-result_rating_als@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-Sys.time()
-
-# saving 
-saveRDS(result_rating_als, file="result_rating_als")
+# result_rating_als <- evaluate(scheme,
+#                               method = "als",
+#                               parameter = list(normalize = "Z-score"),
+#                               type  = "ratings"
+# )
+# 
+# # examining the results
+# result_rating_als@results %>% 
+#   map(function(x) x@cm) %>% 
+#   unlist() %>% 
+#   matrix(ncol = 3, byrow = T) %>% 
+#   as.data.frame() %>% 
+#   summarise_all(mean) %>% 
+#   setNames(c("RMSE", "MSE", "MAE"))
+# 
+# Sys.time()
+# 
+# # saving 
+# saveRDS(result_rating_als, file="result_rating_als")
 
 ### svdf ###
 
@@ -230,5 +230,66 @@ result_rating_svdf@results %>%
 
 
 Sys.time()
+
+##################################################################################
+##################### Test Set ###################################################
+##################################################################################
+
+
+# converting the testing set into a matrix
+users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
+dim(users_and_ratings_test_set)
+# head(users_and_ratings_test_set)
+
+testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
+dim(testmat)
+
+# checking number of ratings per item
+number_of_ratings<-colCounts(testmat)
+min(number_of_ratings)
+max(number_of_ratings)
+
+# exploring the matrix
+dim(testmat)
+# testmat@data[1500:1510, 2001:2009]
+
+# normalizing the values
+# normalize(testmat, method = "Z-score")
+
+# saving
+saveRDS(testmat, file="testmat")
+
+# checking the initial/default parameters of the SVDF model
+# recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
+
+# recommending
+# recom_svdf <- Recommender(data = testmat,
+#                           method = "SVDF",
+#                           parameter = list(normalize = "Z-score")
+# )
+
+# Creating the recommendations
+recommendations <- Recommender(trainmat_final, method = "svdf")
+recommendations
+
+# saving
+saveRDS(recommendations, file="recommendations")
+
+#Making prediction on validation set:
+predictions <- predict(recomendations, testmat, type="ratings")
+predictions
+
+class(predictions)
+
+# saving
+saveRDS(predictions, file="predictions")
+
+# turning the results into a matrix
+predmat<-as(predictions, "matrix")
+class(predmat)
+
+# calculating RMSE
+rmse_svdf<-RMSE(testmat, predictions, na.rm=T)
+rmse_svdf
 
 ### end of script ###

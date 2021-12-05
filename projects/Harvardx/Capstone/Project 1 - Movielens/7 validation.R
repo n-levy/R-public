@@ -65,9 +65,7 @@ dim(testmat)
 #                           parameter = list(normalize = "Z-score")
 # )
 
-# Evaluating the model by cross-validation
-set.seed(123, sample.kind="Rounding")
-
+# Creating the recommendations
 recommendations <- Recommender(trainmat_final, method = "svdf")
 recommendations
 
