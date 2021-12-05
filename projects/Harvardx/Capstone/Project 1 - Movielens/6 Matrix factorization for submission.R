@@ -15,13 +15,13 @@ library(Matrix)
 # library(pander)
 
 # cleaning the environment
-# rm(list = ls())
+ # rm(list = ls())
 
 ### Increasing memory
 # Checking memory limit
 # memory.limit()
 # Change memory limit
-# memory.limit(size = 10^9)
+ memory.limit(size = 10^10)
 
 # cleaning memory
 invisible(gc())
@@ -33,12 +33,13 @@ invisible(gc())
 # movielens<-readRDS("movielens")
 # core<-readRDS("core")
 # sub<-readRDS("sub")
- # validation<-readRDS("validation")
+ validation<-readRDS("validation")
  # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
-# testmat<-readRDS("testmat")
+ # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
+ trainmat_reduced<-readRDS("trainmat_reduced")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -47,7 +48,7 @@ invisible(gc())
 # sampling_rate<-1
 # sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 # samp <- edx[sample_index,]
-# samp<-edx
+ # samp<-edx
 
 # exploring the sample
 # dim(samp)
@@ -82,14 +83,14 @@ saveRDS(trainmat_reduced, file="trainmat_reduced")
 # min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
 # print(min_n_movies)
 
-min_n_users <- quantile(colCounts(trainmat_reduced), 0.99)
+min_n_users <- quantile(colCounts(trainmat_reduced), 0.9)
 min_n_users
 
-trainmat_final <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
-dim(trainmat_final)
+trainmat_final_10 <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
+dim(trainmat_final_10)
 
 # saving
-saveRDS(trainmat_final, file="trainmat_final")
+saveRDS(trainmat_final_10, file="trainmat_final_10")
 
 # trainmat <- trainmat_full[rowCounts(trainmat_full) > min_n_movies,
 #                           colCounts(trainmat_full) > min_n_users]
@@ -122,7 +123,7 @@ saveRDS(trainmat_final, file="trainmat_final")
 # set.seed(1, sample.kind="Rounding")
 
 # Setting up the evaluation scheme
-scheme <- trainmat_final %>% 
+scheme_10 <- trainmat_final_10 %>% 
   evaluationScheme(method = "split",
                    k=1,
                    train  = 0.9,  # 90% data train
@@ -131,35 +132,35 @@ scheme <- trainmat_final %>%
   )
 
 # scheme
-
+scheme_10<-scheme
 # saving
-saveRDS(scheme, file="scheme")
+saveRDS(scheme_10, file="scheme_10")
 
 Sys.time()
 
 ##################### Evaluating the models ################################
 
 ### Popular ###
-# evaluating
-result_rating_popular <- evaluate(scheme,
+evaluating
+result_rating_popular_10 <- evaluate(scheme_10,
                                   method = "popular",
                                   parameter = list(normalize = "Z-score"),
                                   type  = "ratings"
 )
 
 # examining the results
-result_rating_popular@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
+result_rating_popular_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
   setNames(c("RMSE", "MSE", "MAE"))
 
 Sys.time()
 
 # saving 
-saveRDS(result_rating_popular, file="result_rating_popular")
+# saveRDS(result_rating_popular, file="result_rating_popular")
 
 ### svd ###
 # evaluating
@@ -208,7 +209,7 @@ saveRDS(result_rating_popular, file="result_rating_popular")
 ### svdf ###
 
 # evaluating
-result_rating_svdf <- evaluate(scheme,
+result_rating_svdf_10 <- evaluate(scheme_10,
                                   method = "svdf",
                                   parameter = list(normalize = "Z-score", k = 5),
                                   type  = "ratings"
@@ -217,7 +218,7 @@ result_rating_svdf <- evaluate(scheme,
 Sys.time()
 
 # saving 
-saveRDS(result_rating_svdf, file="result_rating_svdf")
+saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
 
 # examining the results
 result_rating_svdf@results %>% 
@@ -271,18 +272,21 @@ saveRDS(testmat, file="testmat")
 Sys.time()
 
 # Creating the recommendations
-recommendations <- Recommender(trainmat_final, method = "svdf")
-recommendations
+recommendations_svdf <- Recommender(trainmat_final, method = "svdf")
+recommendations_svdf
+
+recommendations_pop <- Recommender(trainmat_final_10, method = "popular")
+recommendations_pop
 
 Sys.time()
 
 # saving
-saveRDS(recommendations, file="recommendations")
+saveRDS(recommendations_pop, file="recommendations_pop")
 
 Sys.time()
 
 #Making prediction on validation set:
-predictions <- predict(recommendations, testmat, type="ratings")
+predictions <- predict(recommendations_pop, testmat, type="ratings")
 predictions
 
 Sys.time()
