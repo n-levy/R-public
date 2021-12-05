@@ -36,7 +36,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # validation<-readRDS("validation")
 # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
- testmat<-readRDS("testmat")
+testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 # trainmat_reduced<-readRDS("trainmat_reduced")
@@ -68,6 +68,20 @@ testmat_10_8_matrix<-readRDS("testmat_10_8_matrix")
 testmat_10_9_matrix<-readRDS("testmat_10_9_matrix")
 testmat_10_10_matrix<-readRDS("testmat_10_10_matrix")
 
+diffmat_10_1<-readRDS("diffmat_10_1")
+diffmat_10_2<-readRDS("diffmat_10_2")
+diffmat_10_3<-readRDS("diffmat_10_3")
+diffmat_10_4<-readRDS("diffmat_10_4")
+diffmat_10_5<-readRDS("diffmat_10_5")
+diffmat_10_6<-readRDS("diffmat_10_6")
+diffmat_10_7<-readRDS("diffmat_10_7")
+diffmat_10_8<-readRDS("diffmat_10_8")
+diffmat_10_9<-readRDS("diffmat_10_9")
+diffmat_10_10<-readRDS("diffmat_10_10")
+
+# predmat_all<-readRDS("predmat_all")
+testmat_all<-readRDS("testmat_all")
+rmse<-readRDS("rmse")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -326,10 +340,18 @@ diffmat_all<-rbind(
   diffmat_10_8,
   diffmat_10_9,
   diffmat_10_10
-  )
+)
 
 dim(diffmat_all)
+
+# cleaning the workspace
+rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4, diffmat_10_5)
+rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9, diffmat_10_10)
+
+# saving
+Sys.time()
 saveRDS(diffmat_all, file="diffmat_all")
+Sys.time()
 
 # calculating RMSE
 number_of_ratings_in_test_set<-sum(!is.na(diffmat_all))
@@ -338,9 +360,10 @@ number_of_ratings_in_test_set
 # saving
 saveRDS(number_of_ratings_in_test_set, file="number_of_ratings_in_test_set")
 
-squared_differences<-diffmat_all^2
+squared_differences_all<-diffmat_all^2
+
 # saving
-saveRDS(squared_differences, file="squared_differences")
+saveRDS(squared_differences_all, file="squared_differences_all")
 
 rmse<-sqrt(sum(squared_differences, na.rm=T)/number_of_ratings_in_test_set)
 rmse
@@ -366,12 +389,14 @@ predmat_pop_all<-rbind(
 # verifying that all users in the validation set are included
 dim(predmat_pop_all)
 
-# saving
-saveRDS(predmat_pop_all, file="predmat_pop_all")
-
 # cleaning the workspace
 rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, predmat_pop_10_5)
 rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8, predmat_pop_10_9, predmat_pop_10_10)
+
+# saving
+Sys.time()
+saveRDS(predmat_pop_all, file="predmat_pop_all")
+Sys.time()
 
 # creating one unified matrix of real ratings
 testmat_all<-rbind(
@@ -390,20 +415,40 @@ testmat_all<-rbind(
 # verifying that all users in the validation set are included
 dim(testmat_all)
 
-# saving
-saveRDS(testmat_all, file="testmat_all")
-
-
 # cleaning the workspace
 rm(testmat_10_1_matrix, testmat_10_2_matrix, testmat_10_3_matrix, testmat_10_4_matrix, testmat_10_5_matrix)
 rm(testmat_10_6_matrix, testmat_10_7_matrix, testmat_10_8_matrix, testmat_10_9_matrix, testmat_10_10_matrix)
+
+# cleaning memory
+invisible(gc())
+
+# saving
+Sys.time()
+saveRDS(testmat_all, file="testmat_all")
+Sys.time()
 
 # verifying that all observations are included
 dim(predmat_pop_all)
 dim(testmat_all)
 
+# calculating RMSE through the built-in function
+rmse_alternative<-RMSE(testmat_all, predmat_pop_all, na.rm=T)
+
+# comparing the two RMSEs
+rmse
+rmse_alternative
+difference<-rmse-rmse_alternative
+difference
+
 #cleaning the dataset
 rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
 rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
 rm(recommendations_pop, testmat_real, trainmat_real)
+rm(testmat_all)
 rm(list=ls())
+
+# cleaning memory
+invisible(gc())
+
+# Allocating memory
+memory.limit(size = 10^10)
