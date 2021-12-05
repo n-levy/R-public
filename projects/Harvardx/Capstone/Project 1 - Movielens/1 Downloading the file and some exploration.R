@@ -62,12 +62,12 @@ saveRDS(ratings, file="ratings")
 saveRDS(edx, file="edx")
 saveRDS(validation, file="validation")
 saveRDS(movielens, file="movielens")
-saveRDS(core, file="core")
-saveRDS(sub, file="sub")
-saveRDS(trainmat, file="trainmat")
+# saveRDS(core, file="core")
+# saveRDS(sub, file="sub")
+# saveRDS(trainmat, file="trainmat")
 getwd()
 # # removing unnecessary files
-# rm(dl, ratings, movies, test_index, temp, movielens, removed)
+rm(movielens, ratings, movies, test_index, temp, movielens, removed)
 # 
 # # removing large files so R will start faster
 # rm(validation, ratings)
