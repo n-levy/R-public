@@ -79,7 +79,7 @@ diffmat_10_8<-readRDS("diffmat_10_8")
 diffmat_10_9<-readRDS("diffmat_10_9")
 diffmat_10_10<-readRDS("diffmat_10_10")
 
-# predmat_all<-readRDS("predmat_all")
+predmat_pop_all<-readRDS("predmat_pop_all")
 testmat_all<-readRDS("testmat_all")
 rmse<-readRDS("rmse")
 
