@@ -37,11 +37,13 @@ validation<-readRDS("validation")
 edx<-readRDS("edx")
 edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
-# testmat<-readRDS("testmat")
+testmat<-readRDS("testmat")
 # scheme<-readRDS("scheme")
 # full_scheme<-readRDS("full_scheme")
 # trainmat<-readRDS("trainmat")
-trainmat_final<-readRDS("trainmat_final")
+# trainmat_final<-readRDS("trainmat_final")
+trainmat_real<-readRDS("trainmat_real")
+recommendations_pop<-readRDS("recommendations_pop")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -66,15 +68,11 @@ users_and_ratings_train_set<-cbind.data.frame(edx$userId, edx$movieId, edx$ratin
 dim(users_and_ratings_train_set)
 
 # converting the matrix into a "realRatingMatrix")
-trainmat <- as(users_and_ratings_train_set, "realRatingMatrix")
-dim(trainmat)
-
-# converting the matrix into a "realRatingMatrix")
-trainmat <- as(users_and_ratings_train_set, "realRatingMatrix")
-dim(trainmat)
+trainmat_real <- as(users_and_ratings_train_set, "realRatingMatrix")
+dim(trainmat_real)
 
 # saving
-saveRDS(trainmat, file="trainmat")
+saveRDS(trainmat_real, file="trainmat_real")
 
 # class(trainmat)
 
@@ -245,7 +243,7 @@ users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movie
 dim(users_and_ratings_test_set)
 # head(users_and_ratings_test_set)
 
-testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
+testmat_real <- as(users_and_ratings_test_set, "realRatingMatrix")
 dim(testmat)
 
 # checking number of ratings per item
@@ -261,7 +259,7 @@ dim(testmat)
 # normalize(testmat, method = "Z-score")
 
 # saving
-saveRDS(testmat, file="testmat")
+saveRDS(testmat_real, file="testmat_real")
 
 # checking the initial/default parameters of the SVDF model
 # recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
@@ -278,16 +276,19 @@ Sys.time()
 
 Sys.time()
 
-recommendations_pop <- Recommender(trainmat, method = "popular")
+recommendations_pop <- Recommender(trainmat_real, method = "popular")
 recommendations_pop
 
 Sys.time()
+
+class(recommendations_pop)
+class(testmat_real)
 
 # saving
 saveRDS(recommendations_pop, file="recommendations_pop")
 
 #Making prediction on validation set:
-predictions_pop <- predict(recommendations_pop, testmat, type="ratingMatrix")
+predictions_pop <- predict(recommendations_pop, testmat_real, type="ratingMatrix")
 predictions_pop
 
 Sys.time()
@@ -313,7 +314,7 @@ saveRDS(rmse_pop, file="rmse_pop")
 
 Sys.time()
 
-recommendations_svdf <- Recommender(trainmat_final, method = "svdf")
+recommendations_svdf <- Recommender(trainmat_real, method = "svdf")
 recommendations_svdf<-recommendations_svdf
 
 # rm(recommendations_svdf, scheme, trainmat_final, trainmat, validation)
@@ -348,17 +349,17 @@ saveRDS(rmse_svdf, file="rmse_svdf")
 
 Sys.time()
 
-recommendations_ibcf <- Recommender(trainmat_final, method = "ibcf")
+recommendations_ibcf <- Recommender(trainmat_real, method = "ibcf")
 
 # rm(recommendations_ibcf, scheme, trainmat_final, trainmat, validation)
 
-saveRDS(recommendations_ibcf, file="recommendations_ibcf")
+saveRDS(recommendations_ibcf_full, file="recommendations_ibcf")
 
 Sys.time()
 
 #Making prediction on validation set:
-predictions_ibcf <- predict(recommendations_ibcf, testmat, type="ratingMatrix")
-predictions_ibcf
+predictions_ibcf_full <- predict(recommendations_ibcf_full, testmat, type="ratingMatrix")
+predictions_ibcf_full
 
 Sys.time()
 
