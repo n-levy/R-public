@@ -15,32 +15,32 @@ library(Matrix)
 # library(pander)
 
 # cleaning the environment
- # rm(list = ls())
+# rm(list = ls())
 
 ### Increasing memory
 # Checking memory limit
 # memory.limit()
 # Change memory limit
- memory.limit(size = 10^10)
+memory.limit(size = 10^10)
 
 # cleaning memory
 invisible(gc())
 
 # # loading  data files
- setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 # ratings<-readRDS("ratings")
 # movies<-readRDS("movies")
 # movielens<-readRDS("movielens")
 # core<-readRDS("core")
 # sub<-readRDS("sub")
- validation<-readRDS("validation")
- # edx<-readRDS("edx")
+validation<-readRDS("validation")
+# edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
- # testmat<-readRDS("testmat")
+# testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
- # trainmat_reduced<-readRDS("trainmat_reduced")
- trainmat_reduced<-readRDS("trainmat_final_10")
+# trainmat_reduced<-readRDS("trainmat_reduced")
+trainmat_final_10<-readRDS("trainmat_final_10")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
@@ -49,7 +49,7 @@ invisible(gc())
 # sampling_rate<-1
 # sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 # samp <- edx[sample_index,]
- # samp<-edx
+# samp<-edx
 
 # exploring the sample
 # dim(samp)
@@ -144,9 +144,9 @@ Sys.time()
 ### Popular ###
 evaluating
 result_rating_popular_10 <- evaluate(scheme_10,
-                                  method = "popular",
-                                  parameter = list(normalize = "Z-score"),
-                                  type  = "ratings"
+                                     method = "popular",
+                                     parameter = list(normalize = "Z-score"),
+                                     type  = "ratings"
 )
 
 # examining the results
