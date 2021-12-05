@@ -309,23 +309,64 @@ Sys.time()
 saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
 #Making prediction on validation set:
-predictions_pop_10 <- predict(recommendations_pop_10, testmat_first, type="ratings")
+predictions_pop_10 <- predict(recommendations_pop_10, testmat_first, type="ratingMatrix")
 predictions_pop_10
 
 Sys.time()
 
-class(predictions)
+class(predictions_pop_10)
 
 # saving
-saveRDS(predictions, file="predictions")
+saveRDS(predictions_pop_10, file="predictions_pop_10")
 
 # turning the results into a matrix
-predmat<-as(predictions, "matrix")
-class(predmat)
+predmat_pop_10<-as(predictions_pop_10, "matrix")
+class(predmat_pop_10)
+
+# saving
+saveRDS(predmat_pop_10, file="predmat_pop_10")
+
+dim(testmat_first)
+testmat_first
+
+dim(predmat_pop_10)
+
+# examining the matrices
+testmat_first[1000:1100, 2000:2100]
+
+# turning testmat into a matrix
+testmat_first_matrix<-as(testmat_first, "matrix")
+
+# saving
+saveRDS(testmat_first_matrix, file="testmat_first_matrix")
+
+diffmat_1<-testmat_first_matrix-predmat_pop_10
+
+diffmat_1[1000:1100, 2000:2100]
+
+# sum(!is.na(diffmat_1[1000:1100, 2000:2100]))
+# sum(!is.na(testmat_first_matrix[1000:1100, 2000:2100]))
+# sum(is.na(predmat_pop_10[1000:1100, 2000:2100]))
+
+# predmat_pop_10[1500:1510, 2001:2009]
+
+# calculating the difference
 
 # calculating RMSE
-rmse_pop<-RMSE(testmat, predmat, na.rm=T)
-rmse_pop
+number_of_ratings_in_test<-sum(!is.na(testmat_first_matrix))
+squared_differences_1<-diffmat_1^2
+rmse_manual<-sqrt(sum(squared_differences_1, na.rm=T)/number_of_ratings_in_test)
+rmse_manual
+
+rmse_pop_10<-RMSE(testmat_first_matrix, predmat_pop_10, na.rm=T)
+rmse_pop_10
+
+# checking why the manual calculation differs from the non-manual one
+sum(!is.na(diffmat_1))
+sum(!is.na(testmat_first_matrix))
+sum(!is.na(squared_differences_1))
+sum(!is.na(predmat_pop_10))
+number_of_ratings_in_test<-sum(!is.na(squared_differences_1))
 
 ############   svdf    #################
 
