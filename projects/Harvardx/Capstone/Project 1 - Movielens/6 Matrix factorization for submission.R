@@ -27,26 +27,27 @@ library(Matrix)
 invisible(gc())
 
 # # loading  data files
-# setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
-# # ratings<-readRDS("ratings")
-# # movies<-readRDS("movies")
-# # movielens<-readRDS("movielens")
-#  core<-readRDS("core")
-#  sub<-readRDS("sub")
-# validation<-readRDS("validation")
-edx<-readRDS("edx")
+ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+# ratings<-readRDS("ratings")
+# movies<-readRDS("movies")
+# movielens<-readRDS("movielens")
+# core<-readRDS("core")
+# sub<-readRDS("sub")
+ # validation<-readRDS("validation")
+ # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
 # scheme_10<-readRDS("scheme_10")
+# full_scheme<-readRDS("full_scheme")
 
 ### Preparing the data ###
 ### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
 # Creating a sample of 0.1% of the training data, to try out the method #
-set.seed(123) 
-sampling_rate<-1
-sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
+# set.seed(123) 
+# sampling_rate<-1
+# sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
 # samp <- edx[sample_index,]
-samp<-edx
+# samp<-edx
 
 # exploring the sample
 # dim(samp)
@@ -81,10 +82,10 @@ saveRDS(trainmat_reduced, file="trainmat_reduced")
 # min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
 # print(min_n_movies)
 
-min_n_users <- quantile(colCounts(trainmat_full), 0.95)
+min_n_users <- quantile(colCounts(trainmat_reduced), 0.9)
 min_n_users
 
-trainmat_final <- trainmat_reduced[colCounts(trainmat_full) > min_n_users,]
+trainmat_final <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
 dim(trainmat_final)
 
 # saving
@@ -94,13 +95,13 @@ saveRDS(trainmat_final, file="trainmat_final")
 #                           colCounts(trainmat_full) > min_n_users]
 
 # checking number of ratings per item
-number_of_ratings<-colCounts(trainmat_final)
-min(number_of_ratings)
-max(number_of_ratings)
+# number_of_ratings<-colCounts(trainmat_final)
+# min(number_of_ratings)
+# max(number_of_ratings)
 
 # exploring the matrix
-dim(trainmat_final)
-trainmat_final@data[1500:1510, 2001:2009]
+# dim(trainmat_final)
+# trainmat_final@data[1500:1510, 2001:2009]
 
 # normalizing the values
 # normalize(trainmat, method = "Z-score")
@@ -118,7 +119,7 @@ trainmat_final@data[1500:1510, 2001:2009]
 # )
 
 # Evaluating the model by cross-validation
-set.seed(123, sample.kind="Rounding")
+# set.seed(123, sample.kind="Rounding")
 
 # Setting up the evaluation scheme
 scheme <- trainmat_final %>% 
@@ -126,45 +127,99 @@ scheme <- trainmat_final %>%
                    k=1,
                    train  = 0.9,  # 90% data train
                    given  = -8,
-                   goodRating = 3
+                   goodRating = 3.5
   )
 
-scheme
+# scheme
 
 # saving
 saveRDS(scheme, file="scheme")
 
-# measuring the rating error
+Sys.time()
+
+##################### Evaluating the models ################################
+
+### Popular ###
+# evaluating
+result_rating_popular <- evaluate(scheme,
+                                  method = "popular",
+                                  parameter = list(normalize = "Z-score"),
+                                  type  = "ratings"
+)
+
+# examining the results
+result_rating_popular@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_pop, file="result_rating_pop")
+
+### svd ###
+# evaluating
+result_rating_svd <- evaluate(scheme,
+                              method = "svd",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
+
+# examining the results
+result_rating_svd@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_svd, file="result_rating_svd")
+
+### als ###
+# evaluating
+result_rating_als <- evaluate(scheme,
+                              method = "als",
+                              parameter = list(normalize = "Z-score"),
+                              type  = "ratings"
+)
+
+# examining the results
+result_rating_als@results %>% 
+  map(function(x) x@cm) %>% 
+  unlist() %>% 
+  matrix(ncol = 3, byrow = T) %>% 
+  as.data.frame() %>% 
+  summarise_all(mean) %>% 
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_als, file="result_rating_als")
+
+### svdf ###
+
+# evaluating
 result_rating_svdf <- evaluate(scheme,
                                   method = "svdf",
                                   parameter = list(normalize = "Z-score", k = 5),
                                   type  = "ratings"
 )
 
+Sys.time()
+
 # saving 
-saveRDS(result_rating_svdf, file="result_rating_svdf_10")
+saveRDS(result_rating_svdf, file="result_rating_svdf")
 
-
-# result_rating_svd <- evaluate(scheme,
-#                               method = "svd",
-#                               parameter = list(normalize = "Z-score", k = 5),
-#                               type  = "ratings"
-# )
-# 
-# 
-# result_rating_popular <- evaluate(scheme, 
-#                                   method = "popular",
-#                                   parameter = list(normalize = "Z-score"),
-#                                   type  = "ratings"
-# )
-# 
-# result_rating_als <- evaluate(scheme,
-#                               method = "als",
-#                               parameter = list(normalize = "Z-score", k = 5),
-#                               type  = "ratings"
-# )
-
-
+# examining the results
 result_rating_svdf@results %>% 
   map(function(x) x@cm) %>% 
   unlist() %>% 
@@ -173,6 +228,7 @@ result_rating_svdf@results %>%
   summarise_all(mean) %>% 
   setNames(c("RMSE", "MSE", "MAE"))
 
-###############################################################################
 
+Sys.time()
 
+### end of script ###
