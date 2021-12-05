@@ -129,9 +129,12 @@ predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingM
 saveRDS(predictions_pop_10_3, file="predictions_pop_10_3")
 predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
 saveRDS(predictions_pop_10_4, file="predictions_pop_10_4")
+invisible(gc())
 predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
 saveRDS(predictions_pop_10_5, file="predictions_pop_10_5")
+rm(predictions_pop_10_1, predictions_pop_10_2, predictions_pop_10_3,predictions_pop_10_4, predictions_pop_10_5)
 predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
+saveRDS(predictions_pop_10_6, file="predictions_pop_10_6")
 predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
 saveRDS(predictions_pop_10_7, file="predictions_pop_10_7")
 predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
@@ -140,17 +143,59 @@ predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingM
 saveRDS(predictions_pop_10_9, file="predictions_pop_10_9")
 predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
 saveRDS(predictions_pop_10_10, file="predictions_pop_10_10")
-Sys.time()
-
-# saving
-saveRDS(predictions_pop_10_1, file="predictions_pop_10")
+rm(predictions_pop_10_6, predictions_pop_10_7, predictions_pop_10_8,predictions_pop_10_9, predictions_pop_10_10)
 
 # turning the results into a matrix
-predmat_pop_10<-as(predictions_pop_10, "matrix")
-class(predmat_pop_10)
+predictions_pop_10_1<-readRDS("predictions_pop_10_1")
+predmat_pop_10_1<-as(predictions_pop_10_1, "matrix")
+saveRDS(predmat_pop_10_1, file="predmat_pop_10_1")
+rm(predictions_pop_10_1, predmat_pop_10_1)
 
-# saving
-saveRDS(predmat_pop_10, file="predmat_pop_10")
+predictions_pop_10_2<-readRDS("predictions_pop_10_2")
+predmat_pop_10_2<-as(predictions_pop_10_2, "matrix")
+saveRDS(predmat_pop_10_2, file="predmat_pop_10_2")
+rm(predictions_pop_10_2, predmat_pop_10_2)
+
+predictions_pop_10_3<-readRDS("predictions_pop_10_3")
+predmat_pop_10_3<-as(predictions_pop_10_3, "matrix")
+saveRDS(predmat_pop_10_3, file="predmat_pop_10_3")
+rm(predictions_pop_10_3, predmat_pop_10_3)
+
+predictions_pop_10_4<-readRDS("predictions_pop_10_4")
+predmat_pop_10_4<-as(predictions_pop_10_4, "matrix")
+saveRDS(predmat_pop_10_4, file="predmat_pop_10_4")
+rm(predictions_pop_10_4, predmat_pop_10_4)
+
+predictions_pop_10_5<-readRDS("predictions_pop_10_5")
+predmat_pop_10_5<-as(predictions_pop_10_5, "matrix")
+saveRDS(predmat_pop_10_5, file="predmat_pop_10_5")
+rm(predictions_pop_10_5, predmat_pop_10_5)
+
+predictions_pop_10_6<-readRDS("predictions_pop_10_6")
+predmat_pop_10_6<-as(predictions_pop_10_6, "matrix")
+saveRDS(predmat_pop_10_6, file="predmat_pop_10_6")
+rm(predictions_pop_10_6, predmat_pop_10_6)
+
+predictions_pop_10_7<-readRDS("predictions_pop_10_7")
+predmat_pop_10_7<-as(predictions_pop_10_7, "matrix")
+saveRDS(predmat_pop_10_7, file="predmat_pop_10_7")
+rm(predictions_pop_10_7, predmat_pop_10_7)
+
+predictions_pop_10_8<-readRDS("predictions_pop_10_8")
+predmat_pop_10_8<-as(predictions_pop_10_8, "matrix")
+saveRDS(predmat_pop_10_8, file="predmat_pop_10_8")
+rm(predictions_pop_10_8, predmat_pop_10_8)
+
+predictions_pop_10_9<-readRDS("predictions_pop_10_9")
+predmat_pop_10_9<-as(predictions_pop_10_9, "matrix")
+saveRDS(predmat_pop_10_9, file="predmat_pop_10_9")
+rm(predictions_pop_10_9, predmat_pop_10_9)
+
+predictions_pop_10_10<-readRDS("predictions_pop_10_10")
+predmat_pop_10_10<-as(predictions_pop_10_10, "matrix")
+saveRDS(predmat_pop_10_10, file="predmat_pop_10_10")
+rm(predictions_pop_10_10, predmat_pop_10_10)
+
 
 dim(testmat_first)
 testmat_first
