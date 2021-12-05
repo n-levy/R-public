@@ -40,7 +40,131 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # scheme_10<-readRDS("scheme_10")
 # full_scheme<-readRDS("full_scheme")
 # trainmat_reduced<-readRDS("trainmat_reduced")
-# trainmat_final_10<-readRDS("trainmat_final_10")
+trainmat_final_10<-readRDS("trainmat_final_10")
+# recommendations_svdf_10<-readRDS("recommendations_svdf_10")
+recommendations_pop_10<-readRDS("recommendations_pop_10")
+predictions_pop_10_1<-readRDS("predictions_pop_10_1")
+predictions_pop_10_2<-readRDS("predictions_pop_10_2")
+predictions_pop_10_3<-readRDS("predictions_pop_10_3")
+
+### Preparing the data ###
+### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
+# Creating a sample of 0.1% of the training data, to try out the method #
+# set.seed(123) 
+# sampling_rate<-1
+# sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
+# samp <- edx[sample_index,]
+# samp<-edx
+
+# exploring the sample
+# dim(samp)
+# names(samp)
+# head(samp)
+# class(samp$userId)
+# class(samp$movieId)
+# class(samp$rating)
+
+
+##################################################################################
+##################### Test Set ###################################################
+##################################################################################
+
+tenth_1<-as.vector(splitted_index[[1]])
+tenth_2<-as.vector(splitted_index[[2]])
+tenth_3<-as.vector(splitted_index[[3]])
+tenth_4<-as.vector(splitted_index[[4]])
+tenth_5<-as.vector(splitted_index[[5]])
+tenth_6<-as.vector(splitted_index[[6]])
+tenth_7<-as.vector(splitted_index[[7]])
+tenth_8<-as.vector(splitted_index[[8]])
+tenth_9<-as.vector(splitted_index[[9]])
+tenth_10<-as.vector(splitted_index[[10]])
+
+# verifying that all of the 10ths together comprise the total number of users
+# in the test set
+total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
+  length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
+total
+nrow(testmat)
+
+# splitting the test set into ten parts
+testmat_1<-testmat[tenth_1]
+testmat_2<-testmat[tenth_2]
+testmat_3<-testmat[tenth_3]
+testmat_4<-testmat[tenth_4]
+testmat_5<-testmat[tenth_5]
+testmat_6<-testmat[tenth_6]
+testmat_7<-testmat[tenth_7]
+testmat_8<-testmat[tenth_8]
+testmat_9<-testmat[tenth_9]
+testmat_10<-testmat[tenth_10]
+
+# examining the tenths
+dim(testmat_1)
+dim(testmat_7)
+dim(testmat_9)
+dim(testmat_10)
+
+Sys.time()
+
+# Creating the recommendations
+
+############   popular    #################
+
+Sys.time()
+
+recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+
+Sys.time()
+
+# saving
+saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+
+#Making prediction on validation set:
+predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
+######################################
+####### Matrix factorization #########
+######################################
+
+### Loading libraries ###
+library(tidyverse)
+library(caret)
+# library(data.table)
+library(dplyr)
+# library(kableExtra)
+library(recommenderlab)
+library(Matrix)
+# library(BBmisc)
+# library(DT)
+# library(pander)
+
+# cleaning the environment
+# rm(list = ls())
+
+### Increasing memory
+# Checking memory limit
+# memory.limit()
+# Change memory limit
+memory.limit(size = 10^10)
+
+# cleaning memory
+invisible(gc())
+
+# # loading  data files
+setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+# ratings<-readRDS("ratings")
+# movies<-readRDS("movies")
+# movielens<-readRDS("movielens")
+# core<-readRDS("core")
+# sub<-readRDS("sub")
+# validation<-readRDS("validation")
+# edx<-readRDS("edx")
+# trainmat<-readRDS("trainmat")
+# testmat<-readRDS("testmat")
+# scheme_10<-readRDS("scheme_10")
+# full_scheme<-readRDS("full_scheme")
+# trainmat_reduced<-readRDS("trainmat_reduced")
+trainmat_final_10<-readRDS("trainmat_final_10")
 recommendations_svdf_10<-readRDS("recommendations_svdf_10")
 recommendations_pop_10<-readRDS("recommendations_pop_10")
 
@@ -61,236 +185,65 @@ recommendations_pop_10<-readRDS("recommendations_pop_10")
 # class(samp$movieId)
 # class(samp$rating)
 
-# removing movies in the training set that do not appear in the test set
-edx_reduced <- edx %>% 
-  semi_join(validation, by = "movieId") 
-
-# converting the training set into a matrix
-users_and_ratings_train_set<-cbind.data.frame(edx_reduced$userId, edx_reduced$movieId, edx_reduced$rating)
-dim(users_and_ratings_train_set)
-
-# converting the matrix into a "realRatingMatrix")
-trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
-dim(trainmat_reduced)
-
-# converting the matrix into a "realRatingMatrix")
-trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
-dim(trainmat_reduced)
-
-# saving
-saveRDS(trainmat_reduced, file="trainmat_reduced")
-
-# class(trainmat)
-
-# removing items with few ratings because of low confidence in these ratings
-# min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
-# print(min_n_movies)
-
-min_n_users <- quantile(colCounts(trainmat_reduced), 0.9)
-min_n_users
-
-trainmat_final_10 <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
-dim(trainmat_final_10)
-
-# saving
-saveRDS(trainmat_final_10, file="trainmat_final_10")
-
-# trainmat <- trainmat_full[rowCounts(trainmat_full) > min_n_movies,
-#                           colCounts(trainmat_full) > min_n_users]
-
-# checking number of ratings per item
-# number_of_ratings<-colCounts(trainmat_final)
-# min(number_of_ratings)
-# max(number_of_ratings)
-
-# exploring the matrix
-# dim(trainmat_final)
-# trainmat_final@data[1500:1510, 2001:2009]
-
-# normalizing the values
-# normalize(trainmat, method = "Z-score")
-
-# saving
-# saveRDS(trainmat, file="trainmat")
-
-# checking the initial/default parameters of the SVDF model
-# recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
-
-# recommending
-# recom_svdf <- Recommender(data = trainmat,
-#                           method = "SVDF",
-#                           parameter = list(normalize = "Z-score")
-# )
-
-# Evaluating the model by cross-validation
-# set.seed(1, sample.kind="Rounding")
-
-# Setting up the evaluation scheme
-scheme_10 <- trainmat_final_10 %>% 
-  evaluationScheme(method = "split",
-                   k=1,
-                   train  = 0.9,  # 90% data train
-                   given  = -8,
-                   goodRating = 3.5
-  )
-
-# scheme
-scheme_10<-scheme
-# saving
-saveRDS(scheme_10, file="scheme_10")
-
-Sys.time()
-
-##################### Evaluating the models ################################
-
-### Popular ###
-evaluating
-result_rating_popular_10 <- evaluate(scheme_10,
-                                     method = "popular",
-                                     parameter = list(normalize = "Z-score"),
-                                     type  = "ratings"
-)
-
-# examining the results
-result_rating_popular_10@results %>%
-  map(function(x) x@cm) %>%
-  unlist() %>%
-  matrix(ncol = 3, byrow = T) %>%
-  as.data.frame() %>%
-  summarise_all(mean) %>%
-  setNames(c("RMSE", "MSE", "MAE"))
-
-Sys.time()
-
-# saving 
-# saveRDS(result_rating_popular, file="result_rating_popular")
-
-### svd ###
-# evaluating
-# result_rating_svd <- evaluate(scheme,
-#                               method = "svd",
-#                               parameter = list(normalize = "Z-score", k = 5),
-#                               type  = "ratings"
-# )
-# 
-# # examining the results
-# result_rating_svd@results %>% 
-#   map(function(x) x@cm) %>% 
-#   unlist() %>% 
-#   matrix(ncol = 3, byrow = T) %>% 
-#   as.data.frame() %>% 
-#   summarise_all(mean) %>% 
-#   setNames(c("RMSE", "MSE", "MAE"))
-# 
-# Sys.time()
-
-# saving 
-# saveRDS(result_rating_svd, file="result_rating_svd")
-
-### als ###
-# evaluating
-# result_rating_als <- evaluate(scheme,
-#                               method = "als",
-#                               parameter = list(normalize = "Z-score"),
-#                               type  = "ratings"
-# )
-# 
-# # examining the results
-# result_rating_als@results %>% 
-#   map(function(x) x@cm) %>% 
-#   unlist() %>% 
-#   matrix(ncol = 3, byrow = T) %>% 
-#   as.data.frame() %>% 
-#   summarise_all(mean) %>% 
-#   setNames(c("RMSE", "MSE", "MAE"))
-# 
-# Sys.time()
-# 
-# # saving 
-# saveRDS(result_rating_als, file="result_rating_als")
-
-### svdf ###
-
-# evaluating
-result_rating_svdf_10 <- evaluate(scheme_10,
-                                  method = "svdf",
-                                  parameter = list(normalize = "Z-score", k = 5),
-                                  type  = "ratings"
-)
-
-Sys.time()
-
-# saving 
-saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
-
-# examining the results
-result_rating_svdf@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-
-Sys.time()
 
 ##################################################################################
 ##################### Test Set ###################################################
 ##################################################################################
 
-
-# converting the testing set into a matrix
-users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
-dim(users_and_ratings_test_set)
-# head(users_and_ratings_test_set)
-
-testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
-dim(testmat)
-
-# checking number of ratings per item
-number_of_ratings<-colCounts(testmat)
-min(number_of_ratings)
-max(number_of_ratings)
-
-# exploring the matrix
-dim(testmat)
-# testmat@data[1500:1510, 2001:2009]
-
-# normalizing the values
-# normalize(testmat, method = "Z-score")
-
-# saving
-saveRDS(testmat, file="testmat")
-
-# creating tenths of the testmat file
-dim(testmat)
-index<-seq(1:nrow(testmat))
-length(index)
-
-# splitting index into 10 equal parts
+# splitting index into 3 equal parts
 splitted_index<-split(index,             # Applying split() function
-      cut(seq_along(index),
-          10,
-          labels = FALSE))
-splitted_index
+                      cut(seq_along(index),
+                          5,
+                          labels = FALSE))
+# splitted_index
 
-first_tenth<-as.vector(splitted_index[[1]])
-length(first_tenth)
-nrow(testmat)
+fifth_1<-as.vector(splitted_index[[1]])
+fifth_2<-as.vector(splitted_index[[2]])
+fifth_3<-as.vector(splitted_index[[3]])
+fifth_4<-as.vector(splitted_index[[4]])
+fifth_5<-as.vector(splitted_index[[5]])
 
-testmat_first<-testmat[first_tenth]
-dim(testmat_first)
-dim(testmat)
+# tenth_1<-as.vector(splitted_index[[1]])
+# tenth_2<-as.vector(splitted_index[[2]])
+# tenth_3<-as.vector(splitted_index[[3]])
+# tenth_4<-as.vector(splitted_index[[4]])
+# tenth_5<-as.vector(splitted_index[[5]])
+# tenth_6<-as.vector(splitted_index[[6]])
+# tenth_7<-as.vector(splitted_index[[7]])
+# tenth_8<-as.vector(splitted_index[[8]])
+# tenth_9<-as.vector(splitted_index[[9]])
+# tenth_10<-as.vector(splitted_index[[10]])
 
-# checking the initial/default parameters of the SVDF model
-# recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
+# verifying that all of the 10ths together comprise the total number of users
+# in the test set
+# total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
+#   length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
+# total
+# nrow(testmat)
 
-# recommending
-# recom_svdf <- Recommender(data = testmat,
-#                           method = "SVDF",
-#                           parameter = list(normalize = "Z-score")
-# )
+# splitting the test set into ten parts
+testmat_1<-testmat[fifth_1]
+testmat_2<-testmat[fifth_2]
+testmat_3<-testmat[fifth_3]
+testmat_4<-testmat[fifth_4]
+testmat_5<-testmat[fifth_5]
+
+# testmat_1<-testmat[tenth_1]
+# testmat_2<-testmat[tenth_2]
+# testmat_3<-testmat[tenth_3]
+# testmat_4<-testmat[tenth_4]
+# testmat_5<-testmat[tenth_5]
+# testmat_6<-testmat[tenth_6]
+# testmat_7<-testmat[tenth_7]
+# testmat_8<-testmat[tenth_8]
+# testmat_9<-testmat[tenth_9]
+# testmat_10<-testmat[tenth_10]
+
+# examining the tenths
+# dim(testmat_1)
+# dim(testmat_7)
+# dim(testmat_9)
+# dim(testmat_10)
 
 Sys.time()
 
@@ -300,24 +253,41 @@ Sys.time()
 
 Sys.time()
 
-recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
-recommendations_pop_10
+# recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
 
 Sys.time()
 
 # saving
-saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
 #Making prediction on validation set:
-predictions_pop_10 <- predict(recommendations_pop_10, testmat_first, type="ratingMatrix")
-predictions_pop_10
+predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
+saveRDS(predictions_pop_10_1, file="predictions_pop_10_1")
+predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_2, type="ratingMatrix")
+saveRDS(predictions_pop_10_2, file="predictions_pop_10_2")
+predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingMatrix")
+saveRDS(predictions_pop_10_3, file="predictions_pop_10_3")
 
+
+
+
+predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
+saveRDS(predictions_pop_10_4, file="predictions_pop_10_4")
+predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
+saveRDS(predictions_pop_10_5, file="predictions_pop_10_5")
+predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
+predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
+saveRDS(predictions_pop_10_7, file="predictions_pop_10_7")
+predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
+saveRDS(predictions_pop_10_8, file="predictions_pop_10_8")
+predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingMatrix")
+saveRDS(predictions_pop_10_9, file="predictions_pop_10_9")
+predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
+saveRDS(predictions_pop_10_10, file="predictions_pop_10_10")
 Sys.time()
 
-class(predictions_pop_10)
-
 # saving
-saveRDS(predictions_pop_10, file="predictions_pop_10")
+saveRDS(predictions_pop_10_1, file="predictions_pop_10")
 
 # turning the results into a matrix
 predmat_pop_10<-as(predictions_pop_10, "matrix")
@@ -361,75 +331,49 @@ rmse_manual
 rmse_pop_10<-RMSE(testmat_first_matrix, predmat_pop_10, na.rm=T)
 rmse_pop_10
 
-# checking why the manual calculation differs from the non-manual one
-sum(!is.na(diffmat_1))
-sum(!is.na(testmat_first_matrix))
-sum(!is.na(squared_differences_1))
-sum(!is.na(predmat_pop_10))
-number_of_ratings_in_test<-sum(!is.na(squared_differences_1))
-
-############   svdf    #################
-
-Sys.time()
-
-recommendations_svdf_10 <- Recommender(trainmat_final_10, method = "svdf")
-recommendations_svdf_10<-recommendations_svdf
-
-# rm(recommendations_svdf, scheme_10, trainmat_final_10, trainmat_reduced, validation)
-
-saveRDS(recommendations_svdf_10, file="recommendations_svdf_10")
-
-Sys.time()
-
-#Making prediction on validation set:
-predictions_svdf_10 <- predict(recommendations_svdf_10, testmat_first, type="ratings")
-predictions_svdf_10
-
-Sys.time()
-
-class(predictions)
 
 # saving
-saveRDS(predictions, file="predictions")
+saveRDS(predictions_pop_10_1, file="predictions_pop_10")
 
 # turning the results into a matrix
-predmat<-as(predictions, "matrix")
-class(predmat)
-
-# calculating RMSE
-rmse_svdf<-RMSE(testmat, predmat, na.rm=T)
-rmse_svdf
-
-############   ibcf    #################
-
-Sys.time()
-
-recommendations_ibcf_10 <- Recommender(trainmat_final_10, method = "ibcf")
-recommendations_ibcf_10<-recommendations_ibcf
-
-# rm(recommendations_ibcf, scheme_10, trainmat_final_10, trainmat_reduced, validation)
-
-saveRDS(recommendations_ibcf_10, file="recommendations_ibcf_10")
-
-Sys.time()
-
-#Making prediction on validation set:
-predictions_ibcf_10 <- predict(recommendations_ibcf_10, testmat, type="ratings")
-predictions_ibcf_10
-
-Sys.time()
-
-class(predictions)
+predmat_pop_10<-as(predictions_pop_10, "matrix")
+class(predmat_pop_10)
 
 # saving
-saveRDS(predictions, file="predictions")
+saveRDS(predmat_pop_10, file="predmat_pop_10")
 
-# turning the results into a matrix
-predmat<-as(predictions, "matrix")
-class(predmat)
+dim(testmat_first)
+testmat_first
+
+dim(predmat_pop_10)
+
+# examining the matrices
+testmat_first[1000:1100, 2000:2100]
+
+# turning testmat into a matrix
+testmat_first_matrix<-as(testmat_first, "matrix")
+
+# saving
+saveRDS(testmat_first_matrix, file="testmat_first_matrix")
+
+diffmat_1<-testmat_first_matrix-predmat_pop_10
+
+diffmat_1[1000:1100, 2000:2100]
+
+# sum(!is.na(diffmat_1[1000:1100, 2000:2100]))
+# sum(!is.na(testmat_first_matrix[1000:1100, 2000:2100]))
+# sum(is.na(predmat_pop_10[1000:1100, 2000:2100]))
+
+# predmat_pop_10[1500:1510, 2001:2009]
+
+# calculating the difference
 
 # calculating RMSE
-rmse_ibcf<-RMSE(testmat, predmat, na.rm=T)
-rmse_ibcf
+number_of_ratings_in_test<-sum(!is.na(testmat_first_matrix))
+squared_differences_1<-diffmat_1^2
+rmse_manual<-sqrt(sum(squared_differences_1, na.rm=T)/number_of_ratings_in_test)
+rmse_manual
 
-### end of script ###
+rmse_pop_10<-RMSE(testmat_first_matrix, predmat_pop_10, na.rm=T)
+rmse_pop_10
+
