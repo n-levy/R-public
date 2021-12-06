@@ -71,7 +71,7 @@ genre_avgs <- edx %>%
   left_join(user_avgs) %>%
   left_join(movie_avgs) %>%
   group_by(genresnum) %>% 
-  summarize(b_g = mean(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())
+  summarize(b_g = sum(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())
 
 # creating a numeric user_genres column in the
 # validation dataset
