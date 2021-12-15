@@ -91,7 +91,14 @@ dim(trainmat_reduced)
 # saving
 saveRDS(trainmat_reduced, file="trainmat_reduced")
 
-# class(trainmat)
+
+# exploring the matrix #
+class(trainmat_reduced)
+n_missing<-sum(is.na(trainmat_reduced)) # counting mising values
+n_nonmissing<-sum(!is.na(trainmat_reduced)) # counting nonmissing values
+p_nonmissing<-n_nonmissing/(n_missing+n_nonmissing) # calculating the percentage of nonmissing values
+p_nonmissing 
+rm(n_missing, n_nonmissing, p_nonmissing) # removing these variables
 
 # removing items with few ratings because of low confidence in these ratings
 # min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)

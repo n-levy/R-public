@@ -65,3 +65,41 @@ saveRDS(movielens, file="movielens")
 # saveRDS(core, file="core")
 # saveRDS(sub, file="sub")
 # saveRDS(trainmat, file="trainmat")
+
+### Exploring the training set ###
+# dim(edx)
+# names(edx)
+# head(edx)
+# summary(edx)
+# sum(is.na(edx)) # counting missing values
+# 
+# # counting the unique values
+# n_distinct(edx$userId) # users
+# n_distinct(edx$movieId) # movies
+# n_distinct(edx$rating) # ratings
+# n_distinct(edx$genres) # genres
+# 
+# ### examining some distributions of the ratings ###
+# # distribution of the ratings
+# histogram(edx$rating) 
+# ratings_per_movie<-edx %>%
+#   count(movieId)
+# 
+# # distribution of the ratings per movie
+# histogram(ratings_per_movie$n, breaks=30)  
+# boxplot(ratings_per_movie$n)
+# summary(ratings_per_movie$n) 
+# 
+# rm(ratings_per_movie)
+# 
+# # distribution of the ratings per user
+# ratings_per_user<-edx %>%
+#   filter(!is.na(rating))  %>%
+#   count(userId)
+# 
+# histogram(ratings_per_user$n, breaks=30)  
+# boxplot(ratings_per_user$n)
+# summary(ratings_per_user$n) 
+# 
+# rm(ratings_per_user)
+# 
