@@ -184,3 +184,58 @@ Sys.time()
 
 # saving 
 saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+
+# examining the results
+result_rating_svdf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+### ibcf ###
+
+# evaluating
+result_rating_ibcf_10 <- evaluate(scheme_10,
+                                  method = "ibcf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_ibcf_10, file="result_rating_ibcf_10")
+
+# examining the results
+result_rating_ibcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+### ubcf ###
+
+# evaluating
+result_rating_ubcf_10 <- evaluate(scheme_10,
+                                  method = "ubcf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_ubcf_10, file="result_rating_ubcf_10")
+
+# examining the results
+result_rating_ubcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
