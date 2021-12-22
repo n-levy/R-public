@@ -118,8 +118,6 @@ scheme_10 <- trainmat_final_10 %>%
                    goodRating = 3.5
   )
 
-# scheme
-scheme_10<-scheme
 # saving
 saveRDS(scheme_10, file="scheme_10")
 
