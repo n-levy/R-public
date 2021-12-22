@@ -28,50 +28,23 @@ invisible(gc())
 
 # # loading  data files
 setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
-# ratings<-readRDS("ratings")
-# movies<-readRDS("movies")
-# movielens<-readRDS("movielens")
-# core<-readRDS("core")
-# sub<-readRDS("sub")
 validation<-readRDS("validation")
 edx<-readRDS("edx")
-edx_reduced<-readRDS("edx_reduced")
-# trainmat<-readRDS("trainmat")
-# testmat<-readRDS("testmat")
-# scheme_10<-readRDS("scheme_10")
-# full_scheme<-readRDS("full_scheme")
-# trainmat_reduced<-readRDS("trainmat_reduced")
-trainmat_final_10<-readRDS("trainmat_final_10")
+trainmat_reduced_reg<-readRDS("trainmat_reduced_reg")
 
 ### Preparing the data ###
-### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
-# Creating a sample of 0.1% of the training data, to try out the method #
-# set.seed(123) 
-# sampling_rate<-1
-# sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
-# samp <- edx[sample_index,]
-# samp<-edx
-
-# exploring the sample
-# dim(samp)
-# names(samp)
-# head(samp)
-# class(samp$userId)
-# class(samp$movieId)
-# class(samp$rating)
-
 # removing movies in the training set that do not appear in the test set
 edx_reduced <- edx %>% 
   semi_join(validation, by = "movieId") 
 
+# exploring the datasets
 dim(edx)
 dim(validation)
 head(edx)
 head(validation)
 names(edx)
 names(validation)
-
-dim(edx$reduced)
+dim(edx_reduced)
 
 # saving
 saveRDS(edx_reduced, file="edx_reduced")
@@ -84,30 +57,38 @@ dim(users_and_ratings_train_set)
 trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
 dim(trainmat_reduced)
 
-# converting the matrix into a "realRatingMatrix")
-trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
-dim(trainmat_reduced)
-
 # saving
 saveRDS(trainmat_reduced, file="trainmat_reduced")
 
+# creating a regular matrix
+trainmat_reduced_reg<-as(trainmat_reduced, "matrix")
+
+# saving
+saveRDS(trainmat_reduced_reg, file="trainmat_reduced_reg")
 
 # exploring the matrix #
-class(trainmat_reduced)
-n_missing<-sum(is.na(trainmat_reduced)) # counting mising values
-n_nonmissing<-sum(!is.na(trainmat_reduced)) # counting nonmissing values
-p_nonmissing<-n_nonmissing/(n_missing+n_nonmissing) # calculating the percentage of nonmissing values
+class(trainmat_reduced_reg)
+n_missing<-sum(is.na(trainmat_reduced_reg)) # counting missing values
+n_missing
+all<-nrow(trainmat_reduced_reg)*ncol(trainmat_reduced_reg) # counting all values
+all
+p_nonmissing<-n_nonmissing/(all) # calculating the percentage of nonmissing values
 p_nonmissing 
-rm(n_missing, n_nonmissing, p_nonmissing) # removing these variables
+rm(trainmat_reduced_reg, n_missing, all) # removing the matrix and these variables
 
-# removing items with few ratings because of low confidence in these ratings
-# min_n_movies <- quantile(rowCounts(trainmat_full), 0.9)
-# print(min_n_movies)
-
-min_n_users <- quantile(colCounts(trainmat_reduced), 0.9)
+# Calculating the 90th percentile of the number of ratings per user
+min_n_users <- quantile(rowCounts(trainmat_reduced), 0.9)
 min_n_users
 
-trainmat_final_10 <- trainmat_reduced[colCounts(trainmat_reduced) > min_n_users,]
+# making sure the calculation is correct
+nrow(trainmat_reduced)
+length(rowCounts(trainmat_reduced))
+
+# Keeping only users who gave many ratings (the top 10% of the number of ratings)
+# to reduce computation time. Otherwise the analysis runs
+# very slowly on my computer
+
+trainmat_final_10 <- trainmat_reduced[rowCounts(trainmat_reduced) > min_n_users,]
 dim(trainmat_final_10)
 
 # saving
@@ -126,19 +107,7 @@ max(number_of_ratings)
  normalize(trainmat_final_10, method = "Z-score")
 
 # saving
-# saveRDS(trainmat, file="trainmat")
-
-# checking the initial/default parameters of the SVDF model
- recommenderRegistry$get_entry("SVDF", dataType = "realRatingMatrix")
-
-# recommending
-# recom_svdf <- Recommender(data = trainmat_final_10,
-#                           method = "SVDF",
-#                           parameter = list(normalize = "Z-score")
-# )
-
-# Evaluating the model by cross-validation
-# set.seed(1, sample.kind="Rounding")
+saveRDS(trainmat_final_10, file="trainmat")
 
 # Setting up the evaluation scheme (Leave one out cross validation)
 scheme_10 <- trainmat_final_10 %>% 
