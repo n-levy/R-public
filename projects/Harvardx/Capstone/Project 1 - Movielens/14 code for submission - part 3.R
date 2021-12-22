@@ -30,7 +30,7 @@ invisible(gc())
 setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 validation<-readRDS("validation")
 edx<-readRDS("edx")
-trainmat_reduced_reg<-readRDS("trainmat_reduced_reg")
+# trainmat_reduced_reg<-readRDS("trainmat_reduced_reg")
 
 ### Preparing the data ###
 # removing movies in the training set that do not appear in the test set
@@ -166,6 +166,54 @@ result_rating_svd_10@results %>%
  
 # Sys.time()
 
+### ibcf ###
+
+# evaluating
+result_rating_ibcf_10 <- evaluate(scheme_10,
+                                  method = "ibcf",
+                                  parameter = list(normalize = "Z-score"),
+                                  type  = "ratings"
+)
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_ibcf_10, file="result_rating_ibcf_10")
+
+# examining the results
+result_rating_ibcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time()
+
+### ubcf ###
+
+# evaluating
+result_rating_ubcf_10 <- evaluate(scheme_10,
+                                  method = "ubcf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+Sys.time()
+
+# saving 
+saveRDS(result_rating_ubcf_10, file="result_rating_ubcf_10")
+
+# examining the results
+result_rating_ubcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
 # saving 
 saveRDS(result_rating_svd_10, file="result_rating_svd_10")
 
@@ -187,52 +235,6 @@ saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
 
 # examining the results
 result_rating_svdf_10@results %>%
-  map(function(x) x@cm) %>%
-  unlist() %>%
-  matrix(ncol = 3, byrow = T) %>%
-  as.data.frame() %>%
-  summarise_all(mean) %>%
-  setNames(c("RMSE", "MSE", "MAE"))
-
-### ibcf ###
-
-# evaluating
-result_rating_ibcf_10 <- evaluate(scheme_10,
-                                  method = "ibcf",
-                                  parameter = list(normalize = "Z-score", k = 5),
-                                  type  = "ratings"
-)
-
-Sys.time()
-
-# saving 
-saveRDS(result_rating_ibcf_10, file="result_rating_ibcf_10")
-
-# examining the results
-result_rating_ibcf_10@results %>%
-  map(function(x) x@cm) %>%
-  unlist() %>%
-  matrix(ncol = 3, byrow = T) %>%
-  as.data.frame() %>%
-  summarise_all(mean) %>%
-  setNames(c("RMSE", "MSE", "MAE"))
-
-### ubcf ###
-
-# evaluating
-result_rating_ubcf_10 <- evaluate(scheme_10,
-                                  method = "ubcf",
-                                  parameter = list(normalize = "Z-score", k = 5),
-                                  type  = "ratings"
-)
-
-Sys.time()
-
-# saving 
-saveRDS(result_rating_ubcf_10, file="result_rating_ubcf_10")
-
-# examining the results
-result_rating_ubcf_10@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
   matrix(ncol = 3, byrow = T) %>%
