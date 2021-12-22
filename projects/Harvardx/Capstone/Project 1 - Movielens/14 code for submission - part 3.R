@@ -126,7 +126,7 @@ Sys.time()
 ##################### Evaluating the models ################################
 
 ### Popular ###
-evaluating
+# evaluating the "popular" model
 result_rating_popular_10 <- evaluate(scheme_10,
                                      method = "popular",
                                      parameter = list(normalize = "Z-score"),
@@ -145,52 +145,32 @@ result_rating_popular_10@results %>%
 Sys.time()
 
 # saving 
-# saveRDS(result_rating_popular, file="result_rating_popular")
+saveRDS(result_rating_popular_10, file="result_rating_popular_10")
 
 ### svd ###
-# evaluating
-# result_rating_svd <- evaluate(scheme,
-#                               method = "svd",
-#                               parameter = list(normalize = "Z-score", k = 5),
-#                               type  = "ratings"
-# )
-# 
-# # examining the results
-# result_rating_svd@results %>% 
-#   map(function(x) x@cm) %>% 
-#   unlist() %>% 
-#   matrix(ncol = 3, byrow = T) %>% 
-#   as.data.frame() %>% 
-#   summarise_all(mean) %>% 
-#   setNames(c("RMSE", "MSE", "MAE"))
-# 
+# evaluating the svd model
+result_rating_svd_10 <- evaluate(scheme_10,
+                              method = "svd",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
+
+# examining the results
+result_rating_svd_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+ 
 # Sys.time()
 
 # saving 
-# saveRDS(result_rating_svd, file="result_rating_svd")
+saveRDS(result_rating_svd_10, file="result_rating_svd_10")
 
-### als ###
-# evaluating
-# result_rating_als <- evaluate(scheme,
-#                               method = "als",
-#                               parameter = list(normalize = "Z-score"),
-#                               type  = "ratings"
-# )
-# 
-# # examining the results
-# result_rating_als@results %>% 
-#   map(function(x) x@cm) %>% 
-#   unlist() %>% 
-#   matrix(ncol = 3, byrow = T) %>% 
-#   as.data.frame() %>% 
-#   summarise_all(mean) %>% 
-#   setNames(c("RMSE", "MSE", "MAE"))
-# 
-# Sys.time()
-# 
-# # saving 
-# saveRDS(result_rating_als, file="result_rating_als")
-
+Sys.time()
+ 
 ### svdf ###
 
 # evaluating
@@ -204,17 +184,3 @@ Sys.time()
 
 # saving 
 saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
-
-# examining the results
-result_rating_svdf@results %>% 
-  map(function(x) x@cm) %>% 
-  unlist() %>% 
-  matrix(ncol = 3, byrow = T) %>% 
-  as.data.frame() %>% 
-  summarise_all(mean) %>% 
-  setNames(c("RMSE", "MSE", "MAE"))
-
-
-Sys.time()
-
-
