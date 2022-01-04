@@ -450,5 +450,4 @@ rm(list=ls())
 # cleaning memory
 invisible(gc())
 
-# Allocating memory
-memory.limit(size = 10^10)
+
