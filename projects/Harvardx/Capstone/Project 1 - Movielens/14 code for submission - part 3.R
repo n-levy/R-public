@@ -30,7 +30,7 @@ invisible(gc())
 setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 validation<-readRDS("validation")
 edx<-readRDS("edx")
-# trainmat_reduced_reg<-readRDS("trainmat_reduced_reg")
+trainmat_final_10<-readRDS("trainmat_final_10")
 
 ### Preparing the data ###
 # removing movies in the training set that do not appear in the test set
@@ -241,3 +241,17 @@ result_rating_svdf_10@results %>%
   as.data.frame() %>%
   summarise_all(mean) %>%
   setNames(c("RMSE", "MSE", "MAE"))
+
+### Training the 'POP' algorithm, since it's run time is much shorter than the others
+### and it is fairly accurate.
+
+Sys.time() # noting the time in order to measure the time the next command takes
+
+# training the algorithm on one tenth of the training set
+# (training it on the full set took too much time)
+recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+
+Sys.time() # noting the time in order to measure the time the next command takes
+
+# saving
+# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
