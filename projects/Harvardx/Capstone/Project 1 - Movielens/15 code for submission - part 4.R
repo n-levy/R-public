@@ -5,14 +5,9 @@
 ### Loading libraries ###
 library(tidyverse)
 library(caret)
-# library(data.table)
 library(dplyr)
-# library(kableExtra)
 library(recommenderlab)
 library(Matrix)
-# library(BBmisc)
-# library(DT)
-# library(pander)
 
 # cleaning the environment
 # rm(list = ls())
@@ -33,7 +28,7 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # movielens<-readRDS("movielens")
 # core<-readRDS("core")
 # sub<-readRDS("sub")
-# validation<-readRDS("validation")
+ validation<-readRDS("validation")
 # edx<-readRDS("edx")
 # trainmat<-readRDS("trainmat")
 # testmat<-readRDS("testmat")
@@ -44,46 +39,33 @@ setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Gi
 # recommendations_svdf_10<-readRDS("recommendations_svdf_10")
 # recommendations_pop_10<-readRDS("recommendations_pop_10")
 
-### Preparing the data ###
-### *** Begin with a small sample of 10K out of the 10M dataset, only afterwards proceed to the full sample *** ###
-# Creating a sample of 0.1% of the training data, to try out the method #
-# set.seed(123) 
-# sampling_rate<-1
-# sample_index <- createDataPartition(y = edx$rating, times = 1, p = sampling_rate, list = FALSE)
-# samp <- edx[sample_index,]
- samp<-edx
-
-# exploring the sample
-# dim(samp)
-# names(samp)
-# head(samp)
-# class(samp$userId)
-# class(samp$movieId)
-# class(samp$rating)
-
-
 ##################################################################################
 ##################### Test Set ###################################################
 ##################################################################################
 
- # converting the testing set into a matrix
- users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
- dim(users_and_ratings_test_set)
- # head(users_and_ratings_test_set)
- 
- testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
- dim(testmat)
- 
- # checking number of ratings per item
- number_of_ratings<-colCounts(testmat)
- min(number_of_ratings)
- max(number_of_ratings)
- 
-# creating an index of rows in edx
-index<-seq(1:nrow(testmat))
-index
+### converting the testing set into a reaRatingmatrix ###
+# creating userId,  movieId and rating columns
+users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
+dim(users_and_ratings_test_set)
+# head(users_and_ratings_test_set)
 
-# splitting index into 10 equal parts
+# creating the matrix
+testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
+dim(testmat)
+ 
+# checking number of ratings per item
+number_of_ratings<-colCounts(testmat)
+min(number_of_ratings)
+max(number_of_ratings)
+ 
+# creating an index of rows in the test matrix
+index<-seq(1:nrow(testmat))
+length(index) # making sure that the index was created properly
+
+### Splitting the test matrix intro 10 equal parts ###
+### to shorten processing time ###
+
+# splitting the index into 10 equal parts
 splitted_index<-split(index,             # Applying split() function
                       cut(seq_along(index),
                           10,
@@ -102,12 +84,12 @@ tenth_10<-as.vector(splitted_index[[10]])
 
 # verifying that all of the 10ths together comprise the total number of users
 # in the test set
- total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
-   length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
- total
- nrow(testmat)
+total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
+ length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
+total
+nrow(testmat)
 
-# splitting the test set into ten parts
+# splitting the test matrix into ten parts
 testmat_1<-testmat[tenth_1]
 testmat_2<-testmat[tenth_2]
 testmat_3<-testmat[tenth_3]
@@ -119,20 +101,19 @@ testmat_8<-testmat[tenth_8]
 testmat_9<-testmat[tenth_9]
 testmat_10<-testmat[tenth_10]
 
-# examining the tenths
+# examining some of the tenths, to make sure that
+# they were created properly
 dim(testmat_1)
 dim(testmat_7)
 dim(testmat_9)
 dim(testmat_10)
 
-Sys.time()
+# Creating the predictions, using the 'popular' method
 
-# Creating the recommendations
+Sys.time() # noting the time in order to measure the time the next command takes
 
-############   popular    #################
-
-Sys.time()
-
+# training the algorithm on one tenth of the training set
+# (training it on the full set took too much time)
 recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
 
 Sys.time()
@@ -140,22 +121,19 @@ Sys.time()
 # saving
 # saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 
-#Making prediction on validation set:
+# Predicting the ratings in the validation set, one tenth at a time:
 predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
 saveRDS(predictions_pop_10_1, file="predictions_pop_10_1")
 predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_2, type="ratingMatrix")
 saveRDS(predictions_pop_10_2, file="predictions_pop_10_2")
 predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingMatrix")
 saveRDS(predictions_pop_10_3, file="predictions_pop_10_3")
-
-
-
-
 predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
 saveRDS(predictions_pop_10_4, file="predictions_pop_10_4")
 predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
 saveRDS(predictions_pop_10_5, file="predictions_pop_10_5")
 predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
+saveRDS(predictions_pop_10_6, file="predictions_pop_10_6")
 predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
 saveRDS(predictions_pop_10_7, file="predictions_pop_10_7")
 predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
@@ -164,10 +142,10 @@ predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingM
 saveRDS(predictions_pop_10_9, file="predictions_pop_10_9")
 predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
 saveRDS(predictions_pop_10_10, file="predictions_pop_10_10")
+
 Sys.time()
 
-# saving
-saveRDS(predictions_pop_10_1, file="predictions_pop_10")
+# reached here
 
 # turning the results into a matrix
 predmat_pop_10<-as(predictions_pop_10, "matrix")
