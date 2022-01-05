@@ -1,0 +1,35 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+```
+---
+output:
+pdf_document: default
+html_document: default
+---
+```
+
+```
+Guidelines:
+
+1. an introduction/overview/executive summary section that describes the dataset and summarizes the goal of the project and key steps that were performed
+2. a methods/analysis section that explains the process and techniques used, including data cleaning, data exploration and visualization, insights gained, and your modeling approach
+3. a results section that presents the modeling results and discusses the model performance
+4. a conclusion section that gives a brief summary of the report, its limitations and future work
+```
+
+# MovieLens Project Submission
+## Nir Levy
+### January 2022
+
+Hi this is plain text.  
+And here is some code.
+
+
+```{r}
+5+3
+```
+
+

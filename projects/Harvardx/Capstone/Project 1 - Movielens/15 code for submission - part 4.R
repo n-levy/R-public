@@ -415,7 +415,7 @@ rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recomme
 rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
 rm(recommendations_pop, testmat_real, trainmat_real)
 rm(testmat_all)
-# rm(list=ls())
+rm(list=ls())
 
 # cleaning memory
 invisible(gc())
