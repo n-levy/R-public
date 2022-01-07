@@ -108,7 +108,7 @@ saveRDS(validation, file="validation")
 saveRDS(movielens, file="movielens")
 ```
 
-Now I examine the data by running some analyses and creating some plots, partly based on code provided in previous courses.
+Now I examine the data by running some analyses and creating some plots
 
 ```{r}
 ### Exploring the training set ###
