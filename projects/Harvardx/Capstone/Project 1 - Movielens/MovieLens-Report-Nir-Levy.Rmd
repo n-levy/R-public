@@ -1,0 +1,964 @@
+# MovieLens Project Submission
+## Nir Levy, January 2022x
+
+## Summary
+This report describes my work on the MovieLens project, within the Capstone course of Harvardx's Data Science Professional Certificate.  
+The goal of the project was to predict ratings provided by users to movies. 
+Both users and movies in the test set were included in the training set as well. 
+After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction algorithms on the training set (section 3).
+The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed  
+reasonably well and ran quickly. 
+I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.856 (section 4).
+My main conclusion is that it is important to be aware of the trade-off between performance and speed. (section 5)
+Although the SVDF model produced the lowest RMSE, due to my limited processing power it was impractical. 
+The 'Popular' model was much faster and produced a reasonable RMSE, so this seemed like a better choice.
+
+### Structure of the report
+The report is structured as follows: the first section describes the goal of the analysis. The second section presents the creation of training and test sets, as well as some exploratory analysis. The third section presents some prediction algorithms that I checked out using the training set, before choosing the one that I used for predicting the test set scores (the 'Popular' model). The fourth section presents the results of applying this model on the test set.  
+Finally, the fifth section presents the conclusion.
+
+## Table of contents
+1. Introduction
+2. Creating the data and exploring it
+3. Choosing a prediction model
+4. Applying the model to the test set
+5. Conclusion
+
+## 1. Introduction
+### The assignment
+The goal of the project was to predict ratings provided by users to movies. Both users and movies in the test set were included in the training set as well. Therefore, the hypothetical scenario is that we already have information about a set of users and a set of movies. However, the information does not cover the ratings given by each user to each movie. It only covers ratings given by each user to a small amount of movies (the matrix in which the rows are users and the columns are movies is very sparse). Based on the ratings that we observe, we wish to predict other ratings within the same set of users and movies.
+
+### The analysis
+The key steps of the analysis were as follows:
+1. Downloading, arranging and exploring the data (section 2)
+2. Evaluating the performance of various prediction algorithms on the training set (section 3)
+3. Applying the chosen model ('Popular') to the test set and calculating the RMSE (section 4)
+
+The following sections present these steps and the conclusion.
+
+## 2. Creating the data and exploring it
+
+I begin by downloading the data, using the code provided by the course.
+Since it is provided by the course, I have hidden it in the report. 
+See the R script or the Rmd file for the code.
+
+```{r 1a_downloading_the_data, include=FALSE, error=TRUE}
+
+##############################################################
+# Create edx set, validation set (final hold-out test set) ###
+##############################################################
+
+# loading libraries
+library(tidyverse)
+library(caret)
+library(data.table)
+library(dplyr)
+library(recommenderlab)
+library(Matrix)
+
+# removing all files
+rm(list=ls())
+
+# clearing memory
+invisible(gc())
+
+# MovieLens 10M dataset:
+# https://grouplens.org/datasets/movielens/10m/
+# http://files.grouplens.org/datasets/movielens/ml-10m.zip
+
+dl <- tempfile()
+download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
+
+ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
+                 col.names = c("userId", "movieId", "rating", "timestamp"))
+
+movies <- str_split_fixed(readLines(unzip(dl, "ml-10M100K/movies.dat")), "\\::", 3)
+colnames(movies) <- c("movieId", "title", "genres")
+
+movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
+                                           title = as.character(title),
+                                           genres = as.character(genres))
+
+
+movielens <- left_join(ratings, movies, by = "movieId")
+
+# Validation set will be 10% of MovieLens data
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+test_index <- createDataPartition(y = movielens$rating, times = 1, p = 0.1, list = FALSE)
+edx <- movielens[-test_index,]
+temp <- movielens[test_index,]
+
+# Make sure userId and movieId in validation set are also in edx set
+validation <- temp %>% 
+  semi_join(edx, by = "movieId") %>%
+  semi_join(edx, by = "userId")
+
+# Add rows removed from validation set back into edx set
+removed <- anti_join(temp, validation)
+edx <- rbind(edx, removed)
+
+```
+Next, I save the files.
+
+```{r 1b_saving_files, error=TRUE}
+
+### saving the training and test sets ###
+saveRDS(movies, file="movies")
+saveRDS(ratings, file="ratings")
+saveRDS(edx, file="edx")
+saveRDS(validation, file="validation")
+saveRDS(movielens, file="movielens")
+```
+
+Now I examine the data by running some analyses and creating some plots
+
+```{r 2_exploring_the_data, error=TRUE}
+
+### Exploring the training set ###
+dim(edx)
+names(edx)
+head(edx)
+sum(is.na(edx)) # counting missing values
+
+# counting the unique values
+n_distinct(edx$userId) # users
+n_distinct(edx$movieId) # movies
+n_distinct(edx$rating) # ratings
+n_distinct(edx$genres) # genres
+
+# plotting the distributions of the ratings 
+histogram(edx$rating)
+
+# plotting the distribution of the ratings per movie
+ratings_per_movie<-edx %>%
+  count(movieId)
+histogram(ratings_per_movie$n, breaks=30)
+boxplot(ratings_per_movie$n)
+summary(ratings_per_movie$n)
+
+rm(ratings_per_movie) # removing the variable
+
+# plotting the distribution of ratings per user
+ratings_per_user<-edx %>%
+  filter(!is.na(rating))  %>%
+  count(userId)
+
+histogram(ratings_per_user$n, breaks=30)
+boxplot(ratings_per_user$n)
+summary(ratings_per_user$n)
+
+rm(ratings_per_user) # removing the variable
+
+```
+
+## 3. Choosing a prediction algorithm
+Now I evaluate several prediction models, using the training set.
+I apply the Leave One Out Cross Validation (LOOCV) method, due to a processing power limitation. Other methods took too much time to run.
+This section is structured as follows:
+a. Evaluating the 'movie and user fixed effects' model
+b. Adding genre fixed effects to the model
+c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
+d. Choosing a model to apply to the test set, based on the results
+
+### a. Evaluating the 'movie and user fixed effects' model
+I begin by evaluating the 'movie and user fixed effects' model that was presented in the machine learning course.
+
+```{r 3a_evaluating_fixed_effect_models, error=TRUE}
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# clearing memory
+invisible(gc())
+
+### The validation method is "Leave One Out Cross Validation (LOOCV)" ###
+
+### creating a subset of the training set, for testing the model ###
+# The core training set will be called 'core' and the subset of the training set
+# for validation will be called 'sub'.
+# (I am avoiding the term `validation set`, since edx called the test set 'validation set'.)
+
+# The 'sub' set will be 15% of the training set
+ sub_index <- createDataPartition(y = edx$rating, times = 1, p = 0.15, list = FALSE)
+ core <- edx[-sub_index,]
+ temp <- edx[sub_index,]
+
+# Making sure userId and movieId in sub set are also in core set
+sub <- temp %>%
+  semi_join(core, by = "movieId") %>%
+  semi_join(core, by = "userId")
+
+# Adding rows removed from sub set back into core set
+removed <- anti_join(temp, sub)
+core <- rbind(core, removed)
+ 
+# removing unnecessary objects
+rm(sub_index, temp, removed)
+
+### The first model ###
+# Predicting only according to the average rating in the dataset ###
+mu <- mean(core$rating)
+mu
+
+# checking the root mean squared error
+naive_rmse <- RMSE(sub$rating, mu)
+naive_rmse
+
+# creating a results table
+suppressWarnings(rm(rmse_results)) # removing this object if I already created it when running the code in the past
+rmse_results <- c("Just the average", round(naive_rmse,5))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+### adding movie effects ###
+movie_avgs <- core %>% 
+  group_by(movieId) %>% 
+  summarize(b_i = mean(rating - mu))
+
+# examining the distributions of constant movie effects
+movie_effects_plot<-qplot(b_i, data = movie_avgs, bins = 10, color = I("black"))
+movie_effects_plot
+
+# checking the rmse
+predicted_ratings <- mu + sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  pull(b_i)
+movie_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+
+rmse_results <- rbind.data.frame(rmse_results, c("With unregularized fixed movie effects", round(movie_effects_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+### adding user effects ###
+# examining the average rating per user
+core %>% 
+ group_by(userId) %>% 
+ filter(n()>=100) %>%
+ summarize(b_u = mean(rating)) %>% 
+ ggplot(aes(b_u)) + 
+ geom_histogram(bins = 30, color = "black")
+
+# estimating the user effects, by computing 
+# the overall average and the item effect, and then 
+# the user effect is the average of the remainder, after they
+# are substacted from the rating (user effect= average of (rating - overall average - item effect)
+user_avgs <- core %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  group_by(userId) %>%
+  summarize(b_u = mean(rating - mu - b_i))
+
+# checking the rmse
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  mutate(pred = mu + b_i + b_u) %>%
+  pull(pred)
+movie_and_user_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+
+rmse_results <- rbind.data.frame(rmse_results, c("With unregularized movie and user fixed effects", round(movie_and_user_effects_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+# adding regularization
+# Regularizing with lambda = 3
+lambda <- 3
+
+movie_avgs <- core %>% 
+  left_join(user_avgs, by='userId') %>%
+  group_by(movieId) %>%
+  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())
+
+### Calculating RMSE ###
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  mutate(pred = mu + b_i + b_u) %>%
+  pull(pred)
+movie_and_user_effects_with_regularization_rmse<-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
+rmse_results <- rbind.data.frame(rmse_results,c("Movie and user effects with regularization", round(movie_and_user_effects_with_regularization_rmse,5)))
+# rmse_results <- rbind(rmse_results, c("Movie and user effects with regularization", round(movie_and_user_effects_with_regularization_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+```
+Interim learnings, based on the RMSE table:
+1. Adding user fixed effects significantly improves the RMSE
+2. Regularization does not improve the RMSE in our case
+
+### b. Adding genre fixed effects to the model
+In addition to movie and user effects, genres might also have fixed effects.
+That is, some genres may have a higher or lower rating than the average rating of all movies.
+In order to account for this, I add genre fixed effects to the model.
+From here on, until the end of the analysis, we depart from the code that was provided in the 
+Machine Learning course.
+
+```{r 3b_adding_genre_fixed_effects, error=TRUE}
+
+# adding genre fixed effects with regularization
+
+# genre fixed effects with regularization
+# creating numeric genre column
+core$genresnum<-as.numeric(as.factor(core$genres))
+
+genre_avgs <- core %>% 
+  left_join(user_avgs) %>%
+  left_join(movie_avgs) %>%
+  group_by(genresnum) %>% 
+  summarize(b_g = mean(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())
+
+# creating a numeric user_genres column in the
+# sub dataset
+sub$genresnum<-as.numeric(as.factor(sub$genres))
+
+### Calculating RMSE ###
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  left_join(genre_avgs, by='genresnum') %>%
+  mutate(pred = mu + b_i + b_u + b_g) %>%
+  pull(pred)
+movie_user_genre_effects<-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
+rmse_results <- rbind(rmse_results, c("Movie, user and genre effects with regularization", round(movie_user_genre_effects,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+
+```
+Interim learning: adding genre fixed effects only slightly improves the RMSE
+
+### c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
+Now let us evaluate more advanced preduction models, namely:
+1. Popular
+2. Item Based Collaborative Filtering (IBCF)
+3. User Based Collaborative Filtering (UBCF)
+4. Singular Value Decomposition (SVD)
+5. Funk Singular Value Decomposition (SVDF)
+
+```{r 3c_preparing_data_for_evaluation, error=TRUE}
+
+# Increasing memory size
+memory.limit(size = 10^10)
+
+# cleaning memory
+invisible(gc())
+
+### Preparing the data ###
+# removing movies in the training set that do not appear in the test set
+edx_reduced <- edx %>% 
+  semi_join(validation, by = "movieId") 
+
+# exploring the datasets
+dim(edx)
+dim(edx_reduced)
+
+# saving
+saveRDS(edx_reduced, file="edx_reduced")
+
+# converting the training set into a matrix
+users_and_ratings_train_set<-cbind.data.frame(edx_reduced$userId, edx_reduced$movieId, edx_reduced$rating)
+dim(users_and_ratings_train_set)
+
+# converting the matrix into a "realRatingMatrix")
+trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
+dim(trainmat_reduced)
+
+# saving
+saveRDS(trainmat_reduced, file="trainmat_reduced")
+
+# creating a regular matrix
+trainmat_reduced_reg<-as(trainmat_reduced, "matrix")
+
+# saving
+saveRDS(trainmat_reduced_reg, file="trainmat_reduced_reg")
+
+# exploring the matrix #
+class(trainmat_reduced_reg)
+n_missing<-sum(is.na(trainmat_reduced_reg)) # counting missing values
+n_missing
+all<-nrow(trainmat_reduced_reg)*ncol(trainmat_reduced_reg) # counting all values
+all
+p_missing<-n_missing/all # calculating the percentage of missing values
+p_missing 
+rm(trainmat_reduced_reg, n_missing, all) # removing the matrix and other unnecessary objects
+```
+Since over 98% percent of the values are missing, I add SVD and SVDF to the models that I evaluate.
+These model are supposed to deal with sparse matrices well.    
+
+Since my processing power is limiited, I evaluate the models on only 10% of the users in the training set.
+Otherwise the evaluation takes too much time. 
+I choose the 10% of the users who gave the most ratings.
+
+```{r 3d_evaluating_various_algorithms, error=TRUE}
+
+# Calculating the 90th percentile of the number of ratings per user
+min_n_users <- quantile(rowCounts(trainmat_reduced), 0.9)
+min_n_users
+
+# Keeping only users who gave many ratings (the top 10% of the number of ratings)
+# to reduce computation time. Otherwise the analysis runs
+# very slowly on my computer
+
+trainmat_final_10 <- trainmat_reduced[rowCounts(trainmat_reduced) > min_n_users,]
+dim(trainmat_final_10)
+
+# making sure that 10% of the users are indeed in the final training set
+nrow(trainmat_reduced)
+
+# saving
+saveRDS(trainmat_final_10, file="trainmat_final_10")
+
+# checking number of ratings per item
+number_of_ratings<-colCounts(trainmat_final_10)
+min(number_of_ratings)
+max(number_of_ratings)
+
+# exploring a sample of the matrix
+trainmat_final_10@data[1500:1510, 2001:2009]
+
+# normalizing the values
+normalize(trainmat_final_10, method = "Z-score")
+
+# saving
+saveRDS(trainmat_final_10, file="trainmat")
+
+# Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
+# reserving 10% of the training set for validation)
+
+Sys.time() # recording the time in order to see how long each step takes
+
+scheme_10 <- trainmat_final_10 %>% 
+  evaluationScheme(method = "split",
+                   k=1,
+                   train  = 0.9,  # 90% data train
+                   given  = -8,
+                   goodRating = 3.5
+  )
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# saving
+saveRDS(scheme_10, file="scheme_10")
+
+Sys.time()
+
+##################### Evaluating the models ################################
+
+### Popular ###
+# evaluating the "popular" model
+
+Sys.time() # recording the time in order to see how long each step takes
+
+#result_rating_popular_10 <- evaluate(scheme_10,
+#                                     method = "popular",
+#                                     parameter = list(normalize = "Z-score"),
+#                                     type  = "ratings"
+#)
+
+# examining the results
+result_rating_popular_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# saving 
+saveRDS(result_rating_popular_10, file="result_rating_popular_10")
+
+### svd ###
+# evaluating the svd model
+#result_rating_svd_10 <- evaluate(scheme_10,
+#                              method = "svd",
+#                              parameter = list(normalize = "Z-score", k = 5),
+#                              type  = "ratings"
+#)
+
+# examining the results
+result_rating_svd_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+ 
+Sys.time() # recording the time in order to see how long each step takes
+
+### ibcf ###
+
+# evaluating
+#result_rating_ibcf_10 <- evaluate(scheme_10,
+#                                  method = "ibcf",
+#                                  parameter = list(normalize = "Z-score"),
+#                                  type  = "ratings"
+#)
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# saving 
+saveRDS(result_rating_ibcf_10, file="result_rating_ibcf_10")
+
+# examining the results
+result_rating_ibcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time() # recording the time in order to see how long each step takes
+
+### ubcf ###
+
+# evaluating
+# result_rating_ubcf_10 <- evaluate(scheme_10,
+#                                  method = "ubcf",
+#                                  parameter = list(normalize = "Z-score", k = 5),
+#                                  type  = "ratings"
+#)
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# saving 
+saveRDS(result_rating_ubcf_10, file="result_rating_ubcf_10")
+
+# examining the results
+result_rating_ubcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+# saving 
+saveRDS(result_rating_svd_10, file="result_rating_svd_10")
+
+### svdf ###
+
+# evaluating
+# result_rating_svdf_10 <- evaluate(scheme_10,
+#                                  method = "svdf",
+#                                  parameter = list(normalize = "Z-score", k = 5),
+#                                  type  = "ratings"
+#)
+
+Sys.time() # recording the time in order to see how long each step takes
+
+# saving 
+saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+
+# examining the results
+result_rating_svdf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+```
+
+The 'Popular' algorithm seems like a reasonable choice, since it's run time is much shorter than the others
+and it is fairly accurate.
+
+Now I train the Popular algorithm on the same 10% of the data that I used for evaluation. 
+
+```{r 3e_training_the_chosen_model, error=TRUE}
+
+# training the algorithm on one tenth of the training set
+# (training it on the full set took too much time)
+recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+
+Sys.time() # noting the time in order to measure the time the next command takes
+
+# saving
+# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+```
+
+4. Applying the model to the test set
+[Text XX]
+
+```{r 4_applying_the_model_to_the_test_set, error=TRUE}
+
+# cleaning memory
+invisible(gc())
+
+### converting the testing set into a reaRatingmatrix ###
+# creating userId,  movieId and rating columns
+users_and_ratings_test_set<-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
+
+# exploring users_and_ratings_test_set
+dim(users_and_ratings_test_set)
+head(users_and_ratings_test_set)
+
+# creating the matrix
+testmat <- as(users_and_ratings_test_set, "realRatingMatrix")
+dim(testmat)
+ 
+# checking the number of ratings per item
+number_of_ratings<-colCounts(testmat)
+min(number_of_ratings)
+max(number_of_ratings)
+ 
+# creating an index of rows in the test matrix
+index<-seq(1:nrow(testmat))
+length(index) # making sure that the index was created properly
+
+### Splitting the test matrix intro 10 equal parts ###
+### to shorten processing time ###
+
+# splitting the index into 10 equal parts
+splitted_index<-split(index,             # Applying split() function
+                      cut(seq_along(index),
+                          10,
+                          labels = FALSE))
+# splitted_index
+tenth_1<-as.vector(splitted_index[[1]])
+tenth_2<-as.vector(splitted_index[[2]])
+tenth_3<-as.vector(splitted_index[[3]])
+tenth_4<-as.vector(splitted_index[[4]])
+tenth_5<-as.vector(splitted_index[[5]])
+tenth_6<-as.vector(splitted_index[[6]])
+tenth_7<-as.vector(splitted_index[[7]])
+tenth_8<-as.vector(splitted_index[[8]])
+tenth_9<-as.vector(splitted_index[[9]])
+tenth_10<-as.vector(splitted_index[[10]])
+
+# verifying that all of the 10ths together comprise the total number of users
+# in the test set
+total<-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
+ length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
+total
+nrow(testmat)
+
+# splitting the test set into ten parts
+testmat_10_1<-testmat[tenth_1]
+testmat_10_2<-testmat[tenth_2]
+testmat_10_3<-testmat[tenth_3]
+testmat_10_4<-testmat[tenth_4]
+testmat_10_5<-testmat[tenth_5]
+testmat_10_6<-testmat[tenth_6]
+testmat_10_7<-testmat[tenth_7]
+testmat_10_8<-testmat[tenth_8]
+testmat_10_9<-testmat[tenth_9]
+testmat_10_10<-testmat[tenth_10]
+
+# examining some of the tenths, to make sure that
+# they were created properly
+dim(testmat_10_1)
+dim(testmat_10_7)
+dim(testmat_10_9)
+dim(testmat_10_10)
+
+# removing unnecessary files from the workspace
+rm(tenth_1, tenth_2, tenth_3, tenth_4, tenth_5)
+rm(tenth_6, tenth_7, tenth_8, tenth_9, tenth_10)
+
+# turning the tenths of the test set into matrices
+testmat_10_1_matrix<-as(testmat_10_1, "matrix")
+saveRDS(testmat_10_1_matrix, file="testmat_10_1_matrix")
+
+testmat_10_2_matrix<-as(testmat_10_2, "matrix")
+saveRDS(testmat_10_2_matrix, file="testmat_10_2_matrix")
+
+testmat_10_3_matrix<-as(testmat_10_3, "matrix")
+saveRDS(testmat_10_3_matrix, file="testmat_10_3_matrix")
+
+testmat_10_4_matrix<-as(testmat_10_4, "matrix")
+saveRDS(testmat_10_4_matrix, file="testmat_10_4_matrix")
+
+testmat_10_5_matrix<-as(testmat_10_5, "matrix")
+saveRDS(testmat_10_5_matrix, file="testmat_10_5_matrix")
+
+testmat_10_6_matrix<-as(testmat_10_6, "matrix")
+saveRDS(testmat_10_6_matrix, file="testmat_10_6_matrix")
+
+testmat_10_7_matrix<-as(testmat_10_7, "matrix")
+saveRDS(testmat_10_7_matrix, file="testmat_10_7_matrix")
+
+testmat_10_8_matrix<-as(testmat_10_8, "matrix")
+saveRDS(testmat_10_8_matrix, file="testmat_10_8_matrix")
+
+testmat_10_9_matrix<-as(testmat_10_9, "matrix")
+saveRDS(testmat_10_9_matrix, file="testmat_10_9_matrix")
+
+testmat_10_10_matrix<-as(testmat_10_10, "matrix")
+saveRDS(testmat_10_10_matrix, file="testmat_10_10_matrix")
+
+# removing files to free up memory
+rm(testmat_10_1, testmat_10_2, testmat_10_3, testmat_10_4, testmat_10_5)
+rm(testmat_10_6, testmat_10_7, testmat_10_8, testmat_10_9, testmat_10_10)
+rm(splitted_index, testmat)
+
+# Creating the predictions, using the 'popular' method
+
+# Predicting the ratings in the validation set, one tenth at a time:
+predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
+saveRDS(predictions_pop_10_1, file="predictions_pop_10_1") # saving the file
+
+predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_2, type="ratingMatrix")
+saveRDS(predictions_pop_10_2, file="predictions_pop_10_2") # saving the file
+
+predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingMatrix")
+saveRDS(predictions_pop_10_3, file="predictions_pop_10_3") # saving the file
+
+predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
+saveRDS(predictions_pop_10_4, file="predictions_pop_10_4") # saving the file
+
+predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
+saveRDS(predictions_pop_10_5, file="predictions_pop_10_5") # saving the file
+
+predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
+saveRDS(predictions_pop_10_6, file="predictions_pop_10_6") # saving the file
+
+predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
+saveRDS(predictions_pop_10_7, file="predictions_pop_10_7") # saving the file
+
+predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
+saveRDS(predictions_pop_10_8, file="predictions_pop_10_8") # saving the file
+
+predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingMatrix")
+saveRDS(predictions_pop_10_9, file="predictions_pop_10_9") # saving the file
+
+predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
+saveRDS(predictions_pop_10_10, file="predictions_pop_10_10") # saving the file
+
+Sys.time()
+
+# turning the results into matrices
+predictions_pop_10_1<-readRDS("predictions_pop_10_1")
+predmat_pop_10_1<-as(predictions_pop_10_1, "matrix")
+saveRDS(predmat_pop_10_1, file="predmat_pop_10_1")
+rm(predictions_pop_10_1, predmat_pop_10_1) # removing files to free up memory
+
+predictions_pop_10_2<-readRDS("predictions_pop_10_2")
+predmat_pop_10_2<-as(predictions_pop_10_2, "matrix")
+saveRDS(predmat_pop_10_2, file="predmat_pop_10_2")
+rm(predictions_pop_10_2, predmat_pop_10_2) # removing files to free up memory
+
+predictions_pop_10_3<-readRDS("predictions_pop_10_3")
+predmat_pop_10_3<-as(predictions_pop_10_3, "matrix")
+saveRDS(predmat_pop_10_3, file="predmat_pop_10_3") 
+rm(predictions_pop_10_3, predmat_pop_10_3) # removing files to free up memory
+
+predictions_pop_10_4<-readRDS("predictions_pop_10_4")
+predmat_pop_10_4<-as(predictions_pop_10_4, "matrix")
+saveRDS(predmat_pop_10_4, file="predmat_pop_10_4")
+rm(predictions_pop_10_4, predmat_pop_10_4) # removing files to free up memory
+
+predictions_pop_10_5<-readRDS("predictions_pop_10_5")
+predmat_pop_10_5<-as(predictions_pop_10_5, "matrix")
+saveRDS(predmat_pop_10_5, file="predmat_pop_10_5")
+rm(predictions_pop_10_5, predmat_pop_10_5) # removing files to free up memory
+
+predictions_pop_10_6<-readRDS("predictions_pop_10_6")
+predmat_pop_10_6<-as(predictions_pop_10_6, "matrix")
+saveRDS(predmat_pop_10_6, file="predmat_pop_10_6")
+rm(predictions_pop_10_6, predmat_pop_10_6) # removing files to free up memory
+
+predictions_pop_10_7<-readRDS("predictions_pop_10_7")
+predmat_pop_10_7<-as(predictions_pop_10_7, "matrix")
+saveRDS(predmat_pop_10_7, file="predmat_pop_10_7")
+rm(predictions_pop_10_7, predmat_pop_10_7) # removing files to free up memory
+
+predictions_pop_10_8<-readRDS("predictions_pop_10_8")
+predmat_pop_10_8<-as(predictions_pop_10_8, "matrix")
+saveRDS(predmat_pop_10_8, file="predmat_pop_10_8")
+rm(predictions_pop_10_8, predmat_pop_10_8) # removing files to free up memory
+
+predictions_pop_10_9<-readRDS("predictions_pop_10_9")
+predmat_pop_10_9<-as(predictions_pop_10_9, "matrix")
+saveRDS(predmat_pop_10_9, file="predmat_pop_10_9")
+rm(predictions_pop_10_9, predmat_pop_10_9) # removing files to free up memory
+
+predictions_pop_10_10<-readRDS("predictions_pop_10_10")
+predmat_pop_10_10<-as(predictions_pop_10_10, "matrix")
+saveRDS(predmat_pop_10_10, file="predmat_pop_10_10")
+rm(predictions_pop_10_10, predmat_pop_10_10) # removing files to free up memory
+
+# loading the prediction files that were created in the code above
+predmat_pop_10_1<-readRDS("predmat_pop_10_1")
+predmat_pop_10_2<-readRDS("predmat_pop_10_2")
+predmat_pop_10_3<-readRDS("predmat_pop_10_3")
+predmat_pop_10_4<-readRDS("predmat_pop_10_4")
+predmat_pop_10_5<-readRDS("predmat_pop_10_5")
+predmat_pop_10_6<-readRDS("predmat_pop_10_6")
+predmat_pop_10_7<-readRDS("predmat_pop_10_7")
+predmat_pop_10_8<-readRDS("predmat_pop_10_8")
+predmat_pop_10_9<-readRDS("predmat_pop_10_9")
+predmat_pop_10_10<-readRDS("predmat_pop_10_10")
+
+# calculating the differences
+diffmat_10_1<-predmat_pop_10_1-testmat_10_1_matrix
+saveRDS(diffmat_10_1, file="diffmat_10_1")
+
+diffmat_10_2<-predmat_pop_10_2-testmat_10_2_matrix
+saveRDS(diffmat_10_2, file="diffmat_10_2")
+
+diffmat_10_3<-predmat_pop_10_3-testmat_10_3_matrix
+saveRDS(diffmat_10_3, file="diffmat_10_3")
+
+diffmat_10_4<-predmat_pop_10_4-testmat_10_4_matrix
+saveRDS(diffmat_10_4, file="diffmat_10_4")
+
+diffmat_10_5<-predmat_pop_10_5-testmat_10_5_matrix
+saveRDS(diffmat_10_5, file="diffmat_10_5")
+
+diffmat_10_6<-predmat_pop_10_6-testmat_10_6_matrix
+saveRDS(diffmat_10_6, file="diffmat_10_6")
+
+diffmat_10_7<-predmat_pop_10_7-testmat_10_7_matrix
+saveRDS(diffmat_10_7, file="diffmat_10_7")
+
+diffmat_10_8<-predmat_pop_10_8-testmat_10_8_matrix
+saveRDS(diffmat_10_8, file="diffmat_10_8")
+
+diffmat_10_1<-predmat_pop_10_1-testmat_10_1_matrix
+saveRDS(diffmat_10_1, file="diffmat_10_1")
+
+diffmat_10_9<-predmat_pop_10_9-testmat_10_9_matrix
+saveRDS(diffmat_10_9, file="diffmat_10_9")
+
+diffmat_10_10<-predmat_pop_10_10-testmat_10_10_matrix
+saveRDS(diffmat_10_10, file="diffmat_10_10")
+
+# combining the matrices of the differences
+diffmat_all<-rbind(
+  diffmat_10_1, 
+  diffmat_10_2,
+  diffmat_10_3,
+  diffmat_10_4,
+  diffmat_10_5,
+  diffmat_10_6,
+  diffmat_10_7,
+  diffmat_10_8,
+  diffmat_10_9,
+  diffmat_10_10
+)
+
+# making sure that the dimensions of the matrix 
+# fit the number of users in the validation set
+dim(diffmat_all)
+length(unique(validation$userId))
+
+# saving
+saveRDS(diffmat_all, file="diffmat_all")
+
+# cleaning the working space to free up memory
+rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4, diffmat_10_5)
+rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9, diffmat_10_10)
+
+### calculating RMSE
+# calculating the number of non-empty cells in the test set
+number_of_ratings_in_test_set<-sum(!is.na(diffmat_all))
+number_of_ratings_in_test_set
+
+# saving
+saveRDS(number_of_ratings_in_test_set, file="number_of_ratings_in_test_set")
+
+# calculating the squared differences
+squared_differences_all<-diffmat_all^2
+
+# saving
+saveRDS(squared_differences_all, file="squared_differences_all")
+
+# dividing the sum of the squared differences by the number of ratings
+rmse<-sqrt(sum(squared_differences_all, na.rm=T)/number_of_ratings_in_test_set)
+rmse
+
+# saving
+saveRDS(rmse, file="rmse")
+```
+
+[Text]
+
+```{r 4b_alternative_rmse, error=TRUE}
+### validating by calculating RMSE in an alternative way ###
+# creating one unified matrix of predictions
+predmat_pop_all<-rbind(
+  predmat_pop_10_1, 
+  predmat_pop_10_2,
+  predmat_pop_10_3,
+  predmat_pop_10_4,
+  predmat_pop_10_5,
+  predmat_pop_10_6,
+  predmat_pop_10_7,
+  predmat_pop_10_8,
+  predmat_pop_10_9,
+  predmat_pop_10_10
+)
+
+# making sure that all users in the validation set are included
+dim(predmat_pop_all)
+length(unique(validation$userId))
+
+# cleaning the working space to free up memory
+rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, predmat_pop_10_5)
+rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8, predmat_pop_10_9, predmat_pop_10_10)
+
+# saving
+saveRDS(predmat_pop_all, file="predmat_pop_all")
+
+# creating one unified matrix of real ratings
+testmat_all<-rbind(
+  testmat_10_1_matrix, 
+  testmat_10_2_matrix,
+  testmat_10_3_matrix,
+  testmat_10_4_matrix,
+  testmat_10_5_matrix,
+  testmat_10_6_matrix,
+  testmat_10_7_matrix,
+  testmat_10_8_matrix,
+  testmat_10_9_matrix,
+  testmat_10_10_matrix
+)
+
+# making sure that all users in the validation set are included
+dim(testmat_all)
+length(unique(validation$userId))
+
+# saving
+saveRDS(testmat_all, file="testmat_all")
+
+# cleaning the working space to free up memory
+rm(testmat_10_1_matrix, testmat_10_2_matrix, testmat_10_3_matrix, testmat_10_4_matrix, testmat_10_5_matrix)
+rm(testmat_10_6_matrix, testmat_10_7_matrix, testmat_10_8_matrix, testmat_10_9_matrix, testmat_10_10_matrix)
+
+# cleaning memory
+invisible(gc())
+
+# verifying that all observations are included
+dim(predmat_pop_all)
+dim(testmat_all)
+
+# calculating RMSE through the built-in function
+rmse_alternative<-RMSE(testmat_all, predmat_pop_all, na.rm=T)
+
+# comparing the two RMSEs
+rmse
+rmse_alternative
+difference<-rmse-rmse_alternative
+difference
+```
+
+[Text]
+
+```{r cleaning the working space, error=TRUE}
+# removing unnecessary file from the working space
+rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
+rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
+rm(recommendations_pop, testmat_real, trainmat_real)
+rm(testmat_all)
+```
+
+## 5. Conclusion
+[Text]
+[Restore IBCF]
+
+
