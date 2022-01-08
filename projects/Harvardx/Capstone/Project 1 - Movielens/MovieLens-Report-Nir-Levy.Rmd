@@ -1,5 +1,5 @@
 # MovieLens Project Submission
-## Nir Levy, January 2022x
+## Nir Levy, January 2022
 
 ## Summary
 This report describes my work on the MovieLens project, within the Capstone course of Harvardx's Data Science Professional Certificate.  
@@ -66,36 +66,39 @@ invisible(gc())
 # https://grouplens.org/datasets/movielens/10m/
 # http://files.grouplens.org/datasets/movielens/ml-10m.zip
 
-dl <- tempfile()
-download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
+#dl <- tempfile()
+#download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
 
-ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
-                 col.names = c("userId", "movieId", "rating", "timestamp"))
+#ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
+#                 col.names = c("userId", "movieId", "rating", "timestamp"))
 
-movies <- str_split_fixed(readLines(unzip(dl, "ml-10M100K/movies.dat")), "\\::", 3)
-colnames(movies) <- c("movieId", "title", "genres")
+#movies <- str_split_fixed(readLines(unzip(dl, "ml-10M100K/movies.dat")), "\\::", 3)
+#colnames(movies) <- c("movieId", "title", "genres")
 
-movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
-                                           title = as.character(title),
-                                           genres = as.character(genres))
+#movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
+#                                           title = as.character(title),
+#                                           genres = as.character(genres))
 
 
-movielens <- left_join(ratings, movies, by = "movieId")
+#movielens <- left_join(ratings, movies, by = "movieId")
 
 # Validation set will be 10% of MovieLens data
-set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
-test_index <- createDataPartition(y = movielens$rating, times = 1, p = 0.1, list = FALSE)
-edx <- movielens[-test_index,]
-temp <- movielens[test_index,]
+#set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+#test_index <- createDataPartition(y = movielens$rating, times = 1, p = 0.1, list = FALSE)
+#edx <- movielens[-test_index,]
+#temp <- movielens[test_index,]
 
 # Make sure userId and movieId in validation set are also in edx set
-validation <- temp %>% 
-  semi_join(edx, by = "movieId") %>%
-  semi_join(edx, by = "userId")
+#validation <- temp %>% 
+#  semi_join(edx, by = "movieId") %>%
+#  semi_join(edx, by = "userId")
 
 # Add rows removed from validation set back into edx set
-removed <- anti_join(temp, validation)
-edx <- rbind(edx, removed)
+#removed <- anti_join(temp, validation)
+#edx <- rbind(edx, removed)
+
+edx<-readRDS("edx")
+validation<-readRDS("validation")
 
 ```
 Next, I save the files.
@@ -103,11 +106,11 @@ Next, I save the files.
 ```{r 1b_saving_files, error=TRUE}
 
 ### saving the training and test sets ###
-saveRDS(movies, file="movies")
-saveRDS(ratings, file="ratings")
-saveRDS(edx, file="edx")
-saveRDS(validation, file="validation")
-saveRDS(movielens, file="movielens")
+#saveRDS(movies, file="movies")
+#saveRDS(ratings, file="ratings")
+#saveRDS(edx, file="edx")
+#saveRDS(validation, file="validation")
+#saveRDS(movielens, file="movielens")
 ```
 
 Now I examine the data by running some analyses and creating some plots
@@ -406,9 +409,6 @@ dim(trainmat_final_10)
 # making sure that 10% of the users are indeed in the final training set
 nrow(trainmat_reduced)
 
-# saving
-saveRDS(trainmat_final_10, file="trainmat_final_10")
-
 # checking number of ratings per item
 number_of_ratings<-colCounts(trainmat_final_10)
 min(number_of_ratings)
@@ -421,7 +421,7 @@ trainmat_final_10@data[1500:1510, 2001:2009]
 normalize(trainmat_final_10, method = "Z-score")
 
 # saving
-saveRDS(trainmat_final_10, file="trainmat")
+saveRDS(trainmat_final_10, file="trainmat_final_10")
 
 # Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
 # reserving 10% of the training set for validation)
@@ -584,7 +584,7 @@ Sys.time() # noting the time in order to measure the time the next command takes
 4. Applying the model to the test set
 [Text XX]
 
-```{r 4_applying_the_model_to_the_test_set, error=TRUE}
+```{r 4a_applying_the_popular_model_to_the_test_set, error=TRUE}
 
 # cleaning memory
 invisible(gc())
@@ -691,45 +691,45 @@ saveRDS(testmat_10_9_matrix, file="testmat_10_9_matrix")
 testmat_10_10_matrix<-as(testmat_10_10, "matrix")
 saveRDS(testmat_10_10_matrix, file="testmat_10_10_matrix")
 
+# Creating the predictions, using the 'popular' method
+
+# Predicting the ratings in the validation set, one tenth at a time:
+predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_10_1, type="ratingMatrix")
+saveRDS(predictions_pop_10_1, file="predictions_pop_10_1") # saving the file
+
+predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_10_2, type="ratingMatrix")
+saveRDS(predictions_pop_10_2, file="predictions_pop_10_2") # saving the file
+
+predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_10_3, type="ratingMatrix")
+saveRDS(predictions_pop_10_3, file="predictions_pop_10_3") # saving the file
+
+predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_10_4, type="ratingMatrix")
+saveRDS(predictions_pop_10_4, file="predictions_pop_10_4") # saving the file
+
+predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_10_5, type="ratingMatrix")
+saveRDS(predictions_pop_10_5, file="predictions_pop_10_5") # saving the file
+
+predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_10_6, type="ratingMatrix")
+saveRDS(predictions_pop_10_6, file="predictions_pop_10_6") # saving the file
+
+predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_10_7, type="ratingMatrix")
+saveRDS(predictions_pop_10_7, file="predictions_pop_10_7") # saving the file
+
+predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_10_8, type="ratingMatrix")
+saveRDS(predictions_pop_10_8, file="predictions_pop_10_8") # saving the file
+
+predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_10_9, type="ratingMatrix")
+saveRDS(predictions_pop_10_9, file="predictions_pop_10_9") # saving the file
+
+predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10_10, type="ratingMatrix")
+saveRDS(predictions_pop_10_10, file="predictions_pop_10_10") # saving the file
+
+Sys.time()
+
 # removing files to free up memory
 rm(testmat_10_1, testmat_10_2, testmat_10_3, testmat_10_4, testmat_10_5)
 rm(testmat_10_6, testmat_10_7, testmat_10_8, testmat_10_9, testmat_10_10)
 rm(splitted_index, testmat)
-
-# Creating the predictions, using the 'popular' method
-
-# Predicting the ratings in the validation set, one tenth at a time:
-predictions_pop_10_1 <- predict(recommendations_pop_10, testmat_1, type="ratingMatrix")
-saveRDS(predictions_pop_10_1, file="predictions_pop_10_1") # saving the file
-
-predictions_pop_10_2 <- predict(recommendations_pop_10, testmat_2, type="ratingMatrix")
-saveRDS(predictions_pop_10_2, file="predictions_pop_10_2") # saving the file
-
-predictions_pop_10_3 <- predict(recommendations_pop_10, testmat_3, type="ratingMatrix")
-saveRDS(predictions_pop_10_3, file="predictions_pop_10_3") # saving the file
-
-predictions_pop_10_4 <- predict(recommendations_pop_10, testmat_4, type="ratingMatrix")
-saveRDS(predictions_pop_10_4, file="predictions_pop_10_4") # saving the file
-
-predictions_pop_10_5 <- predict(recommendations_pop_10, testmat_5, type="ratingMatrix")
-saveRDS(predictions_pop_10_5, file="predictions_pop_10_5") # saving the file
-
-predictions_pop_10_6 <- predict(recommendations_pop_10, testmat_6, type="ratingMatrix")
-saveRDS(predictions_pop_10_6, file="predictions_pop_10_6") # saving the file
-
-predictions_pop_10_7 <- predict(recommendations_pop_10, testmat_7, type="ratingMatrix")
-saveRDS(predictions_pop_10_7, file="predictions_pop_10_7") # saving the file
-
-predictions_pop_10_8 <- predict(recommendations_pop_10, testmat_8, type="ratingMatrix")
-saveRDS(predictions_pop_10_8, file="predictions_pop_10_8") # saving the file
-
-predictions_pop_10_9 <- predict(recommendations_pop_10, testmat_9, type="ratingMatrix")
-saveRDS(predictions_pop_10_9, file="predictions_pop_10_9") # saving the file
-
-predictions_pop_10_10 <- predict(recommendations_pop_10, testmat_10, type="ratingMatrix")
-saveRDS(predictions_pop_10_10, file="predictions_pop_10_10") # saving the file
-
-Sys.time()
 
 # turning the results into matrices
 predictions_pop_10_1<-readRDS("predictions_pop_10_1")
@@ -949,7 +949,7 @@ difference
 
 [Text]
 
-```{r cleaning the working space, error=TRUE}
+```{r 4c_cleaning_the_working_space, error=TRUE}
 # removing unnecessary file from the working space
 rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
 rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
