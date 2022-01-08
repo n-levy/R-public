@@ -62,10 +62,6 @@ rm(list=ls())
 # clearing memory
 invisible(gc())
 
-# setting the working directory
-setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
-knitr::opts_knit$set(root.dir = '/tmp') # applying the working directory setting to subsequent chunks in R Markdown
-
 # MovieLens 10M dataset:
 # https://grouplens.org/datasets/movielens/10m/
 # http://files.grouplens.org/datasets/movielens/ml-10m.zip
@@ -166,6 +162,9 @@ d. Choosing a model to apply to the test set, based on the results
 I begin by evaluating the 'movie and user fixed effects' model that was presented in the machine learning course.
 
 ```{r}
+
+Sys.time() # recording the start time in order to see how long this takes
+
 # clearing memory
 invisible(gc())
 
@@ -199,8 +198,8 @@ mu <- mean(core$rating)
 mu
 
 # checking the root mean squared error
-naive_rmse <- RMSE(sub$rating, mu)
-naive_rmse
+# naive_rmse <- RMSE(sub$rating, mu)
+# naive_rmse
 
 # creating a results table
 suppressWarnings(rm(rmse_results)) # removing this object if I already created it when running the code in the past
@@ -421,6 +420,7 @@ saveRDS(trainmat_final_10, file="trainmat")
 
 # Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
 # reserving 10% of the training set for validation)
+
 Sys.time() # recording the start time in order to see how long this takes
 
 scheme_10 <- trainmat_final_10 %>% 
