@@ -359,12 +359,11 @@ pre code {
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p>This report describes my work on the MovieLens project, within the Capstone course of Harvardx’s Data Science Professional Certificate.<br />
-The goal of the project was to predict ratings provided by users to movies. Both users and movies in the test set were included in the training set as well. After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction models on the training set (section 3).<br />
-The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed<br />
+The goal of the project was to predict ratings provided by users to movies. Both users and movies in the test set were included in the training set as well. After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction algorithms on the training set (section 3). The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed<br />
 reasonably well and ran quickly. I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.856 (section 4). My main conclusion is that it is important to be aware of the trade-off between performance and speed. (section 5) Although the SVDF model produced the lowest RMSE, due to my limited processing power it was impractical. The ‘Popular’ model was much faster and produced a reasonable RMSE, so this seemed like a better choice.</p>
 <div id="structure-of-the-report" class="section level3">
 <h3>Structure of the report</h3>
-<p>The report is structured as follows: the first section describes the goal of the analysis. The second section presents some exploratory analysis of the data, and the third section presents some prediction models that I checked out using the training set, before choosing the one that I used for predicting the test set scores (the ‘Popular’ model). The fourth section presents the results of applying this model on the test set.<br />
+<p>The report is structured as follows: the first section describes the goal of the analysis. The second section presents the creation of training and test sets, as well as some exploratory analysis. The third section presents some prediction algorithms that I checked out using the training set, before choosing the one that I used for predicting the test set scores (the ‘Popular’ model). The fourth section presents the results of applying this model on the test set.<br />
 Finally, the fifth section presents the conclusion.</p>
 </div>
 </div>
@@ -372,7 +371,7 @@ Finally, the fifth section presents the conclusion.</p>
 <h2>Table of contents</h2>
 <ol style="list-style-type: decimal">
 <li>Introduction</li>
-<li>Downloading and exploring the data</li>
+<li>Data set creation and exploration</li>
 <li>Choosing a prediction model</li>
 <li>Applying the model to the test set</li>
 <li>Conclusion</li>
@@ -386,12 +385,12 @@ Finally, the fifth section presents the conclusion.</p>
 </div>
 <div id="the-analysis" class="section level3">
 <h3>The analysis</h3>
-<p>The key steps of the analysis were as follows: 1. Downloading, arranging and exploring the data (section 2) 2. Evaluating the performance of various prediction models on the training set (section 3) 3. Applying the chosen model (‘Popular’) to the test set and calculating the RMSE (section 4)</p>
+<p>The key steps of the analysis were as follows: 1. Downloading, arranging and exploring the data (section 2) 2. Evaluating the performance of various prediction algorithms on the training set (section 3) 3. Applying the chosen model (‘Popular’) to the test set and calculating the RMSE (section 4)</p>
 <p>The following sections present these steps and the conclusion.</p>
 </div>
 </div>
-<div id="downloading-arranging-and-exploring-the-data" class="section level2">
-<h2>2. Downloading, arranging and exploring the data</h2>
+<div id="data-set-creation-and-exploration" class="section level2">
+<h2>2. Data set creation and exploration</h2>
 <p>I begin by downloading the data, using the code provided by the course. Since it is provided by the course, I have hidden it in the report. See the R script or the Rmd file for the code.</p>
 <pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.0.5</code></pre>
 <pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
@@ -426,20 +425,58 @@ Finally, the fifth section presents the conclusion.</p>
 <pre><code>## The following object is masked from &#39;package:purrr&#39;:
 ## 
 ##     transpose</code></pre>
+<pre><code>## Warning: package &#39;recommenderlab&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## Warning: package &#39;Matrix&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Matrix&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:tidyr&#39;:
+## 
+##     expand, pack, unpack</code></pre>
+<pre><code>## Loading required package: arules</code></pre>
+<pre><code>## Warning: package &#39;arules&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## 
+## Attaching package: &#39;arules&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     recode</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     abbreviate, write</code></pre>
+<pre><code>## Loading required package: proxy</code></pre>
+<pre><code>## Warning: package &#39;proxy&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## 
+## Attaching package: &#39;proxy&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:Matrix&#39;:
+## 
+##     as.matrix</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     as.dist, dist</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     as.matrix</code></pre>
+<pre><code>## Loading required package: registry</code></pre>
+<pre><code>## Registered S3 methods overwritten by &#39;registry&#39;:
+##   method               from 
+##   print.registry_field proxy
+##   print.registry_entry proxy</code></pre>
+<pre><code>## 
+## Attaching package: &#39;recommenderlab&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:caret&#39;:
+## 
+##     MAE, RMSE</code></pre>
 <pre><code>## Warning in set.seed(1, sample.kind = &quot;Rounding&quot;): non-uniform &#39;Rounding&#39; sampler
 ## used</code></pre>
 <pre><code>## Joining, by = c(&quot;userId&quot;, &quot;movieId&quot;, &quot;rating&quot;, &quot;timestamp&quot;, &quot;title&quot;, &quot;genres&quot;)</code></pre>
-<p>Nest, I save the files</p>
+<p>Next, I save the files.</p>
 <pre class="r"><code>### saving the training and test sets ###
-getwd()</code></pre>
-<pre><code>## [1] &quot;H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/projects/Harvardx/Capstone/Project 1 - Movielens&quot;</code></pre>
-<pre class="r"><code>setwd(&quot;H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K&quot;)
 saveRDS(movies, file=&quot;movies&quot;)
 saveRDS(ratings, file=&quot;ratings&quot;)
 saveRDS(edx, file=&quot;edx&quot;)
 saveRDS(validation, file=&quot;validation&quot;)
 saveRDS(movielens, file=&quot;movielens&quot;)</code></pre>
-<p>Now I examine the data by running some analyses and creating some plots, partly based on code provided in previous courses.</p>
+<p>Now I examine the data by running some analyses and creating some plots</p>
 <pre class="r"><code>### Exploring the training set ###
 dim(edx)</code></pre>
 <pre><code>## [1] 9000055       6</code></pre>
@@ -460,21 +497,6 @@ dim(edx)</code></pre>
 ## 4:       Action|Adventure|Sci-Fi
 ## 5: Action|Adventure|Drama|Sci-Fi
 ## 6:       Children|Comedy|Fantasy</code></pre>
-<pre class="r"><code>summary(edx)</code></pre>
-<pre><code>##      userId         movieId          rating        timestamp        
-##  Min.   :    1   Min.   :    1   Min.   :0.500   Min.   :7.897e+08  
-##  1st Qu.:18124   1st Qu.:  648   1st Qu.:3.000   1st Qu.:9.468e+08  
-##  Median :35738   Median : 1834   Median :4.000   Median :1.035e+09  
-##  Mean   :35870   Mean   : 4122   Mean   :3.512   Mean   :1.033e+09  
-##  3rd Qu.:53607   3rd Qu.: 3626   3rd Qu.:4.000   3rd Qu.:1.127e+09  
-##  Max.   :71567   Max.   :65133   Max.   :5.000   Max.   :1.231e+09  
-##     title              genres         
-##  Length:9000055     Length:9000055    
-##  Class :character   Class :character  
-##  Mode  :character   Mode  :character  
-##                                       
-##                                       
-## </code></pre>
 <pre class="r"><code>sum(is.na(edx)) # counting missing values</code></pre>
 <pre><code>## [1] 0</code></pre>
 <pre class="r"><code># counting the unique values
@@ -514,6 +536,450 @@ histogram(ratings_per_user$n, breaks=30)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##    10.0    32.0    62.0   128.8   141.0  6616.0</code></pre>
 <pre class="r"><code>rm(ratings_per_user) # removing the variable</code></pre>
+</div>
+<div id="choosing-a-prediction-algorithm" class="section level2">
+<h2>3. Choosing a prediction algorithm</h2>
+<p>Now I evaluate several prediction models, using the training set. I apply the Leave One Out Cross Validation (LOOCV) method, due to a processing power limitation. Other methods took too much time to run. This section is structured as follows: a. Evaluating the ‘movie and user fixed effects’ model b. Adding genre fixed effects to the model c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF d. Choosing a model to apply to the test set, based on the results</p>
+<div id="a.-evaluating-the-movie-and-user-fixed-effects-model" class="section level3">
+<h3>a. Evaluating the ‘movie and user fixed effects’ model</h3>
+<p>I begin by evaluating the ‘movie and user fixed effects’ model that was presented in the machine learning course.</p>
+<pre class="r"><code>Sys.time() # recording the start time in order to see how long this takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:11:42 CET&quot;</code></pre>
+<pre class="r"><code># clearing memory
+invisible(gc())
+
+### The validation method is &quot;Leave One Out Cross Validation (LOOCV)&quot; ###
+
+### creating a subset of the training set, for testing the model ###
+# The core training set will be called &#39;core&#39; and the subset of the training set
+# for validation will be called &#39;sub&#39;.
+# (I am avoiding the term `validation set`, since edx called the test set &#39;validation set&#39;.)
+
+# The &#39;sub&#39; set will be 15% of the training set
+ sub_index &lt;- createDataPartition(y = edx$rating, times = 1, p = 0.15, list = FALSE)
+ core &lt;- edx[-sub_index,]
+ temp &lt;- edx[sub_index,]
+
+# Making sure userId and movieId in sub set are also in core set
+sub &lt;- temp %&gt;%
+  semi_join(core, by = &quot;movieId&quot;) %&gt;%
+  semi_join(core, by = &quot;userId&quot;)
+
+# Adding rows removed from sub set back into core set
+removed &lt;- anti_join(temp, sub)</code></pre>
+<pre><code>## Joining, by = c(&quot;userId&quot;, &quot;movieId&quot;, &quot;rating&quot;, &quot;timestamp&quot;, &quot;title&quot;, &quot;genres&quot;)</code></pre>
+<pre class="r"><code>core &lt;- rbind(core, removed)
+ 
+# removing unnecessary objects
+rm(sub_index, temp, removed)
+
+### The first model ###
+
+# creating a results table
+suppressWarnings(rm(rmse_results)) # removing this object if I already created it when running the code in the past
+rmse_results &lt;- c(&quot;Just the average&quot;, round(naive_rmse,5))</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;naive_rmse&#39; not found</code></pre>
+<pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
+<pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>rmse_results</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>### adding movie effects ###
+movie_avgs &lt;- core %&gt;% 
+  group_by(movieId) %&gt;% 
+  summarize(b_i = mean(rating - mu))</code></pre>
+<pre><code>## Error: Problem with `summarise()` input `b_i`.
+## x error in evaluating the argument &#39;x&#39; in selecting a method for function &#39;mean&#39;: object &#39;mu&#39; not found
+## i Input `b_i` is `mean(rating - mu)`.
+## i The error occurred in group 1: movieId = 1.</code></pre>
+<pre class="r"><code># examining the distributions of constant movie effects
+movie_effects_plot&lt;-qplot(b_i, data = movie_avgs, bins = 10, color = I(&quot;black&quot;))</code></pre>
+<pre><code>## Error in eval_tidy(mapping$x, data, caller_env): object &#39;movie_avgs&#39; not found</code></pre>
+<pre class="r"><code>movie_effects_plot</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;movie_effects_plot&#39; not found</code></pre>
+<pre class="r"><code># checking the rmse
+predicted_ratings &lt;- mu + sub %&gt;% 
+  left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
+  pull(b_i)</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;mu&#39; not found</code></pre>
+<pre class="r"><code>movie_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
+<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
+<pre class="r"><code>rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized fixed movie effects&quot;, round(movie_effects_rmse,5)))</code></pre>
+<pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;With unregularized fixed movie effects&quot;, : object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
+<pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>rmse_results</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>### adding user effects ###
+# examining the average rating per user
+# core %&gt;% 
+#   group_by(userId) %&gt;% 
+#   filter(n()&gt;=100) %&gt;%
+#   summarize(b_u = mean(rating)) %&gt;% 
+#   ggplot(aes(b_u)) + 
+#   geom_histogram(bins = 30, color = &quot;black&quot;)
+
+# estimating the user effects, by computing 
+# the overall average and the item effect, and then 
+# the user effect is the average of the remainder, after they
+# are substacted from the rating (user effect= average of (rating - overall average - item effect)
+user_avgs &lt;- core %&gt;% 
+  left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
+  group_by(userId) %&gt;%
+  summarize(b_u = mean(rating - mu - b_i))</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
+<pre class="r"><code># checking the rmse
+predicted_ratings &lt;- sub %&gt;% 
+  left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
+  left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
+  mutate(pred = mu + b_i + b_u) %&gt;%
+  pull(pred)</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
+<pre class="r"><code>movie_and_user_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
+<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
+<pre class="r"><code>rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized movie and user fixed effects&quot;, round(movie_and_user_effects_rmse,5)))</code></pre>
+<pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;With unregularized movie and user fixed effects&quot;, : object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
+<pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>rmse_results</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code># adding regularization
+# Regularizing with lambda = 3
+lambda &lt;- 3
+
+movie_avgs &lt;- core %&gt;% 
+  left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
+  group_by(movieId) %&gt;%
+  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;user_avgs&#39; not found</code></pre>
+<pre class="r"><code>### Calculating RMSE ###
+predicted_ratings &lt;- sub %&gt;% 
+  left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
+  left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
+  mutate(pred = mu + b_i + b_u) %&gt;%
+  pull(pred)</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
+<pre class="r"><code>movie_and_user_effects_with_regularization_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
+<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
+<pre class="r"><code># checking the RMSE
+rmse_results &lt;- rbind.data.frame(rmse_results,c(&quot;Movie and user effects with regularization&quot;, round(movie_and_user_effects_with_regularization_rmse,5)))</code></pre>
+<pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;Movie and user effects with regularization&quot;, : object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code># rmse_results &lt;- rbind(rmse_results, c(&quot;Movie and user effects with regularization&quot;, round(movie_and_user_effects_with_regularization_rmse,5)))
+names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
+<pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>rmse_results</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
+<p>Interim learnings, based on the RMSE table: 1. Adding user fixed effects significantly improves the RMSE 2. Regularization does not improve the RMSE in our case</p>
+</div>
+<div id="b.-adding-genre-fixed-effects-to-the-model" class="section level3">
+<h3>b. Adding genre fixed effects to the model</h3>
+<p>In addition to movie and user effects, genres might also have fixed effects. That is, some genres may have a higher or lower rating than the average rating of all movies. In order to account for this, I add genre fixed effects to the model. From here on, until the end of the analysis, we depart from the code that was provided in the Machine Learning course.</p>
+<pre class="r"><code># adding genre fixed effects with regularization
+
+# genre fixed effects with regularization
+# creating numeric genre column
+core$genresnum&lt;-as.numeric(as.factor(core$genres))
+
+genre_avgs &lt;- core %&gt;% 
+  left_join(user_avgs) %&gt;%
+  left_join(movie_avgs) %&gt;%
+  group_by(genresnum) %&gt;% 
+  summarize(b_g = mean(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;user_avgs&#39; not found</code></pre>
+<pre class="r"><code># creating a numeric user_genres column in the
+# sub dataset
+sub$genresnum&lt;-as.numeric(as.factor(sub$genres))
+
+### Calculating RMSE ###
+predicted_ratings &lt;- sub %&gt;% 
+  left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
+  left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
+  left_join(genre_avgs, by=&#39;genresnum&#39;) %&gt;%
+  mutate(pred = mu + b_i + b_u + b_g) %&gt;%
+  pull(pred)</code></pre>
+<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
+<pre class="r"><code>movie_user_genre_effects&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
+<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
+<pre class="r"><code># checking the RMSE
+rmse_results &lt;- rbind(rmse_results, c(&quot;Movie, user and genre effects with regularization&quot;, round(movie_user_genre_effects,5)))</code></pre>
+<pre><code>## Error in rbind(rmse_results, c(&quot;Movie, user and genre effects with regularization&quot;, : object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
+<pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
+<pre class="r"><code>rmse_results</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
+<p>Interim learning: adding genre fixed effects only slightly improves the RMSE</p>
+</div>
+<div id="c.-evaluating-various-algorithms-popular-ibcf-ubcf-svd-svdf" class="section level3">
+<h3>c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF</h3>
+<p>Now let us evaluate more advanced preduction models, namely: 1. Popular 2. Item Based Collaborative Filtering (IBCF) 3. User Based Collaborative Filtering (UBCF) 4. Singular Value Decomposition (SVD) 5. Funk Singular Value Decomposition (SVDF)</p>
+<pre class="r"><code># Increasing memory size
+memory.limit(size = 10^10)</code></pre>
+<pre><code>## [1] 1e+10</code></pre>
+<pre class="r"><code># cleaning memory
+invisible(gc())
+
+### Preparing the data ###
+# removing movies in the training set that do not appear in the test set
+edx_reduced &lt;- edx %&gt;% 
+  semi_join(validation, by = &quot;movieId&quot;) 
+
+# exploring the datasets
+dim(edx)</code></pre>
+<pre><code>## [1] 9000055       6</code></pre>
+<pre class="r"><code>dim(edx_reduced)</code></pre>
+<pre><code>## [1] 8993159       6</code></pre>
+<pre class="r"><code># saving
+saveRDS(edx_reduced, file=&quot;edx_reduced&quot;)
+
+# converting the training set into a matrix
+users_and_ratings_train_set&lt;-cbind.data.frame(edx_reduced$userId, edx_reduced$movieId, edx_reduced$rating)
+dim(users_and_ratings_train_set)</code></pre>
+<pre><code>## [1] 8993159       3</code></pre>
+<pre class="r"><code># converting the matrix into a &quot;realRatingMatrix&quot;)
+trainmat_reduced &lt;- as(users_and_ratings_train_set, &quot;realRatingMatrix&quot;)
+dim(trainmat_reduced)</code></pre>
+<pre><code>## [1] 69878  9809</code></pre>
+<pre class="r"><code># saving
+saveRDS(trainmat_reduced, file=&quot;trainmat_reduced&quot;)
+
+# creating a regular matrix
+trainmat_reduced_reg&lt;-as(trainmat_reduced, &quot;matrix&quot;)
+
+# saving
+saveRDS(trainmat_reduced_reg, file=&quot;trainmat_reduced_reg&quot;)
+
+# exploring the matrix #
+class(trainmat_reduced_reg)</code></pre>
+<pre><code>## [1] &quot;matrix&quot; &quot;array&quot;</code></pre>
+<pre class="r"><code>n_missing&lt;-sum(is.na(trainmat_reduced_reg)) # counting missing values
+n_missing</code></pre>
+<pre><code>## [1] 676440143</code></pre>
+<pre class="r"><code>all&lt;-nrow(trainmat_reduced_reg)*ncol(trainmat_reduced_reg) # counting all values
+all</code></pre>
+<pre><code>## [1] 685433302</code></pre>
+<pre class="r"><code>p_missing&lt;-n_missing/all # calculating the percentage of missing values
+p_missing </code></pre>
+<pre><code>## [1] 0.9868796</code></pre>
+<pre class="r"><code>rm(trainmat_reduced_reg, n_missing, all) # removing the matrix and other unnecessary objects</code></pre>
+<p>Since over 98% percent of the values are missing, I add SVD and SVDF to the models that I evaluate. These model are supposed to deal with sparse matrices well.</p>
+<p>Since my processing power is limiited, I evaluate the models on only 10% of the users in the training set. Otherwise the evaluation takes too much time. I choose the 10% of the users who gave the most ratings.</p>
+<pre class="r"><code># Calculating the 90th percentile of the number of ratings per user
+min_n_users &lt;- quantile(rowCounts(trainmat_reduced), 0.9)
+min_n_users</code></pre>
+<pre><code>## 90% 
+## 301</code></pre>
+<pre class="r"><code># Keeping only users who gave many ratings (the top 10% of the number of ratings)
+# to reduce computation time. Otherwise the analysis runs
+# very slowly on my computer
+
+trainmat_final_10 &lt;- trainmat_reduced[rowCounts(trainmat_reduced) &gt; min_n_users,]
+dim(trainmat_final_10)</code></pre>
+<pre><code>## [1] 6976 9809</code></pre>
+<pre class="r"><code># making sure that 10% of the users are indeed in the final training set
+nrow(trainmat_reduced)</code></pre>
+<pre><code>## [1] 69878</code></pre>
+<pre class="r"><code># saving
+saveRDS(trainmat_final_10, file=&quot;trainmat_final_10&quot;)
+
+# checking number of ratings per item
+number_of_ratings&lt;-colCounts(trainmat_final_10)
+min(number_of_ratings)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>max(number_of_ratings)</code></pre>
+<pre><code>## [1] 5501</code></pre>
+<pre class="r"><code># exploring a sample of the matrix
+trainmat_final_10@data[1500:1510, 2001:2009]</code></pre>
+<pre><code>## 11 x 9 sparse Matrix of class &quot;dgCMatrix&quot;
+##       2117 2118 2119 2120 2121 2122 2123 2124 2125
+## 16029    4    .    .    .    .    .  .    .      .
+## 16043    .    .    .    .    .    .  .    .      .
+## 16050    .    .    .    .    .    .  .    .      .
+## 16056    .    .    .    .    .    .  .    .      .
+## 16058    .    .    .    .    .    .  3.0  4.0    3
+## 16067    .    .    .    .    .    .  .    .      .
+## 16069    .    .    .    .    .    .  .    .      .
+## 16073    .    .    .    .    .    .  .    .      .
+## 16077    .    .    .    .    .    .  .    .      .
+## 16078    .    .    .    .    .    .  4.5  4.5    .
+## 16082    .    .    .    .    .    .  .    .      .</code></pre>
+<pre class="r"><code># normalizing the values
+normalize(trainmat_final_10, method = &quot;Z-score&quot;)</code></pre>
+<pre><code>## 6976 x 9809 rating matrix of class &#39;realRatingMatrix&#39; with 3999667 ratings.
+## Normalized using z-score on rows.</code></pre>
+<pre class="r"><code># saving
+saveRDS(trainmat_final_10, file=&quot;trainmat&quot;)
+
+# Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
+# reserving 10% of the training set for validation)
+
+Sys.time() # recording the start time in order to see how long this takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:14:11 CET&quot;</code></pre>
+<pre class="r"><code>scheme_10 &lt;- trainmat_final_10 %&gt;% 
+  evaluationScheme(method = &quot;split&quot;,
+                   k=1,
+                   train  = 0.9,  # 90% data train
+                   given  = -8,
+                   goodRating = 3.5
+  )
+
+Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:15:38 CET&quot;</code></pre>
+<pre class="r"><code># saving
+saveRDS(scheme_10, file=&quot;scheme_10&quot;)
+
+Sys.time()</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:15:43 CET&quot;</code></pre>
+<pre class="r"><code>##################### Evaluating the models ################################
+
+### Popular ###
+# evaluating the &quot;popular&quot; model
+
+Sys.time() # recording the start time in order to see how long this takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:15:43 CET&quot;</code></pre>
+<pre class="r"><code>result_rating_popular_10 &lt;- evaluate(scheme_10,
+                                     method = &quot;popular&quot;,
+                                     parameter = list(normalize = &quot;Z-score&quot;),
+                                     type  = &quot;ratings&quot;
+)</code></pre>
+<pre><code>## popular run fold/sample [model time/prediction time]
+##   1  [0.64sec/1.45sec]</code></pre>
+<pre class="r"><code># examining the results
+result_rating_popular_10@results %&gt;%
+  map(function(x) x@cm) %&gt;%
+  unlist() %&gt;%
+  matrix(ncol = 3, byrow = T) %&gt;%
+  as.data.frame() %&gt;%
+  summarise_all(mean) %&gt;%
+  setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
+<pre><code>##        RMSE       MSE       MAE
+## 1 0.8588175 0.7375674 0.6530973</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:15:46 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_popular_10, file=&quot;result_rating_popular_10&quot;)
+
+### svd ###
+# evaluating the svd model
+result_rating_svd_10 &lt;- evaluate(scheme_10,
+                              method = &quot;svd&quot;,
+                              parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+                              type  = &quot;ratings&quot;
+)</code></pre>
+<pre><code>## svd run fold/sample [model time/prediction time]
+##   1  [6.12sec/1.95sec]</code></pre>
+<pre class="r"><code># examining the results
+result_rating_svd_10@results %&gt;%
+  map(function(x) x@cm) %&gt;%
+  unlist() %&gt;%
+  matrix(ncol = 3, byrow = T) %&gt;%
+  as.data.frame() %&gt;%
+  summarise_all(mean) %&gt;%
+  setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
+<pre><code>##        RMSE       MSE       MAE
+## 1 0.9191795 0.8448909 0.7176927</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:15:56 CET&quot;</code></pre>
+<pre class="r"><code>### ibcf ###
+
+# evaluating
+result_rating_ibcf_10 &lt;- evaluate(scheme_10,
+                                  method = &quot;ibcf&quot;,
+                                  parameter = list(normalize = &quot;Z-score&quot;),
+                                  type  = &quot;ratings&quot;
+)</code></pre>
+<pre><code>## ibcf run fold/sample [model time/prediction time]
+##   1  [2411.91sec/1.06sec]</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:56:11 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_ibcf_10, file=&quot;result_rating_ibcf_10&quot;)
+
+# examining the results
+result_rating_ibcf_10@results %&gt;%
+  map(function(x) x@cm) %&gt;%
+  unlist() %&gt;%
+  matrix(ncol = 3, byrow = T) %&gt;%
+  as.data.frame() %&gt;%
+  summarise_all(mean) %&gt;%
+  setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
+<pre><code>##       RMSE      MSE      MAE
+## 1 1.248455 1.558641 0.950424</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 20:56:11 CET&quot;</code></pre>
+<pre class="r"><code>### ubcf ###
+
+# evaluating
+result_rating_ubcf_10 &lt;- evaluate(scheme_10,
+                                  method = &quot;ubcf&quot;,
+                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+                                  type  = &quot;ratings&quot;
+)</code></pre>
+<pre><code>## ubcf run fold/sample [model time/prediction time]
+##   1</code></pre>
+<pre><code>## Warning: Unknown parameters: k</code></pre>
+<pre><code>## Available parameter (with default values):
+## method    =  cosine
+## nn    =  25
+## sample    =  FALSE
+## weighted  =  TRUE
+## normalize     =  center
+## min_matching_items    =  0
+## min_predictive_items  =  0
+## verbose   =  FALSE
+## [0.64sec/276.79sec]</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 21:00:49 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_ubcf_10, file=&quot;result_rating_ubcf_10&quot;)
+
+# examining the results
+result_rating_ubcf_10@results %&gt;%
+  map(function(x) x@cm) %&gt;%
+  unlist() %&gt;%
+  matrix(ncol = 3, byrow = T) %&gt;%
+  as.data.frame() %&gt;%
+  summarise_all(mean) %&gt;%
+  setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
+<pre><code>##        RMSE       MSE       MAE
+## 1 0.8653869 0.7488945 0.6472406</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_svd_10, file=&quot;result_rating_svd_10&quot;)
+
+### svdf ###
+
+# evaluating
+result_rating_svdf_10 &lt;- evaluate(scheme_10,
+                                  method = &quot;svdf&quot;,
+                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+                                  type  = &quot;ratings&quot;
+)</code></pre>
+<pre><code>## svdf run fold/sample [model time/prediction time]
+##   1  [1248.05sec/42.31sec]</code></pre>
+<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
+<pre><code>## [1] &quot;2022-01-08 21:22:29 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_svdf_10, file=&quot;result_rating_svdf_10&quot;)
+
+# examining the results
+result_rating_svdf_10@results %&gt;%
+  map(function(x) x@cm) %&gt;%
+  unlist() %&gt;%
+  matrix(ncol = 3, byrow = T) %&gt;%
+  as.data.frame() %&gt;%
+  summarise_all(mean) %&gt;%
+  setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
+<pre><code>##        RMSE      MSE       MAE
+## 1 0.7986319 0.637813 0.6053268</code></pre>
+<p>The ‘Popular’ algorithm seems like a reasonable choice, since it’s run time is much shorter than the others and it is fairly accurate.</p>
+<p>Now I train the Popular algorithm on the same 10% of the data that I used for evaluation.</p>
+<pre class="r"><code># training the algorithm on one tenth of the training set
+# (training it on the full set took too much time)
+recommendations_pop_10 &lt;- Recommender(trainmat_final_10, method = &quot;popular&quot;)
+
+Sys.time() # noting the time in order to measure the time the next command takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 21:22:29 CET&quot;</code></pre>
+<pre class="r"><code># saving
+# saveRDS(recommendations_pop_10, file=&quot;recommendations_pop_10&quot;)</code></pre>
+</div>
 </div>
 </div>
 
