@@ -63,6 +63,10 @@ rm(list=ls())
 # clearing memory
 invisible(gc())
 
+# setting the working directory
+setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
+knitr::opts_knit$set(root.dir = '/tmp') # applying the working directory setting to subsequent chunks in R Markdown
+
 # MovieLens 10M dataset:
 # https://grouplens.org/datasets/movielens/10m/
 # http://files.grouplens.org/datasets/movielens/ml-10m.zip
@@ -99,12 +103,10 @@ removed <- anti_join(temp, validation)
 edx <- rbind(edx, removed)
 
 ```
-Neסt, I save the files.
+Next, I save the files.
 
 ```{r}
 ### saving the training and test sets ###
-getwd()
-setwd("H:/My Drive/sync/data analytics and machine learning/harvardx/Capstone/Github project/public/ml-10M100K")
 saveRDS(movies, file="movies")
 saveRDS(ratings, file="ratings")
 saveRDS(edx, file="edx")
@@ -119,7 +121,6 @@ Now I examine the data by running some analyses and creating some plots
 dim(edx)
 names(edx)
 head(edx)
-summary(edx)
 sum(is.na(edx)) # counting missing values
 
 # counting the unique values
