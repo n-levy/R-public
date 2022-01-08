@@ -6,7 +6,7 @@
 This report describes my work on the MovieLens project, within the Capstone course of Harvardx's Data Science Professional Certificate.  
 The goal of the project was to predict ratings provided by users to movies. 
 Both users and movies in the test set were included in the training set as well. 
-After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction models on the training set (section 3).   
+After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction algorithms on the training set (section 3).
 The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed  
 reasonably well and ran quickly. 
 I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.856 (section 4).
@@ -15,12 +15,12 @@ Although the SVDF model produced the lowest RMSE, due to my limited processing p
 The 'Popular' model was much faster and produced a reasonable RMSE, so this seemed like a better choice.
 
 ### Structure of the report
-The report is structured as follows: the first section describes the goal of the analysis. The second section presents some exploratory analysis of the data, and the third section presents some prediction models that I checked out using the training set, before choosing the one that I used for predicting the test set scores (the 'Popular' model). The fourth section presents the results of applying this model on the test set.  
+The report is structured as follows: the first section describes the goal of the analysis. The second section presents the creation of training and test sets, as well as some exploratory analysis. The third section presents some prediction algorithms that I checked out using the training set, before choosing the one that I used for predicting the test set scores (the 'Popular' model). The fourth section presents the results of applying this model on the test set.  
 Finally, the fifth section presents the conclusion.
 
 ## Table of contents
 1. Introduction
-2. Downloading and exploring the data
+2. Data set creation and exploration
 3. Choosing a prediction model
 4. Applying the model to the test set
 5. Conclusion
@@ -32,12 +32,12 @@ The goal of the project was to predict ratings provided by users to movies. Both
 ### The analysis
 The key steps of the analysis were as follows:
 1. Downloading, arranging and exploring the data (section 2)
-2. Evaluating the performance of various prediction models on the training set (section 3)
+2. Evaluating the performance of various prediction algorithms on the training set (section 3)
 3. Applying the chosen model ('Popular') to the test set and calculating the RMSE (section 4)
 
 The following sections present these steps and the conclusion.
 
-## 2. Downloading, arranging and exploring the data
+## 2. Data set creation and exploration
 
 I begin by downloading the data, using the code provided by the course.
 Since it is provided by the course, I have hidden it in the report. 
@@ -49,15 +49,19 @@ See the R script or the Rmd file for the code.
 # Create edx set, validation set (final hold-out test set) ###
 ##############################################################
 
-# Note: this process could take a couple of minutes
-
 # loading libraries
 library(tidyverse)
 library(caret)
 library(data.table)
+library(dplyr)
+library(recommenderlab)
+library(Matrix)
 
 # removing all files
 rm(list=ls())
+
+# clearing memory
+invisible(gc())
 
 # MovieLens 10M dataset:
 # https://grouplens.org/datasets/movielens/10m/
@@ -95,7 +99,7 @@ removed <- anti_join(temp, validation)
 edx <- rbind(edx, removed)
 
 ```
-Nest, I save the files
+Neסt, I save the files.
 
 ```{r}
 ### saving the training and test sets ###
@@ -149,5 +153,423 @@ rm(ratings_per_user) # removing the variable
 
 ```
 
+## 3. Choosing a prediction algorithm
+Now I evaluate several prediction models, using the training set.
+I apply the Leave One Out Cross Validation (LOOCV) method, due to a processing power limitation. Other methods took too much time to run.
+This section is structured as follows:
+a. Evaluating the 'movie and user fixed effects' model
+b. Adding genre fixed effects to the model
+c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
+d. Choosing a model to apply to the test set, based on the results
+
+### a. Evaluating the 'movie and user fixed effects' model
+I begin by evaluating the 'movie and user fixed effects' model that was presented in the machine learning course.
+
+```{r}
+# clearing memory
+invisible(gc())
+
+### The validation method is "Leave One Out Cross Validation (LOOCV)" ###
+
+### creating a subset of the training set, for testing the model ###
+# The core training set will be called 'core' and the subset of the training set
+# for validation will be called 'sub'.
+# (I am avoiding the term `validation set`, since edx called the test set 'validation set'.)
+
+# The 'sub' set will be 15% of the training set
+ sub_index <- createDataPartition(y = edx$rating, times = 1, p = 0.15, list = FALSE)
+ core <- edx[-sub_index,]
+ temp <- edx[sub_index,]
+
+# Making sure userId and movieId in sub set are also in core set
+sub <- temp %>%
+  semi_join(core, by = "movieId") %>%
+  semi_join(core, by = "userId")
+
+# Adding rows removed from sub set back into core set
+removed <- anti_join(temp, sub)
+core <- rbind(core, removed)
+ 
+# removing unnecessary objects
+rm(sub_index, temp, removed)
+
+### The first model ###
+# Predicting only according to the average rating in the dataset ###
+mu <- mean(core$rating)
+mu
+
+# checking the root mean squared error
+naive_rmse <- RMSE(sub$rating, mu)
+naive_rmse
+
+# creating a results table
+suppressWarnings(rm(rmse_results)) # removing this object if I already created it when running the code in the past
+rmse_results <- c("Just the average", round(naive_rmse,5))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+### adding movie effects ###
+movie_avgs <- core %>% 
+  group_by(movieId) %>% 
+  summarize(b_i = mean(rating - mu))
+
+# examining the distributions of constant movie effects
+movie_effects_plot<-qplot(b_i, data = movie_avgs, bins = 10, color = I("black"))
+movie_effects_plot
+
+# checking the rmse
+predicted_ratings <- mu + sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  pull(b_i)
+movie_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+
+rmse_results <- rbind.data.frame(rmse_results, c("With unregularized fixed movie effects", round(movie_effects_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+### adding user effects ###
+# examining the average rating per user
+# core %>% 
+#   group_by(userId) %>% 
+#   filter(n()>=100) %>%
+#   summarize(b_u = mean(rating)) %>% 
+#   ggplot(aes(b_u)) + 
+#   geom_histogram(bins = 30, color = "black")
+
+# estimating the user effects, by computing 
+# the overall average and the item effect, and then 
+# the user effect is the average of the remainder, after they
+# are substacted from the rating (user effect= average of (rating - overall average - item effect)
+user_avgs <- core %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  group_by(userId) %>%
+  summarize(b_u = mean(rating - mu - b_i))
+
+# checking the rmse
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  mutate(pred = mu + b_i + b_u) %>%
+  pull(pred)
+movie_and_user_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+
+rmse_results <- rbind.data.frame(rmse_results, c("With unregularized movie and user fixed effects", round(movie_and_user_effects_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+# adding regularization
+# Regularizing with lambda = 3
+lambda <- 3
+
+movie_avgs <- core %>% 
+  left_join(user_avgs, by='userId') %>%
+  group_by(movieId) %>%
+  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())
+
+### Calculating RMSE ###
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  mutate(pred = mu + b_i + b_u) %>%
+  pull(pred)
+movie_and_user_effects_with_regularization_rmse<-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
+rmse_results <- rbind.data.frame(rmse_results,c("Movie and user effects with regularization", round(movie_and_user_effects_with_regularization_rmse,5)))
+# rmse_results <- rbind(rmse_results, c("Movie and user effects with regularization", round(movie_and_user_effects_with_regularization_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+```
+Interim learnings, based on the RMSE table:
+1. Adding user fixed effects significantly improves the RMSE
+2. Regularization does not improve the RMSE in our case
+
+### b. Adding genre fixed effects to the model
+In addition to movie and user effects, genres might also have fixed effects.
+That is, some genres may have a higher or lower rating than the average rating of all movies.
+In order to account for this, I add genre fixed effects to the model.
+From here on, until the end of the analysis, we depart from the code that was provided in the 
+Machine Learning course.
+
+```{r}
+# adding genre fixed effects with regularization
+
+# genre fixed effects with regularization
+# creating numeric genre column
+core$genresnum<-as.numeric(as.factor(core$genres))
+
+genre_avgs <- core %>% 
+  left_join(user_avgs) %>%
+  left_join(movie_avgs) %>%
+  group_by(genresnum) %>% 
+  summarize(b_g = mean(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())
+
+# creating a numeric user_genres column in the
+# sub dataset
+sub$genresnum<-as.numeric(as.factor(sub$genres))
+
+### Calculating RMSE ###
+predicted_ratings <- sub %>% 
+  left_join(movie_avgs, by='movieId') %>%
+  left_join(user_avgs, by='userId') %>%
+  left_join(genre_avgs, by='genresnum') %>%
+  mutate(pred = mu + b_i + b_u + b_g) %>%
+  pull(pred)
+movie_user_genre_effects<-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
+rmse_results <- rbind(rmse_results, c("Movie, user and genre effects with regularization", round(movie_user_genre_effects,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
 
 
+```
+Interim learning: adding genre fixed effects only slightly improves the RMSE
+
+### c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
+Now let us evaluate more advanced preduction models, namely:
+1. Popular
+2. Item Based Collaborative Filtering (IBCF)
+3. User Based Collaborative Filtering (UBCF)
+4. Singular Value Decomposition (SVD)
+5. Funk Singular Value Decomposition (SVDF)
+
+```{r}
+# Increasing memory size
+memory.limit(size = 10^10)
+
+# cleaning memory
+invisible(gc())
+
+### Preparing the data ###
+# removing movies in the training set that do not appear in the test set
+edx_reduced <- edx %>% 
+  semi_join(validation, by = "movieId") 
+
+# exploring the datasets
+dim(edx)
+dim(edx_reduced)
+
+# saving
+saveRDS(edx_reduced, file="edx_reduced")
+
+# converting the training set into a matrix
+users_and_ratings_train_set<-cbind.data.frame(edx_reduced$userId, edx_reduced$movieId, edx_reduced$rating)
+dim(users_and_ratings_train_set)
+
+# converting the matrix into a "realRatingMatrix")
+trainmat_reduced <- as(users_and_ratings_train_set, "realRatingMatrix")
+dim(trainmat_reduced)
+
+# saving
+saveRDS(trainmat_reduced, file="trainmat_reduced")
+
+# creating a regular matrix
+trainmat_reduced_reg<-as(trainmat_reduced, "matrix")
+
+# saving
+saveRDS(trainmat_reduced_reg, file="trainmat_reduced_reg")
+
+# exploring the matrix #
+class(trainmat_reduced_reg)
+n_missing<-sum(is.na(trainmat_reduced_reg)) # counting missing values
+n_missing
+all<-nrow(trainmat_reduced_reg)*ncol(trainmat_reduced_reg) # counting all values
+all
+p_missing<-n_missing/all # calculating the percentage of missing values
+p_missing 
+rm(trainmat_reduced_reg, n_missing, all) # removing the matrix and other unnecessary objects
+```
+Since over 98% percent of the values are missing, I add SVD and SVDF to the models that I evaluate.
+These model are supposed to deal with sparse matrices well.    
+
+Since my processing power is limiited, I evaluate the models on only 10% of the users in the training set.
+Otherwise the evaluation takes too much time. 
+I choose the 10% of the users who gave the most ratings.
+
+```{r}
+# Calculating the 90th percentile of the number of ratings per user
+min_n_users <- quantile(rowCounts(trainmat_reduced), 0.9)
+min_n_users
+
+# Keeping only users who gave many ratings (the top 10% of the number of ratings)
+# to reduce computation time. Otherwise the analysis runs
+# very slowly on my computer
+
+trainmat_final_10 <- trainmat_reduced[rowCounts(trainmat_reduced) > min_n_users,]
+dim(trainmat_final_10)
+
+# making sure that 10% of the users are indeed in the final training set
+nrow(trainmat_reduced)
+
+# saving
+saveRDS(trainmat_final_10, file="trainmat_final_10")
+
+# checking number of ratings per item
+number_of_ratings<-colCounts(trainmat_final_10)
+min(number_of_ratings)
+max(number_of_ratings)
+
+# exploring a sample of the matrix
+trainmat_final_10@data[1500:1510, 2001:2009]
+
+# normalizing the values
+normalize(trainmat_final_10, method = "Z-score")
+
+# saving
+saveRDS(trainmat_final_10, file="trainmat")
+
+# Setting up the evaluation scheme (Leave one out cross validation)
+Sys.time() # recording the start time in order to see how long this takes
+
+scheme_10 <- trainmat_final_10 %>% 
+  evaluationScheme(method = "split",
+                   k=1,
+                   train  = 0.9,  # 90% data train
+                   given  = -8,
+                   goodRating = 3.5
+  )
+
+Sys.time() # recording the finish time in order to see how long it took
+
+# saving
+saveRDS(scheme_10, file="scheme_10")
+
+Sys.time()
+
+##################### Evaluating the models ################################
+
+### Popular ###
+# evaluating the "popular" model
+
+Sys.time() # recording the start time in order to see how long this takes
+
+result_rating_popular_10 <- evaluate(scheme_10,
+                                     method = "popular",
+                                     parameter = list(normalize = "Z-score"),
+                                     type  = "ratings"
+)
+
+# examining the results
+result_rating_popular_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time() # recording the finish time in order to see how long it took
+
+# saving 
+saveRDS(result_rating_popular_10, file="result_rating_popular_10")
+
+### svd ###
+# evaluating the svd model
+result_rating_svd_10 <- evaluate(scheme_10,
+                              method = "svd",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
+
+# examining the results
+result_rating_svd_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+ 
+Sys.time() # recording the finish time in order to see how long it took
+
+### ibcf ###
+
+# evaluating
+result_rating_ibcf_10 <- evaluate(scheme_10,
+                                  method = "ibcf",
+                                  parameter = list(normalize = "Z-score"),
+                                  type  = "ratings"
+)
+
+Sys.time() # recording the finish time in order to see how long it took
+
+# saving 
+saveRDS(result_rating_ibcf_10, file="result_rating_ibcf_10")
+
+# examining the results
+result_rating_ibcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+Sys.time() # recording the finish time in order to see how long it took
+
+### ubcf ###
+
+# evaluating
+result_rating_ubcf_10 <- evaluate(scheme_10,
+                                  method = "ubcf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+Sys.time() # recording the finish time in order to see how long it took
+
+# saving 
+saveRDS(result_rating_ubcf_10, file="result_rating_ubcf_10")
+
+# examining the results
+result_rating_ubcf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+
+# saving 
+saveRDS(result_rating_svd_10, file="result_rating_svd_10")
+
+### svdf ###
+
+# evaluating
+result_rating_svdf_10 <- evaluate(scheme_10,
+                                  method = "svdf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
+
+Sys.time() # recording the finish time in order to see how long it took
+
+# saving 
+saveRDS(result_rating_svdf_10, file="result_rating_svdf_10")
+
+# examining the results
+result_rating_svdf_10@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
+```
+
+The 'Popular' algorithm seems like a reasonable choice, since it's run time is much shorter than the others
+and it is fairly accurate.
+
+Now I train the Popular algorithm on the same 10% of the data that I used for evaluation. 
+
+```{r}
+# training the algorithm on one tenth of the training set
+# (training it on the full set took too much time)
+recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
+
+Sys.time() # noting the time in order to measure the time the next command takes
+
+# saving
+# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+```
