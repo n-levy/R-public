@@ -5,6 +5,7 @@
 **/*.httr-oauth
 **/*.dat
 **/*.png
+**/*.html
 edx_reduced
 result_rating_popular_10
 trainmat
