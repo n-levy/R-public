@@ -410,7 +410,7 @@ rmse_alternative
 difference<-rmse-rmse_alternative
 difference
 
-#cleaning the dataset
+# removing unnecessary file from the working space
 rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
 rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
 rm(recommendations_pop, testmat_real, trainmat_real)
