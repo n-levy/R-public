@@ -5,3 +5,7 @@
 **/*.httr-oauth
 **/*.dat
 **/*.png
+edx_reduced
+result_rating_popular_10
+trainmat
+trainmat_reduced_reg
