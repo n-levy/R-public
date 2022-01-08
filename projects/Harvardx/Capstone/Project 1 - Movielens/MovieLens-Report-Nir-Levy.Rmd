@@ -8,7 +8,7 @@ Both users and movies in the test set were included in the training set as well.
 After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction algorithms on the training set (section 3).
 The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed  
 reasonably well and ran quickly. 
-I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.856 (section 4).
+I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.859 (section 4).
 My main conclusion is that it is important to be aware of the trade-off between performance and speed. (section 5)
 Although the SVDF model produced the lowest RMSE, due to my limited processing power it was impractical. 
 The 'Popular' model was much faster and produced a reasonable RMSE, so this seemed like a better choice.
@@ -172,6 +172,9 @@ Sys.time() # recording the time in order to see how long each step takes
 
 # clearing memory
 invisible(gc())
+
+# Increasing memory size
+memory.limit(size = 10^10)
 
 ### The validation method is "Leave One Out Cross Validation (LOOCV)" ###
 
@@ -880,6 +883,28 @@ saveRDS(rmse, file="rmse")
 
 ```{r 4b_alternative_rmse, error=TRUE}
 ### validating by calculating RMSE in an alternative way ###
+
+# removing all files from the working space, to free up memory
+rm(list=ls())
+
+# clearing memory
+invisible(gc())
+
+# Increasing memory size
+memory.limit(size = 10^10)
+
+# loading the predmap files
+predmat_pop_10_1<-readRDS("predmat_pop_10_1")
+predmat_pop_10_2<-readRDS("predmat_pop_10_2")
+predmat_pop_10_3<-readRDS("predmat_pop_10_3")
+predmat_pop_10_4<-readRDS("predmat_pop_10_4")
+predmat_pop_10_5<-readRDS("predmat_pop_10_5")
+predmat_pop_10_6<-readRDS("predmat_pop_10_6")
+predmat_pop_10_7<-readRDS("predmat_pop_10_7")
+predmat_pop_10_8<-readRDS("predmat_pop_10_8")
+predmat_pop_10_9<-readRDS("predmat_pop_10_9")
+predmat_pop_10_10<-readRDS("predmat_pop_10_10")
+
 # creating one unified matrix of predictions
 predmat_pop_all<-rbind(
   predmat_pop_10_1, 
@@ -894,16 +919,40 @@ predmat_pop_all<-rbind(
   predmat_pop_10_10
 )
 
+# removing the predmap files to free up memory
+rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, predmat_pop_10_5)
+rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8, predmat_pop_10_9, predmat_pop_10_10)
+
+# clearing memory
+invisible(gc())
+
+# saving
+saveRDS(predmat_pop_all, file="predmat_pop_all")
+
+# loading the validation set
+validation<-readRDS("validation")
+
 # making sure that all users in the validation set are included
 dim(predmat_pop_all)
 length(unique(validation$userId))
 
-# cleaning the working space to free up memory
-rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, predmat_pop_10_5)
-rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8, predmat_pop_10_9, predmat_pop_10_10)
+# clearing the working space to free up memory
+rm(list=ls())
 
-# saving
-saveRDS(predmat_pop_all, file="predmat_pop_all")
+# clearing memory
+invisible(gc())
+
+# loading the tents of the validation set in matrix form
+testmat_10_1_matrix<-readRDS("testmat_10_1_matrix")
+testmat_10_2_matrix<-readRDS("testmat_10_2_matrix")
+testmat_10_3_matrix<-readRDS("testmat_10_3_matrix")
+testmat_10_4_matrix<-readRDS("testmat_10_4_matrix")
+testmat_10_5_matrix<-readRDS("testmat_10_5_matrix")
+testmat_10_6_matrix<-readRDS("testmat_10_6_matrix")
+testmat_10_7_matrix<-readRDS("testmat_10_7_matrix")
+testmat_10_8_matrix<-readRDS("testmat_10_8_matrix")
+testmat_10_9_matrix<-readRDS("testmat_10_9_matrix")
+testmat_10_10_matrix<-readRDS("testmat_10_10_matrix")
 
 # creating one unified matrix of real ratings
 testmat_all<-rbind(
@@ -919,13 +968,6 @@ testmat_all<-rbind(
   testmat_10_10_matrix
 )
 
-# making sure that all users in the validation set are included
-dim(testmat_all)
-length(unique(validation$userId))
-
-# saving
-saveRDS(testmat_all, file="testmat_all")
-
 # cleaning the working space to free up memory
 rm(testmat_10_1_matrix, testmat_10_2_matrix, testmat_10_3_matrix, testmat_10_4_matrix, testmat_10_5_matrix)
 rm(testmat_10_6_matrix, testmat_10_7_matrix, testmat_10_8_matrix, testmat_10_9_matrix, testmat_10_10_matrix)
@@ -933,12 +975,34 @@ rm(testmat_10_6_matrix, testmat_10_7_matrix, testmat_10_8_matrix, testmat_10_9_m
 # cleaning memory
 invisible(gc())
 
+# saving
+saveRDS(testmat_all, file="testmat_all")
+
+# loading the validation set
+validation<-readRDS("validation")
+
+# making sure that all users in the validation set are included
+dim(testmat_all)
+length(unique(validation$userId))
+
+# removing the validation set to free up memory
+rm(validation)
+
+# cleaning memory
+invisible(gc())
+
+# loading the prediction file
+predmat_pop_all<-readRDS("predmat_pop_all")
+
 # verifying that all observations are included
 dim(predmat_pop_all)
 dim(testmat_all)
 
 # calculating RMSE through the built-in function
 rmse_alternative<-RMSE(testmat_all, predmat_pop_all, na.rm=T)
+
+# loading the original RMSE
+rmse<-readRDS("rmse")
 
 # comparing the two RMSEs
 rmse
@@ -949,12 +1013,9 @@ difference
 
 [Text]
 
-```{r 4c_cleaning_the_working_space, error=TRUE}
-# removing unnecessary file from the working space
-rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)
-rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)
-rm(recommendations_pop, testmat_real, trainmat_real)
-rm(testmat_all)
+```{r 4c_cleaning_the_working_space, include=FALSE, error=TRUE}
+# clearing the working space
+rm(list=ls())
 ```
 
 ## 5. Conclusion
