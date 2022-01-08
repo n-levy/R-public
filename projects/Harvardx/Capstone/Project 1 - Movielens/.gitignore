@@ -13,3 +13,7 @@ trainmat_reduced_reg
 MovieLens-Report-Nir-Levy.Rmd
 validation
 MovieLens-Report-Nir-Levy.html
+result_rating_ibcf_10
+result_rating_svd_10
+result_rating_svdf_10
+result_rating_ubcf_10
