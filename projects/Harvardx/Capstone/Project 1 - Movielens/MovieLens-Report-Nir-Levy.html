@@ -371,7 +371,7 @@ Finally, the fifth section presents the conclusion.</p>
 <h2>Table of contents</h2>
 <ol style="list-style-type: decimal">
 <li>Introduction</li>
-<li>Data set creation and exploration</li>
+<li>Creating the data and exploring it</li>
 <li>Choosing a prediction model</li>
 <li>Applying the model to the test set</li>
 <li>Conclusion</li>
@@ -389,93 +389,16 @@ Finally, the fifth section presents the conclusion.</p>
 <p>The following sections present these steps and the conclusion.</p>
 </div>
 </div>
-<div id="data-set-creation-and-exploration" class="section level2">
-<h2>2. Data set creation and exploration</h2>
+<div id="creating-the-data-and-exploring-it" class="section level2">
+<h2>2. Creating the data and exploring it</h2>
 <p>I begin by downloading the data, using the code provided by the course. Since it is provided by the course, I have hidden it in the report. See the R script or the Rmd file for the code.</p>
-<pre><code>## Warning: package &#39;tidyverse&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
-<pre><code>## v ggplot2 3.3.3     v purrr   0.3.4
-## v tibble  3.1.1     v dplyr   1.0.5
-## v tidyr   1.1.3     v stringr 1.4.0
-## v readr   1.4.0     v forcats 0.5.1</code></pre>
-<pre><code>## Warning: package &#39;ggplot2&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;tibble&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;tidyr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;readr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;purrr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;stringr&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Warning: package &#39;forcats&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre><code>## Warning: package &#39;caret&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre><code>## Warning: package &#39;data.table&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     transpose</code></pre>
-<pre><code>## Warning: package &#39;recommenderlab&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## Loading required package: Matrix</code></pre>
-<pre><code>## Warning: package &#39;Matrix&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## 
-## Attaching package: &#39;Matrix&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:tidyr&#39;:
-## 
-##     expand, pack, unpack</code></pre>
-<pre><code>## Loading required package: arules</code></pre>
-<pre><code>## Warning: package &#39;arules&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## 
-## Attaching package: &#39;arules&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     recode</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     abbreviate, write</code></pre>
-<pre><code>## Loading required package: proxy</code></pre>
-<pre><code>## Warning: package &#39;proxy&#39; was built under R version 4.0.5</code></pre>
-<pre><code>## 
-## Attaching package: &#39;proxy&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:Matrix&#39;:
-## 
-##     as.matrix</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     as.dist, dist</code></pre>
-<pre><code>## The following object is masked from &#39;package:base&#39;:
-## 
-##     as.matrix</code></pre>
-<pre><code>## Loading required package: registry</code></pre>
-<pre><code>## Registered S3 methods overwritten by &#39;registry&#39;:
-##   method               from 
-##   print.registry_field proxy
-##   print.registry_entry proxy</code></pre>
-<pre><code>## 
-## Attaching package: &#39;recommenderlab&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:caret&#39;:
-## 
-##     MAE, RMSE</code></pre>
-<pre><code>## Warning in set.seed(1, sample.kind = &quot;Rounding&quot;): non-uniform &#39;Rounding&#39; sampler
-## used</code></pre>
-<pre><code>## Joining, by = c(&quot;userId&quot;, &quot;movieId&quot;, &quot;rating&quot;, &quot;timestamp&quot;, &quot;title&quot;, &quot;genres&quot;)</code></pre>
 <p>Next, I save the files.</p>
 <pre class="r"><code>### saving the training and test sets ###
-saveRDS(movies, file=&quot;movies&quot;)
-saveRDS(ratings, file=&quot;ratings&quot;)
-saveRDS(edx, file=&quot;edx&quot;)
-saveRDS(validation, file=&quot;validation&quot;)
-saveRDS(movielens, file=&quot;movielens&quot;)</code></pre>
+#saveRDS(movies, file=&quot;movies&quot;)
+#saveRDS(ratings, file=&quot;ratings&quot;)
+#saveRDS(edx, file=&quot;edx&quot;)
+#saveRDS(validation, file=&quot;validation&quot;)
+#saveRDS(movielens, file=&quot;movielens&quot;)</code></pre>
 <p>Now I examine the data by running some analyses and creating some plots</p>
 <pre class="r"><code>### Exploring the training set ###
 dim(edx)</code></pre>
@@ -543,8 +466,8 @@ histogram(ratings_per_user$n, breaks=30)</code></pre>
 <div id="a.-evaluating-the-movie-and-user-fixed-effects-model" class="section level3">
 <h3>a. Evaluating the ‘movie and user fixed effects’ model</h3>
 <p>I begin by evaluating the ‘movie and user fixed effects’ model that was presented in the machine learning course.</p>
-<pre class="r"><code>Sys.time() # recording the start time in order to see how long this takes</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:11:42 CET&quot;</code></pre>
+<pre class="r"><code>Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:20:36 CET&quot;</code></pre>
 <pre class="r"><code># clearing memory
 invisible(gc())
 
@@ -574,8 +497,16 @@ removed &lt;- anti_join(temp, sub)</code></pre>
 rm(sub_index, temp, removed)
 
 ### The first model ###
-
-# creating a results table
+# Predicting only according to the average rating in the dataset ###
+mu &lt;- mean(core$rating)
+mu</code></pre>
+<pre><code>## [1] 3.512511</code></pre>
+<pre class="r"><code># checking the root mean squared error
+naive_rmse &lt;- RMSE(sub$rating, mu)</code></pre>
+<pre><code>## Error in RMSE(sub$rating, mu): length does not match!</code></pre>
+<pre class="r"><code>naive_rmse</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;naive_rmse&#39; not found</code></pre>
+<pre class="r"><code># creating a results table
 suppressWarnings(rm(rmse_results)) # removing this object if I already created it when running the code in the past
 rmse_results &lt;- c(&quot;Just the average&quot;, round(naive_rmse,5))</code></pre>
 <pre><code>## Error in eval(expr, envir, enclos): object &#39;naive_rmse&#39; not found</code></pre>
@@ -586,24 +517,19 @@ rmse_results &lt;- c(&quot;Just the average&quot;, round(naive_rmse,5))</code></
 <pre class="r"><code>### adding movie effects ###
 movie_avgs &lt;- core %&gt;% 
   group_by(movieId) %&gt;% 
-  summarize(b_i = mean(rating - mu))</code></pre>
-<pre><code>## Error: Problem with `summarise()` input `b_i`.
-## x error in evaluating the argument &#39;x&#39; in selecting a method for function &#39;mean&#39;: object &#39;mu&#39; not found
-## i Input `b_i` is `mean(rating - mu)`.
-## i The error occurred in group 1: movieId = 1.</code></pre>
-<pre class="r"><code># examining the distributions of constant movie effects
-movie_effects_plot&lt;-qplot(b_i, data = movie_avgs, bins = 10, color = I(&quot;black&quot;))</code></pre>
-<pre><code>## Error in eval_tidy(mapping$x, data, caller_env): object &#39;movie_avgs&#39; not found</code></pre>
-<pre class="r"><code>movie_effects_plot</code></pre>
-<pre><code>## Error in eval(expr, envir, enclos): object &#39;movie_effects_plot&#39; not found</code></pre>
+  summarize(b_i = mean(rating - mu))
+
+# examining the distributions of constant movie effects
+movie_effects_plot&lt;-qplot(b_i, data = movie_avgs, bins = 10, color = I(&quot;black&quot;))
+movie_effects_plot</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
 <pre class="r"><code># checking the rmse
 predicted_ratings &lt;- mu + sub %&gt;% 
   left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
-  pull(b_i)</code></pre>
-<pre><code>## Error in eval(expr, envir, enclos): object &#39;mu&#39; not found</code></pre>
-<pre class="r"><code>movie_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
-<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
-<pre class="r"><code>rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized fixed movie effects&quot;, round(movie_effects_rmse,5)))</code></pre>
+  pull(b_i)
+movie_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)
+
+rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized fixed movie effects&quot;, round(movie_effects_rmse,5)))</code></pre>
 <pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;With unregularized fixed movie effects&quot;, : object &#39;rmse_results&#39; not found</code></pre>
 <pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
 <pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
@@ -611,32 +537,31 @@ predicted_ratings &lt;- mu + sub %&gt;%
 <pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_results&#39; not found</code></pre>
 <pre class="r"><code>### adding user effects ###
 # examining the average rating per user
-# core %&gt;% 
-#   group_by(userId) %&gt;% 
-#   filter(n()&gt;=100) %&gt;%
-#   summarize(b_u = mean(rating)) %&gt;% 
-#   ggplot(aes(b_u)) + 
-#   geom_histogram(bins = 30, color = &quot;black&quot;)
-
-# estimating the user effects, by computing 
+core %&gt;% 
+ group_by(userId) %&gt;% 
+ filter(n()&gt;=100) %&gt;%
+ summarize(b_u = mean(rating)) %&gt;% 
+ ggplot(aes(b_u)) + 
+ geom_histogram(bins = 30, color = &quot;black&quot;)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAABOFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrYzMzM6AAA6OgA6Ojo6OmY6OpA6ZmY6ZpA6ZrY6kJA6kLY6kNtNTU1NTW5NTY5Nbo5NbqtNjshZWVlmAABmOgBmZjpmZmZmZpBmkJBmkLZmkNtmtttmtv9uTU1ubm5ubo5ujqtujshuq+SOTU2Obk2Obm6Oq6uOq8iOq+SOyOSOyP+QOgCQZjqQZmaQkGaQkLaQtraQttuQ2/+rbk2rbm6rjm6ryOSr5P+2ZgC2Zjq2Zma2kDq2kGa2tra2ttu229u22/+2///Ijk3Ijm7IyKvI5P/I///bkDrbtmbbtpDbtrbb27bb29vb2//b///kq27kyI7kyKvk///r6+v/tmb/yI7/25D/27b/29v/5Kv/5Mj/5OT//7b//8j//9v//+T///8wt0ikAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO2dfZ+cxXlmG9sYQtZONi0Q68AmayYLCG9i8L7ECgYn3tgeFtjNOsgoyLa0lma+/zfYeekRcxczparqvus50zrnj0j9c+HnyvVcc+iZ6W6vjkVEZIjV0gFERG4qClREZBAFKiIyiAIVERlEgYqIDKJARUQGUaAiIoMoUBGRQRSoiMggQwL98r31+tbf3j9/cPThwXr99qfPeiAism+MCPTe+ozXPjt98PjO2YNXn/FARGTvGBDow4NbPz4+fvTe+vXTR4fr258eP7q7vn2/+kBEZO8YEOjh+t3TPx4enD63PP+/J882b31UeyAisn+M/xLp8Z1TQd47fx568ue7tQeBf0sh67+3F0oMSA5IH9YRofRBidGeY2cCfXhw+r354fr9s0cPTnV5/QMFOhtKHZA+rCNC6YMSY75Af3twKsiju5tv0E91ev2D83/kpQ2jlxQRQTEo0MP1+tbPjhWoiDzPjAn06B/+5mB96++CQF/97PoH8Z9e/Fl4KpQYkByQPqwjQumDEmOBn4F+efo9fNczUAU6EUodkD6sI0LpgxJjAYEeP1jXnKlAl4VSB6QP64hQ+qDEWEKgZ2b0t/AllBiQHJA+rCNC6YMSY6JAj+5uzHgm0ItXeW5e+nndAwU6G0odkD6sI0LpgxJj5jPQw81TyrM/R96JtHgHqVBiQHJA+rCOCKUPSoyZAn14sH7n/vHRJ+tTM548H33t6Tver3+gQGdDqQPSh3VEKH1QYkz9GeiD809junX2nfyjy5+5dP0DBToZSh2QPqwjQumDEmPuL5Ee/ehEnxcf9PnowxNLvn3/WQ8U6FwodUD6sI4IpQ9KjCV+Cz/M4h2kQokByQHpwzoilD4oMRSok4hQ6oD0YR0RSh+UGArUSUQodUD6sI4IpQ9KDAXqJCKUOiB9WEeE0gclhgJ1EhFKHZA+rCNC6YMSQ4E6iQilDkgf1hGh9EGJoUCdRIRSB6QP64hQ+qDEUKBOIkKpA9KHdUQofVBiKFAnEaHUAenDOiKUPigxFKiTiFDqgPRhHRFKH5QYCtRJRCh1QPqwjgilD0oMBeokIpQ6IH1YR4TSByWGAnUSEUodkD6sI0LpgxJDgTqJCKUOSB/WEaH0QYmhQJ1EhFIHpA/riFD6oMRQoE4iQqkD0od1RCh9UGIoUCcRodQB6cM6IpQ+KDEUqJOIUOqA9GEdEUoflBgK1ElEKHVA+rCOCKUPSgwF6iQilDogfVhHhNIHJYYCdRIRSh2QPqwjQumDEkOBOokIpQ5IH9YRofRBiaFAnUSEUgekD+uIUPqgxFCgTiJCqQPSh3VEKH1QYihQJxGh1AHpwzoilD4oMRSok4hQ6oD0sWgdqzZmRqLMgxJDgTqJCKUOSB8KNEKZByWGAnUSEUodkD4WFuh/eDYKdEEUqJMooNQB6UOBRijzoMRQoE4iQqkD0ocCjVDmQYmhQJ1EhFIHpA8FGqHMgxJDgTqJCKUOSB8KNEKZByWGAnUSEUodkD4UaIQyD0oMBeokIpQ6IH0o0AhlHpQYCtRJRCh1QPpQoBHKPCgxFKiTiFDqgPShQCOUeVBiKFAnEaHUAelDgUYo86DEUKBOIkKpA9KHAo1Q5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfCjRCmQclhgJ1EhFKHZA+FGiEMg9KDAXqJCKUOiB9KNAIZR6UGArUSUQodUD6UKARyjwoMRSok4hQ6oD0oUAjlHlQYihQJxGh1AHpQ4FGKPOgxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekDwUaocyDEkOBOokIpQ5IHwo0QpkHJYYCdRIRSh2QPhRohDIPSgwF6iQilDogfSjQCGUelBgK1ElEKHVA+lCgEco8KDEUqJOIUOqA9HETBNrEjiJR5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfN0GgTYd2FIkyD0oMBeokIpQ6IH0o0AhlHpQYCtRJRCh1QPpQoBHKPCgxFKiTiFDqgPShQCOUeVBiKFAnEaHUAelDgUYo86DEUKBOIkKpA9KHAo1Q5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfCjRCmQclhgJ1EhFKHZA+FGiEMg9KDAXqJCKUOiB9KNAIZR6UGArUSUQodUD6UKARyjwoMRSok4hQ6oD0oUAjlHlQYihQJxGh1AHpQ4FGKPOgxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekDwUaocyDEkOBOokIpQ5IHwo0QpkHJYYCdRIRSh2QPhRohDIPSgwF6iQilDogfSjQCGUelBgK1ElEKHVA+lCgEco8KDEUqJOIUOqA9KFAI5R5UGIoUCcRodQB6UOBRijzoMRQoE4iQqkD0ocCjVDmQYmhQJ1EhFIHpA8FGqHMgxJDgTqJCKUOSB8KNEKZByWGAnUSEUodkD4UaIQyD0oMBeokIpQ6IH0o0AhlHpQYCtRJRCh1QPpQoBHKPCgxFKiTiFDqgPShQCOUeVBiKFAnEaHUAelDgUYo86DEUKBOIkKpA9KHAo1Q5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfCjRCmQclhgJ1EhFKHZA+FGiEMg9KDAXqJCKUOiB9KNAIZR6UGArUSUQodUD6UKARyjwoMRSok4hQ6oD0oUAjlHlQYihQJxGh1AHpQ4FGKPOgxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekj6w6Vm0o0GugxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekjzyB7s6NCnQxFKiTKKDUAelDgUYo86DEUKBOIkKpA9KHAo1Q5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfCjRCmQclhgJ1EhFKHZA+FGiEMg9KDAXqJCKUOiB9KNAIZR6UGArUSUQodUD6UKARyjwoMRSok4hQ6oD0oUAjlHlQYihQJxGh1AHpQ4FGKPOgxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekDwUaocyDEkOBOokIpQ5IHwo0QpkHJYYCdRIRSh2QPhRohDIPSgwF6iQilDogfSjQCGUelBgK1ElEKHVA+lCgEco8KDEUqJOIUOqA9KFAI5R5UGIoUCcRodQB6UOBRijzoMRQoE4iQqkD0ocCjVDmQYmhQJ1EhFIHpA8FGqHMgxJDgTqJCKUOSB8KNEKZByWGAnUSEUodkD4UaIQyD0oMBeokIpQ6IH0o0AhlHpQYCtRJRCh1QPpQoBHKPCgxFKiTiFDqgPShQCOUeVBiKFAnEaHUAelDgUYo86DEUKBOIkKpA9KHAo1Q5kGJoUCdRIRSB6QPBRqhzIMSQ4E6iQilDkgfCjRCmQclhgJ1EhFKHZA+FGiEMg9KDAXqJCKUOiB9KNAIZR6UGArUSUQodUD6UKARyjwoMRSok4hQ6oD0oUAjlHlQYtwogYrsC9MFuvT/wxLxGeiuocSA5ID04TPQCGUelBg36hno4h2kQokByQHpQ4FGKPOgxFCgTiJCqQPShwKNUOZBiaFAnUSEUgekDwUaocyDEkOBOokIpQ5IHwo0QpkHJYYCdRIRSh2QPhRohDIPSgwF6iQilDogfeyNQFtYsI9eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD72RqAtZxbsoxdKDAXqJCKUOiB9KNA5ffRCiaFAnUSEUgekDwU6p49eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD4U6Jw+eqHEUKBOIkKpA9KHAp3TRy+UGArUSUQodUD6UKBz+uiFEkOBOokIpQ5IHwp0Th+9UGIoUCcRodQB6UOBzumjF0oMBeokIpQ6IH0o0Dl99EKJoUCdRIRSB6QPBTqnj14oMRSok4hQ6oD0oUDn9NELJYYCdRIRSh2QPhTonD56ocRQoE4iQqkD0ocCndNHL5QYCtRJRCh1QPpQoHP66IUSQ4E6iQilDkgfCnROH71QYihQJxGh1AHpQ4HO6aMXSgwF6iQilDogfSjQOX30QomhQJ1EhFIHpA8FOqePXigxFKiTiFDqgPShQOf00QslhgJ1EhFKHZA+FOicPnqhxFCgTiJCqQPShwKd00cvlBgK1ElEKHVA+lCgc/rohRJDgTqJCKUOSB8KdE4fvVBiKFAnEaHUAelDgc7poxdKDAXqJCKUOiB9KNA5ffRCiaFAnUSEUgekDwU6p49eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD4U6Jw+eqHEUKBOIkKpA9KHAp3TRy+UGArUSUQodUD6UKBz+uiFEkOBOokIpQ5IHwp0Th+9UGIoUCcRodQB6UOBzumjF0oMBeokIpQ6IH0o0Dl99EKJoUCdRIRSB6QPBTqnj14oMRSok4hQ6oD0oUDn9NELJYYCdRIRSh2QPhTonD56ocRQoE4iQqkD0ocCndNHL5QYCtRJRCh1QPpQoHP66IUSQ4E6iQilDkgfCnROH71QYihQJxGh1AHpQ4HO6aMXSgwF6iQilDogfSjQOX30QomhQJ1EhFIHpA8FOqePXigxFKiTiFDqgPShQOf00QslhgJ1EhFKHZA+FOicPnqhxFCgTiJCqQPShwKd00cvlBgK1ElEKHVA+lCgc/rohRJDgTqJCKUOSB8KdE4fvVBiKFAnEaHUAelDgc7poxdKDAXqJCKUOiB9KNA5ffRCiaFAnUSEUgekDwU6p49eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD4U6Jw+eqHEUKBOIkKpA9KHAp3TRy+UGArUSUQodUD6UKBz+uiFEkOBOokIpQ5IHwp0Th+9UGIoUCcRodQB6UOBzumjF0oMBeokIpQ6IH0o0Dl99EKJoUCdRIRSB6QPBTqnj14oMRSok4hQ6oD0oUDn9NELJYYCdRIRSh2QPhTonD56ocRQoE4iQqkD0ocCndNHL5QYCtRJRCh1QPpQoHP66IUSQ4E6iQilDkgfCnROH71QYihQJxGh1AHpQ4HO6aMXSgwF6iQilDogfSjQOX30QomhQJ1EhFIHpA8FOqePXigxFKiTiFDqgPShQOf00QslhgJ1EhFKHZA+FOicPnqhxFCgTiJCqQPShwKd00cvlBgK1ElEKHVA+lCgc/rohRJDgTqJCKUOSB8KdE4fvVBiKFAnEaHUAelDgc7poxdKDAXqJCKUOiB9KNA5ffRCiaFAnUSEUgekDwU6p49eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD4U6Jw+eqHEUKBOIkKpA9KHAp3TRy+UGArUSUQodUD6UKBz+uiFEkOBOokIpQ5IHwp0Th+9UGIoUCcRodQB6UOBzumjF0oMBeokIpQ6IH0o0Dl99EKJoUCdRIRSB6QPBTqnj14oMRSok4hQ6oD0oUDn9NELJYYCdRIRSh2QPhTonD56ocRQoE4iQqkD0ocCndNHL5QYCtRJRCh1QPpQoHP66IUSQ4E6iQilDkgfCnROH71QYihQJxGh1AHpQ4HO6aMXSgwF6iQilDogfSjQOX30QomhQJ1EhFIHpA8FOqePXigxFKiTiFDqgPShQOf00QslhgJ1EhFKHZA+FOicPnqhxFCgTiJCqQPShwKd00cvlBgK1ElEKHVA+lCgc/rohRJDgTqJCKUOSB8KdE4fvVBiKFAnEaHUAelDgc7poxdKDAXqJCKUOiB9KNA5ffRCiaFAnUSEUgekDwU6p49eKDEUqJOIUOqA9KFA5/TRCyWGAnUSEUodkD4U6Jw+eqHEUKBOIkKpA9KHAp3TRy+UGArUSUQodUD6UKBz+uiFEkOBOokIpQ5IHwp0Th+9UGIoUCcRodQB6UOBzumjF0oMBeokIpQ6IH0o0Dl99EKJoUCdRIRSB6QPBTqnj14oMRSok4hQ6oD0oUDn9NELJYYCdRIRSh2QPhTonD56ocRQoE4iQqkD0ocCndNHL5QYCtRJRCh1QPpQoHP66IUSQ4E6iQilDkgfCnROH71QYihQJxGh1AHpQ4HO6aMXSgwF6iQilDogfSjQOX30QomhQJ1EhFIHpA8FOqePXigxFKiTiFDqgPShQOf00QslhgJ1EhFKHZA+FOicPnqhxFCgTiJCqQPShwKd00cvlBgK1ElEKHVA+lCgc/rohRJDgTqJCKUOSB8KdE4fvVBizBXolz9ar2+9/en5g6MPD9brZz9QoHOh1AHpQ4HO6aMXSoypAv1kfcatj04fPL5z9uDVz+oPFOhkKHVA+lCgc/rohRJjpkAfrG/9+Pj40d1zNR6ub396+uD2/eoDBToZSh2QPhTonD56ocSYKNCju+v3T/88eYJ58ufDgzONPr5z+nz0+gcKdDaUOiB9KNA5ffRCiTFRoI/vbL4pP1y/e3x8b/362YN79QcKdDaUOiB9KNA5ffRCibHEb+HPBHp4/nT05Pv612sPFOhsKHVA+lCgc/rohRJjAYGefW9+dHfzDfrDg9v3r39w/k+8tGH4kiIwkAJdupTnifGyz75FV6DyXKNAn3OGy35w9jKmS5p89bPrH8R/dPFn4alQYkByQPrwW/g5ffRCiTH9W/gHB7dOf8TZ9QxUgU6EUgekDwU6p49eKDFmC/Te5mX0CvQbUGJAckD6UKBz+uiFEmOyQD9ZX7y409/Cl1BiQHJA+lCgc/rohRJjqkCPDtevXfxY8+JVnpuXfl73QIHOhlIHpA8FOqePXigxpgr08NK7M30nUgklBiQHpA8FOqePXigxZgr03uV3tx/dXb/29B3v1z9QoLOh1AHpY6COVRsz3ahAk5j7Vs71Bac/3Hx0+TOXrn+gQCdDqQPShwLduo8UKDEmCvTBOgj0+NGHJ397e/Ms8/oHCnQulDogfQwJdKb2FOiS+In0TqKAUgekDwW6dR8pUGIoUCcRodQB6UOBbt1HCpQYCtRJRCh1QPpQoFv3kQIlhgJ1EhFKHZA+FOjWfaRAiaFAnUSEUgekDwW6dR8pUGIoUCcRodQB6UOBbt1HCpQYCtRJRCh1QPpQoFv3kQIlhgJ1EhFKHZA+FOjWfaRAiaFAnUSEUgekDwW6dR8pUGIoUCcRodQB6UOBbt1HCpQYCtRJRCh1QPpQoFv3kQIlhgJ1EhFKHZA+FOjWfaRAiaFAnUSEUgekDwW6dR8pUGIoUCcRodQB6UOBbt1HCpQYCtRJRCh1QPpQoFv3kQIlhgJ1EhFKHZA+FOjWfaRAiaFAnUSEUgekDwW6dR8pUGIoUCcRodQB6UOBbt1HCpQYCtRJRCh1QPpQoFv3kQIlhgJ1EhFKHZA+niuBNpFQ8gCMdSjQvg5SocSA5ID0oUAVaAUFyjEGJQYkB6SP50qgTf9FCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYhwLt6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHUo0L4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IHwq0PJRQ8gCMdSjQvg5SocSA5ID0oUDLQwklD8BYx84F+uS//scvnj743Rv/7osrTynQq6DEgOSA9KFAy0MJJQ/AWMfOBfrHH3zr11c/UKDPghIDkgPShwItDyWUPABjHbkC/d3LCrQDSgxIDkgfCrQ8lFDyAIx17FKgf/zB6hu86Lfw7VBiQHJA+lCg5aGEkgdgrGOnz0C/+qZA39qpPxXoDCh1QPpQoOWhhJIHYKxjpwJ98o9vvvnGyy98780L/uqXu/WnAp0BpQ5IHwq0PJRQ8gCMdeT+DHTnLN5BKpQYkByQPhRoeSih5AEY68h9GZMC7YISA5ID0ocCLQ8llDwAYx2+kL6vg1QoMSA5IH0o0PJQQskDMNaRJNDfXPCvCrQdSgxIDkgfCrQ8lFDyAIx1JAj09z+59Ft4XwfaASUGJAekDwVaHkooeQDGOnYv0PhqUAXaASUGJAekDwVaHkooeQDGOnYv0M9Xq+/81f+84J99IX07lBiQHJA+FGh5KKHkARjr2P1v4T9YfXenzlSgs6HUAelDgZaHEkoegLGOhNeBvvBTBToGJQYkB6QPBVoeSih5AMY6fCF9XwepUGJAckD6UKDloYSSB2CsI+FbeJ+BjkKJAckB6UOBlocSSh6AsY6MXyL9RZ5ARW4AQDfuUqBL17snXNPjyVPQH6Zdc/F/iaRCiQHJAenDZ6DloYSSB2CsI+G98G+sVl9/INOO3xi/eAepUGJAckD6UKDloYSSB2CsI+GXSCtfSD8IJQYkB6QPBVoeSih5AMY6FGhfB6lQYkByQPpQoOWhhJIHYKzDT2Pq6yAVSgxIDkgfCrQ8lFDyAIx1KNC+DlKhxIDkgPShQMtDCSUPwFiHAu3rIBVKDEgOSB8KtDyUUPIAjHXsXqB/+M1l/DzQDigxIDkgfSjQ8lBCyQMw1uEvkfo6SIUSA5ID0ocCLQ8llDwAYx0KtK+DVCgxIDkgfSjQ8lBCyQMw1rH7F9L/y8VHgf63v1y98D/8PNAOKDEgOSB9KNDyUELJAzDWkfpLpN+9/OKO/xc6F+8gFUoMSA5IHwq0PJRQ8gCMdeT+Fn7nHyyyeAepUGJAckD6UKDloYSSB2CsI1egO38KungHqVBiQHJA+lCg5aGEkgdgrCNXoDv/dOXFO0iFEgOSA9KHAi0PJZQ8AGMd2c9AFWgHlBiQHJA+FGh5KKHkARjrSBXok49XfgvfASUGJAekDwVaHkooeQDGOhI+D/Tio0DffOPllb9E6oESA5ID0gfszPIAACAASURBVIcCLQ8llDwAYx3JL6T3ZUw9UGJAckD6UKDloYSSB2CsI1Wg3/7rHftTgc6AUgekDwVaHkooeQDGOvw0pr4OUqHEgOSA9KFAy0MJJQ/AWIcC7esgFUoMSA5IH0UdqyZ2ZDQFej2MdSjQvg5SocSA5ID0oUDLQwvdiALGOlIE+odfvLJavfDKX+/4w0AV6BwodUD6+IZAdyYi3CEF2k+CQD9/+u/hHb+ISYFOgVIHpA8FWh5a6EYUMNaRINBTf377e2++8ScJBl28g1QoMSA5IH0o0PLQQjeigLGO3Qv0dy+vXvzV2d9+/8HqhZ8q0HYoMSA5IH0o0PLQQjeigLGO3Qv00ts3n3yw+q4CbYcSA5ID0ocCLQ8tdCMKGOvY/Vs5P7j0rNOPs+uCEgOSA9KHAi0PLXQjChjrSHgn0qUPYPLj7LqgxIDkgPShQMtDC92IAsY6FGhfB6lQYkByQPpQoOWhhW5EAWMdCd/Cr956+uArP86uB0oMSA5IHwq0PLTQjShgrMNfIvV1kAolBiQHpA8FWh5a6EYUMNaR8jKm7/zy7G//9y99GVMXlBiQHJA+FGh5aKEbUcBYR9IL6VevvPJKxluRFu8gFUoMSA5IHwq0PLTQjShgrCPjrZz/++XNOzlf+OGO/alAZ0CpA9KHAi0PLXQjChjrSPkwkSf/542TZ6Df+/tdf5yyAp0CpQ5IHwq0PLTQjShgrMOPs+vrIBVKDEgOSB8KtDy00I0oYKxDgfZ1kAolBiQHpA8FWh5a6EYUMNaRKNDfKNBOKDEgOSB9KNDy0EI3ooCxjgyBPvnFn/767H9d7vu/UqA9UGJAckD6UKDloYVuRAFjHQkC/erl1bfOBbp64a1rzijQq6DEgOSA9KFAy0ML3YgCxjpSXkh//l6kf/nJy76QvgtKDEgOSB8KtDy00I0oYKwj462c3/nV5q++lbMPSgxIDkgfCrQ8tNCNKGCsI+HTmMLngfppTB1QYkByQPpQoOWhhW5EAWMdfpxdXwepUGJAckD6UKDloYVuRAFjHT4D7esgFUoMSA5IHwq0PLTQjShgrCPjZ6DfvfLvCvSZUGJAckD6UKDloYVuRAFjHbsX6Fer1ff/9exvf/j5arXj1zEt3kEqlBiQHJA+FGh5aKEbUcBYR8LrQD8+/RymV1555fQzmXb8BFSBzoBSB6QPBVoeWuhGFDDWkSDQJ/+0uvg4u/+0Y38q0BlQ6oD0oUDLQwvdiALGOjI/zu6/+3F2fVBiQHJA+lCg5aGFbkQBYx1+GlNfB6lQYkByQPpQoOWhhW5EAWMdCrSvg1QoMSA5IH0o0PLQQjeigLEOBdrXQSqUGJAckD4UaHlooRtRwFiHAu3rIBVKDEgOSB8KtDy00I0oYKxDgfZ1kAolBiQHpA8FWh5a6EYUMNahQPs6SIUSA5ID0ocCLQ8tdCMKGOtQoH0dpEKJAckB6UOBlocWuhEFjHUo0L4OUqHEgOSA9KFAy0ML3YgCxjoUaF8HqVBiQHJA+lCg5aGFbkQBYx0KtK+DVCgxIDkgfSjQ8tBCN6KAsQ4F2tdBKpQYkByQPhRoeWihG1HAWIcC7esgFUoMSA5IHwq0PLTQjShgrEOB9nWQCiUGJAekDwVaHlroRhQw1qFA+zpIhRIDkgPShwItDy10IwoY61CgfR2kQokByQHpQ4GWhxa6EQWMdSjQvg5SocSA5ID0oUDLQwvdiALGOhRoXwepUGJAckD6UKDloYVuRAFjHQq0r4NUKDEgOSB9KNDy0EI3ooCxDgXa10EqlBiQHJA+FGh5aKEbUcBYhwLt6yAVSgxIDkgfCrQ8tNCNKGCsQ4H2dZAKJQYkB6QPBVoeWuhGFDDWoUD7OkiFEgOSA9KHAi0PLXQjChjrUKB9HaRCiQHJAelDgZaHFroRBYx1KNC+DlKhxIDkgPShQMtDC92IAsY6FGhfB6lQYkByQPpQoOWhhW5EAWMdCrSvg1QoMSA5IH0o0PLQQjeigLEOBdrXQSqUGJAckD4UaHlooRtRwFiHAu3rIBVKDEgOSB8KtDy00I0oYKxDgfZ1kAolBiQHpA8FWh5a6EYUMNahQPs6SIUSA5ID0ocCLQ81kX9f0q/QhALlGIMSA5ID0ocCLQ8p0EsoUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck0oUI4xKDEgOSB9KNChQ/n3Jf0KTShQjjEoMSA5IH0o0KFD+fcl/QpNKFCOMSgxIDkgfSjQoUP59yX9Ck3MF+jjO69v/nb04cF6/fanz3qgQOdCqQPShwIdOpR/X9Kv0MR8gR6uX78w6fqUVz+rP1Cgk6HUAelDgQ4dyr8v6VdoYrZAjw7XFwI9XN/+9PjR3fXt+9UHCnQylDogfSjQoUP59yX9Ck1MFuiX760vBPrw4OwZ5uM7tz6qPVCgs6HUAelDgQ4dyr8v6VdoYq5A763X7/x2I9B7T/98t/ZAgc6GUgekDwU6dCj/vqRfoYnJAn3tZ8cPNno8XL9/9ufZ4+sfKNDZUOqA9KFAhw7l35f0KzQx/5dIGy0e3d18g/7w4Pb96x+c/zMvbRi8pMiuUKBth5a+T3wUqDyHKFAFuht2J9BXP7v+QfxnF38WngolBiQHpA+/hR86lH9f0q/QxM34Fl6BToRSB6QPBTp0KP++pF+hCQXKMQYlBiQHpA8FOnQo/76kX6GJxQTqb+G/ASUGJAekDwU6dCj/vqRfoYnlBHrxKs/NSz+ve6BAZ0OpA9KHAh06lH9f0q/QxHIC9Z1IJZQYkByQPhTo0KH8+5J+hSaWE+jR3fVrT9/xfv0DBTobSh2QPhTo0KH8+5J+hSaWE+jxo8ufuXT9AwU6GUodkD4U6NCh/PuSfoUmFhTo8aMPTyz59v1nPVCgc6HUAelDgQ4dyr8v6Vdowk+k5xiDEgOSA9KHAh06lH9f0q/QhALlGIMSA5ID0ocCHTqUf1/Sr9CEAuUYgxIDkgPShwIdOpR/X9Kv0IQC5RiDEgOSA9KHAh06lH9f0q/QhALlGIMSA5ID0ocCHTqUf1/Sr9CEAuUYgxIDkgPShwIdOpR/X9Kv0IQC5RiDEgOSA9KHAh06lH9f0q/QhALlGIMSA5ID0ocCHTqUf1/Sr9CEAuUYgxIDkgPShwIdOpR/X9Kv0IQC5RiDEgOSA9KHAh06lH9f0q/QhALlGIMSA5ID0ocCHTqUf1/Sr9CEAuUYgxIDkmN6H6s25opo5iEF2o8C5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FhDojvwBdKMCTUKBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQBVoBchKFSjHGJQYkBwKVIFWgKxUgXKMQYkByaFAFWgFyEoVKMcYlBiQHApUgVaArFSBcoxBiQHJoUAVaAXIShUoxxiUGJAcClSBVoCsVIFyjEGJAcmhQG+yQJvY5m5BVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBXqTBdp0aJu7BVmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgORSoAq0AWakC5RiDEgOSQ4Eq0AqQlSpQjjEoMSA5FKgCrQBZqQLlGIMSA5JDgSrQCpCVKlCOMSgxIDkUqAKtAFmpAuUYgxIDkkOBKtAKkJUqUI4xKDEgOXbZx6qNHakB6EZm7m1uKWSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5NitQGeqAehGZu5tbilkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWerMEKjLEnotoR4emR1p6FoviM9BdQ4kByeEz0L0X6Da3FLLSm/UMdPEOUqHEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgCrQCZKUKlGMMSgxIDgWqQCtAVqpAOcagxIDkUKAKtAJkpQqUYwxKDEgOBapAK0BWqkA5xqDEgORQoAq0AmSlCpRjDEoMSA4FqkArQFaqQDnGoMSA5FCgey/QJvLXsQ0KlGMMSgxIjsY+Gr8MZ6oB6EZmbgWqQHcIJQYkhwLde4E2HdpqHekoUI4xKDEgOZoFOvkLmna1fc+91TrSUaAcY1BiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHIoUHMrUAXaDiUGJIcCNbcCVaDtUGJAcihQcytQBdoOJQYkhwI1twJVoO1QYkByKFBzK1AF2g4lBiSHAjW3AlWg7VBiQHL82/Gqjclf0LSr7Xvu69YxdYvXokA5xqDEgORQoOZWoAq0HUoMSI5TgU7+Wt3RIWCkG5z7unVM3eK1KFCOMSgxIDkUqLkVqAJthxIDkkOBmluBKtB2KDEgORSouRWoAm2HEgOSQ4GaW4Eq0HYoMSA5FKi5Tw+1sOBIFSjGGJQYkBwK1NwKVIG2Q4kByaFAzd2ae8GRKlCMMSgxIDkUqLkVqAJthxIDkkOBmluBKtB2KDEgORSouRWoAm2HEgOSQ4GaW4Eq0HYoMSA5FKi5FagCbYcSA5JDgZpbgSrQdigxIDkUqLkVqAJthxJjSo4b+lGfey6imVdToAp0t1BiKNAtDwEj7XnuGYu9GgWqQAtmCXTiV5gi2vPcMxZ7NQpUgRYo0G0PASPtee4Zi70aBapACxTotoeAkfY894zFXo0CVaAFCnTbQ8BIe557xmKvRoEq0AIFuu0hYKQ9zz1jsVejQBVogQLd9hAw0p7nnrHYq1GgCrRAgW57CBhpz3PPWOzVKFAFWqBAtz0EjLTnuWcs9moUqAItUKDbHgJG2vPcMxZ7NQpUgRYo0G0PASPtee4Zi70aBapAC7auo+1dmnv9BT3zauZWoAr0FEoMBbrlIWCkPc/dxE6+OkoUqAIt2IFAd/aFsaP/IkW057kVqAJVoENniIeAkcytQBXoHBTotoeAkcytQBXoHBTotoeAkcytQBXoHBTotoeAkcytQBXoHBTotoeAkcytQBXoHGp17OwVSn5BAw8BIylQBdoMJYYC3fIQMJK5FagCnUNdoDvavF/QwEPASApUgTZDiaFAtzwEjGRuBapA56BAtz0EjGRuBapA56BAtz0EjGTu50qgRx8erNdvf6pAJzL390N+QQMPASMp0BEe31mf8upnCnQeCtTcvEgKdITD9e1Pjx/dXd++r0CncXO/MHCHgJHM3fgEoffLhijQhwdnzz0f37n1kQJ9Fjubxc39wsAdAkYy93Mk0Hvr1zd/vvtcC7Txlu+MHc3ZL2hgJHMnfZ9PFOjh+v2zPx9sRLqHAp3rPQVqbnPnPE0FCvTo7uZb94cHFz8EfWnD2H/hqJlERL7JTjynQEXkeWQnnpsh0PKFTLv/XrrzWXgqlBiQHJA+rCNC6YMS40Z8C69AJ0KpA9KHdUQofVBiKFAnEaHUAenDOiKUPigxeAJ9Hn4LfyWUGJAckD6sI0LpgxIDKNCL138+768DXQhKHZA+rCNC6YMSAyhQ34m0KJQ6IH1YR4TSByUGUKBHd9ev+V74xaDUAenDOiKUPigxgAI9fuSnMS0IpQ5IH9YRofRBiUEU6PGjD0/8+Xb5/FOBToFSB6QP64hQ+qDEQAr0OhbvIBVKDEgOSB/WEaH0QYmhQJ1EhFIHpA/riFD6oMRQoE4iQqkD0od1RCh9UGIoUCcRodQB6cM6IpQ+KDEUqJOIUOqA9GEdEUoflBgK1ElEKHVA+rCOCKUPSgwF6iQilDogfVhHhNIHJYYCdRIRSh2QPqwjQumDEkOBOokIpQ5IH9YRofRBiaFAnUSEUgekD+uIUPqgxFCgTiJCqQPSh3VEKH1QYihQJxGh1AHpwzoilD4oMRSok4hQ6oD0YR0RSh+UGArUSUQodUD6sI4IpQ9KDAXqJCKUOiB9WEeE0gclhgJ1EhFKHZA+rCNC6YMSQ4E6iQilDkgf1hGh9EGJoUCdRIRSB6QP64hQ+qDEUKBOIkKpA9KHdUQofVBiKFAnEaHUAenDOiKUPigxFKiTiFDqgPRhHRFKH5QYCtRJRCh1QPqwjgilD0oMBeokIpQ6IH1YR4TSByWGAnUSEUodkD6sI0LpgxJDgTqJCKUOSB/WEaH0QYmhQJ1EhFIHpA/riFD6oMRQoE4iQqkD0od1RCh9UGIoUCcRodQB6cM6IpQ+KDEUqJOIUOqA9GEdEUoflBg3SqA5vPTS0glQWEfAOiL2ERivQ4HuKdYRsI6IfQQUqJMosI6AdUTsI6BAnUSBdQSsI2IfAQXqJAqsI2AdEfsIKFAnUWAdAeuI2EdAgTqJAusIWEfEPgIK1EkUWEfAOiL2EVCgIiLTUaAiIoMoUBGRQRSoiMggClREZBAFKiIyiAIVERlEgYqIDLI/An185/WlI2D48kfr9a23P106BoUv3zup42/vLx0DxcOD2xZyxuM76zNe/Wzkn94fgR6uFeiGT84XceujpYMwuHdex2tDXyB7ytHdtQI95+GBAj0ZxOFagW54sL714+PjR3cHJ7FvPDw4q+M993GJk3+pKNBzHmw1jD0R6Ok3aX6BnHPy5OL90z9PvjV5f+ksBA7X757+8fDAf5885fRZlwI9Z7OPQfZDoCf/Pn3ntwr0nMd3NqbYbhn7xtNa5PTfsf/Fn4Gec3R3qx917YlAX/vZls/E9xEFehl/a/I1h+vXrWPD4zu3/9fJ96//efBXrvsh0FMUaMHjO/4W6Wt+e+APNC54cPLtuwLdcPE7pMF5KNC95Z6FPOVwvb71s6VDUDj7N6sC3fBgvX7n/vH/+3DwRSsKdF954MuYnnL0D39zsL71d0vHgHD2ox0FuuHiecbgD7wU6J7y4OCW37Je5ku/hz/n3tnv3xVowYOxlyUo0P3kns8/Swa/QvaNhwdny1CgBYMvc1Oge8kn+vMbqIwzNu/LGn/vzZ4yOA8FuoccHfq+xadcvK9AgZ6jQANP5zHoDwW6hxz6zeolDp/+lsCBfI3/OtmwmcVTkXaiQPePe/rzMg8PTl+ncuRPNQIKdMP5PB69N/hFo0D3jouP5/LTATY82Hw4lb+Ev4QCvWDzM41Xx96KpED3jgdrBRp5eYjGgAAAAixJREFU5MejfgMF+pSzebwz2Mb+CFREZDIKVERkEAUqIjKIAhURGUSBiogMokBFRAZRoCIigyhQEZFBFKiIyCAKVERkEAUqIjKIAhURGUSBiogMokDlpvLHH6z+YukM8pyjQOWmokBlcRSo3FQUqCyOApWbigKVxVGgclNRoLI4ClRuKgpUFkeByk3lVKBPfv7yavWnf3/tf37+t89X3/r1xGDy/KBA5aZyIsjv/2B1xotfXP2fK1DJRYHKTeWPp/b8sy+On/x8tfru1f+5ApVcFKjcVE4Fem7Iz1cv/PTK/1yBSi4KVG4qJ4LcePHkb1c8BVWgko4ClZvKJW1+fNVPQRWopKNA5aZy6WVMH19lSAUq6ShQuamcCPKtzV+vNKQClXQUqNxUfAYqi6NA5aYSBFr9GeiVfhXZHgUqN5UTQW60efWbOp/+kunJBwpUclCgclM5fR3o+Q9BP77ydaAn3jwX7FcrBSo5KFC5qZy9E+nff3H8+5+srv5Ukc9Xqxd/dfzkFy8rUElCgcpN5USgf755L/yfXXng5Cno+Tvl/0mBSg4KVG4qX38a0y+vOfHkF3+yWn37h/4WXrJQoCIigyhQEZFBFKiIyCAKVERkEAUq+8FXq4K3nv3PiGyJApX9QIHKAihQEZFBFKiIyCAKVERkEAUqIjKIAhURGUSBiogMokBFRAZRoCIigyhQEZFBFKiIyCAKVERkEAUqIjKIAhURGUSBiogM8v8BWg9mPwxpGCQAAAAASUVORK5CYII=" width="672" /></p>
+<pre class="r"><code># estimating the user effects, by computing 
 # the overall average and the item effect, and then 
 # the user effect is the average of the remainder, after they
 # are substacted from the rating (user effect= average of (rating - overall average - item effect)
 user_avgs &lt;- core %&gt;% 
   left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
   group_by(userId) %&gt;%
-  summarize(b_u = mean(rating - mu - b_i))</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
-<pre class="r"><code># checking the rmse
+  summarize(b_u = mean(rating - mu - b_i))
+
+# checking the rmse
 predicted_ratings &lt;- sub %&gt;% 
   left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
   left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
   mutate(pred = mu + b_i + b_u) %&gt;%
-  pull(pred)</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
-<pre class="r"><code>movie_and_user_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
-<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
-<pre class="r"><code>rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized movie and user fixed effects&quot;, round(movie_and_user_effects_rmse,5)))</code></pre>
+  pull(pred)
+movie_and_user_effects_rmse&lt;-RMSE(predicted_ratings, sub$rating)
+
+rmse_results &lt;- rbind.data.frame(rmse_results, c(&quot;With unregularized movie and user fixed effects&quot;, round(movie_and_user_effects_rmse,5)))</code></pre>
 <pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;With unregularized movie and user fixed effects&quot;, : object &#39;rmse_results&#39; not found</code></pre>
 <pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
 <pre><code>## Error in names(rmse_results) &lt;- c(&quot;method&quot;, &quot;RMSE&quot;): object &#39;rmse_results&#39; not found</code></pre>
@@ -649,18 +574,17 @@ lambda &lt;- 3
 movie_avgs &lt;- core %&gt;% 
   left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
   group_by(movieId) %&gt;%
-  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;user_avgs&#39; not found</code></pre>
-<pre class="r"><code>### Calculating RMSE ###
+  summarize(b_i = sum(rating - mu - b_u)/(n()+lambda), n_i = n())
+
+### Calculating RMSE ###
 predicted_ratings &lt;- sub %&gt;% 
   left_join(movie_avgs, by=&#39;movieId&#39;) %&gt;%
   left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
   mutate(pred = mu + b_i + b_u) %&gt;%
-  pull(pred)</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
-<pre class="r"><code>movie_and_user_effects_with_regularization_rmse&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
-<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
-<pre class="r"><code># checking the RMSE
+  pull(pred)
+movie_and_user_effects_with_regularization_rmse&lt;-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
 rmse_results &lt;- rbind.data.frame(rmse_results,c(&quot;Movie and user effects with regularization&quot;, round(movie_and_user_effects_with_regularization_rmse,5)))</code></pre>
 <pre><code>## Error in rbind.data.frame(rmse_results, c(&quot;Movie and user effects with regularization&quot;, : object &#39;rmse_results&#39; not found</code></pre>
 <pre class="r"><code># rmse_results &lt;- rbind(rmse_results, c(&quot;Movie and user effects with regularization&quot;, round(movie_and_user_effects_with_regularization_rmse,5)))
@@ -684,7 +608,8 @@ genre_avgs &lt;- core %&gt;%
   left_join(movie_avgs) %&gt;%
   group_by(genresnum) %&gt;% 
   summarize(b_g = mean(rating - mu-b_u-b_i)/(n()+lambda), n_i = n())</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;user_avgs&#39; not found</code></pre>
+<pre><code>## Joining, by = &quot;userId&quot;</code></pre>
+<pre><code>## Joining, by = &quot;movieId&quot;</code></pre>
 <pre class="r"><code># creating a numeric user_genres column in the
 # sub dataset
 sub$genresnum&lt;-as.numeric(as.factor(sub$genres))
@@ -695,11 +620,10 @@ predicted_ratings &lt;- sub %&gt;%
   left_join(user_avgs, by=&#39;userId&#39;) %&gt;%
   left_join(genre_avgs, by=&#39;genresnum&#39;) %&gt;%
   mutate(pred = mu + b_i + b_u + b_g) %&gt;%
-  pull(pred)</code></pre>
-<pre><code>## Error in is.data.frame(y): object &#39;movie_avgs&#39; not found</code></pre>
-<pre class="r"><code>movie_user_genre_effects&lt;-RMSE(predicted_ratings, sub$rating)</code></pre>
-<pre><code>## Error in RMSE(predicted_ratings, sub$rating): object &#39;predicted_ratings&#39; not found</code></pre>
-<pre class="r"><code># checking the RMSE
+  pull(pred)
+movie_user_genre_effects&lt;-RMSE(predicted_ratings, sub$rating)
+
+# checking the RMSE
 rmse_results &lt;- rbind(rmse_results, c(&quot;Movie, user and genre effects with regularization&quot;, round(movie_user_genre_effects,5)))</code></pre>
 <pre><code>## Error in rbind(rmse_results, c(&quot;Movie, user and genre effects with regularization&quot;, : object &#39;rmse_results&#39; not found</code></pre>
 <pre class="r"><code>names(rmse_results)&lt;-c(&quot;method&quot;, &quot;RMSE&quot;)</code></pre>
@@ -811,8 +735,8 @@ saveRDS(trainmat_final_10, file=&quot;trainmat&quot;)
 # Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
 # reserving 10% of the training set for validation)
 
-Sys.time() # recording the start time in order to see how long this takes</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:14:11 CET&quot;</code></pre>
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:23:02 CET&quot;</code></pre>
 <pre class="r"><code>scheme_10 &lt;- trainmat_final_10 %&gt;% 
   evaluationScheme(method = &quot;split&quot;,
                    k=1,
@@ -821,28 +745,27 @@ Sys.time() # recording the start time in order to see how long this takes</code>
                    goodRating = 3.5
   )
 
-Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:15:38 CET&quot;</code></pre>
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:26 CET&quot;</code></pre>
 <pre class="r"><code># saving
 saveRDS(scheme_10, file=&quot;scheme_10&quot;)
 
 Sys.time()</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:15:43 CET&quot;</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
 <pre class="r"><code>##################### Evaluating the models ################################
 
 ### Popular ###
 # evaluating the &quot;popular&quot; model
 
-Sys.time() # recording the start time in order to see how long this takes</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:15:43 CET&quot;</code></pre>
-<pre class="r"><code>result_rating_popular_10 &lt;- evaluate(scheme_10,
-                                     method = &quot;popular&quot;,
-                                     parameter = list(normalize = &quot;Z-score&quot;),
-                                     type  = &quot;ratings&quot;
-)</code></pre>
-<pre><code>## popular run fold/sample [model time/prediction time]
-##   1  [0.64sec/1.45sec]</code></pre>
-<pre class="r"><code># examining the results
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
+<pre class="r"><code>#result_rating_popular_10 &lt;- evaluate(scheme_10,
+#                                     method = &quot;popular&quot;,
+#                                     parameter = list(normalize = &quot;Z-score&quot;),
+#                                     type  = &quot;ratings&quot;
+#)
+
+# examining the results
 result_rating_popular_10@results %&gt;%
   map(function(x) x@cm) %&gt;%
   unlist() %&gt;%
@@ -850,23 +773,21 @@ result_rating_popular_10@results %&gt;%
   as.data.frame() %&gt;%
   summarise_all(mean) %&gt;%
   setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
-<pre><code>##        RMSE       MSE       MAE
-## 1 0.8588175 0.7375674 0.6530973</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:15:46 CET&quot;</code></pre>
+<pre><code>## Error in map(., function(x) x@cm): object &#39;result_rating_popular_10&#39; not found</code></pre>
+<pre class="r"><code>Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
 <pre class="r"><code># saving 
-saveRDS(result_rating_popular_10, file=&quot;result_rating_popular_10&quot;)
-
-### svd ###
+saveRDS(result_rating_popular_10, file=&quot;result_rating_popular_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(result_rating_popular_10, file = &quot;result_rating_popular_10&quot;): object &#39;result_rating_popular_10&#39; not found</code></pre>
+<pre class="r"><code>### svd ###
 # evaluating the svd model
-result_rating_svd_10 &lt;- evaluate(scheme_10,
-                              method = &quot;svd&quot;,
-                              parameter = list(normalize = &quot;Z-score&quot;, k = 5),
-                              type  = &quot;ratings&quot;
-)</code></pre>
-<pre><code>## svd run fold/sample [model time/prediction time]
-##   1  [6.12sec/1.95sec]</code></pre>
-<pre class="r"><code># examining the results
+#result_rating_svd_10 &lt;- evaluate(scheme_10,
+#                              method = &quot;svd&quot;,
+#                              parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+#                              type  = &quot;ratings&quot;
+#)
+
+# examining the results
 result_rating_svd_10@results %&gt;%
   map(function(x) x@cm) %&gt;%
   unlist() %&gt;%
@@ -874,26 +795,24 @@ result_rating_svd_10@results %&gt;%
   as.data.frame() %&gt;%
   summarise_all(mean) %&gt;%
   setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
-<pre><code>##        RMSE       MSE       MAE
-## 1 0.9191795 0.8448909 0.7176927</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:15:56 CET&quot;</code></pre>
+<pre><code>## Error in map(., function(x) x@cm): object &#39;result_rating_svd_10&#39; not found</code></pre>
+<pre class="r"><code>Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
 <pre class="r"><code>### ibcf ###
 
 # evaluating
-result_rating_ibcf_10 &lt;- evaluate(scheme_10,
-                                  method = &quot;ibcf&quot;,
-                                  parameter = list(normalize = &quot;Z-score&quot;),
-                                  type  = &quot;ratings&quot;
-)</code></pre>
-<pre><code>## ibcf run fold/sample [model time/prediction time]
-##   1  [2411.91sec/1.06sec]</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:56:11 CET&quot;</code></pre>
-<pre class="r"><code># saving 
-saveRDS(result_rating_ibcf_10, file=&quot;result_rating_ibcf_10&quot;)
+#result_rating_ibcf_10 &lt;- evaluate(scheme_10,
+#                                  method = &quot;ibcf&quot;,
+#                                  parameter = list(normalize = &quot;Z-score&quot;),
+#                                  type  = &quot;ratings&quot;
+#)
 
-# examining the results
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_ibcf_10, file=&quot;result_rating_ibcf_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(result_rating_ibcf_10, file = &quot;result_rating_ibcf_10&quot;): object &#39;result_rating_ibcf_10&#39; not found</code></pre>
+<pre class="r"><code># examining the results
 result_rating_ibcf_10@results %&gt;%
   map(function(x) x@cm) %&gt;%
   unlist() %&gt;%
@@ -901,37 +820,24 @@ result_rating_ibcf_10@results %&gt;%
   as.data.frame() %&gt;%
   summarise_all(mean) %&gt;%
   setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
-<pre><code>##       RMSE      MSE      MAE
-## 1 1.248455 1.558641 0.950424</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 20:56:11 CET&quot;</code></pre>
+<pre><code>## Error in map(., function(x) x@cm): object &#39;result_rating_ibcf_10&#39; not found</code></pre>
+<pre class="r"><code>Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
 <pre class="r"><code>### ubcf ###
 
 # evaluating
-result_rating_ubcf_10 &lt;- evaluate(scheme_10,
-                                  method = &quot;ubcf&quot;,
-                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
-                                  type  = &quot;ratings&quot;
-)</code></pre>
-<pre><code>## ubcf run fold/sample [model time/prediction time]
-##   1</code></pre>
-<pre><code>## Warning: Unknown parameters: k</code></pre>
-<pre><code>## Available parameter (with default values):
-## method    =  cosine
-## nn    =  25
-## sample    =  FALSE
-## weighted  =  TRUE
-## normalize     =  center
-## min_matching_items    =  0
-## min_predictive_items  =  0
-## verbose   =  FALSE
-## [0.64sec/276.79sec]</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 21:00:49 CET&quot;</code></pre>
-<pre class="r"><code># saving 
-saveRDS(result_rating_ubcf_10, file=&quot;result_rating_ubcf_10&quot;)
+# result_rating_ubcf_10 &lt;- evaluate(scheme_10,
+#                                  method = &quot;ubcf&quot;,
+#                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+#                                  type  = &quot;ratings&quot;
+#)
 
-# examining the results
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_ubcf_10, file=&quot;result_rating_ubcf_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(result_rating_ubcf_10, file = &quot;result_rating_ubcf_10&quot;): object &#39;result_rating_ubcf_10&#39; not found</code></pre>
+<pre class="r"><code># examining the results
 result_rating_ubcf_10@results %&gt;%
   map(function(x) x@cm) %&gt;%
   unlist() %&gt;%
@@ -939,27 +845,25 @@ result_rating_ubcf_10@results %&gt;%
   as.data.frame() %&gt;%
   summarise_all(mean) %&gt;%
   setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
-<pre><code>##        RMSE       MSE       MAE
-## 1 0.8653869 0.7488945 0.6472406</code></pre>
+<pre><code>## Error in map(., function(x) x@cm): object &#39;result_rating_ubcf_10&#39; not found</code></pre>
 <pre class="r"><code># saving 
-saveRDS(result_rating_svd_10, file=&quot;result_rating_svd_10&quot;)
-
-### svdf ###
+saveRDS(result_rating_svd_10, file=&quot;result_rating_svd_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(result_rating_svd_10, file = &quot;result_rating_svd_10&quot;): object &#39;result_rating_svd_10&#39; not found</code></pre>
+<pre class="r"><code>### svdf ###
 
 # evaluating
-result_rating_svdf_10 &lt;- evaluate(scheme_10,
-                                  method = &quot;svdf&quot;,
-                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
-                                  type  = &quot;ratings&quot;
-)</code></pre>
-<pre><code>## svdf run fold/sample [model time/prediction time]
-##   1  [1248.05sec/42.31sec]</code></pre>
-<pre class="r"><code>Sys.time() # recording the finish time in order to see how long it took</code></pre>
-<pre><code>## [1] &quot;2022-01-08 21:22:29 CET&quot;</code></pre>
-<pre class="r"><code># saving 
-saveRDS(result_rating_svdf_10, file=&quot;result_rating_svdf_10&quot;)
+# result_rating_svdf_10 &lt;- evaluate(scheme_10,
+#                                  method = &quot;svdf&quot;,
+#                                  parameter = list(normalize = &quot;Z-score&quot;, k = 5),
+#                                  type  = &quot;ratings&quot;
+#)
 
-# examining the results
+Sys.time() # recording the time in order to see how long each step takes</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:31 CET&quot;</code></pre>
+<pre class="r"><code># saving 
+saveRDS(result_rating_svdf_10, file=&quot;result_rating_svdf_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(result_rating_svdf_10, file = &quot;result_rating_svdf_10&quot;): object &#39;result_rating_svdf_10&#39; not found</code></pre>
+<pre class="r"><code># examining the results
 result_rating_svdf_10@results %&gt;%
   map(function(x) x@cm) %&gt;%
   unlist() %&gt;%
@@ -967,8 +871,7 @@ result_rating_svdf_10@results %&gt;%
   as.data.frame() %&gt;%
   summarise_all(mean) %&gt;%
   setNames(c(&quot;RMSE&quot;, &quot;MSE&quot;, &quot;MAE&quot;))</code></pre>
-<pre><code>##        RMSE      MSE       MAE
-## 1 0.7986319 0.637813 0.6053268</code></pre>
+<pre><code>## Error in map(., function(x) x@cm): object &#39;result_rating_svdf_10&#39; not found</code></pre>
 <p>The ‘Popular’ algorithm seems like a reasonable choice, since it’s run time is much shorter than the others and it is fairly accurate.</p>
 <p>Now I train the Popular algorithm on the same 10% of the data that I used for evaluation.</p>
 <pre class="r"><code># training the algorithm on one tenth of the training set
@@ -976,10 +879,599 @@ result_rating_svdf_10@results %&gt;%
 recommendations_pop_10 &lt;- Recommender(trainmat_final_10, method = &quot;popular&quot;)
 
 Sys.time() # noting the time in order to measure the time the next command takes</code></pre>
-<pre><code>## [1] &quot;2022-01-08 21:22:29 CET&quot;</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:24:32 CET&quot;</code></pre>
 <pre class="r"><code># saving
 # saveRDS(recommendations_pop_10, file=&quot;recommendations_pop_10&quot;)</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li>Applying the model to the test set [Text XX]</li>
+</ol>
+<pre class="r"><code># cleaning memory
+invisible(gc())
+
+### converting the testing set into a reaRatingmatrix ###
+# creating userId,  movieId and rating columns
+users_and_ratings_test_set&lt;-cbind.data.frame(validation$userId, validation$movieId, validation$rating)
+
+# exploring users_and_ratings_test_set
+dim(users_and_ratings_test_set)</code></pre>
+<pre><code>## [1] 999999      3</code></pre>
+<pre class="r"><code>head(users_and_ratings_test_set)</code></pre>
+<pre><code>##   validation$userId validation$movieId validation$rating
+## 1                 1                231                 5
+## 2                 1                480                 5
+## 3                 1                586                 5
+## 4                 2                151                 3
+## 5                 2                858                 2
+## 6                 2               1544                 3</code></pre>
+<pre class="r"><code># creating the matrix
+testmat &lt;- as(users_and_ratings_test_set, &quot;realRatingMatrix&quot;)
+dim(testmat)</code></pre>
+<pre><code>## [1] 68534  9809</code></pre>
+<pre class="r"><code># checking the number of ratings per item
+number_of_ratings&lt;-colCounts(testmat)
+min(number_of_ratings)</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>max(number_of_ratings)</code></pre>
+<pre><code>## [1] 3502</code></pre>
+<pre class="r"><code># creating an index of rows in the test matrix
+index&lt;-seq(1:nrow(testmat))
+length(index) # making sure that the index was created properly</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code>### Splitting the test matrix intro 10 equal parts ###
+### to shorten processing time ###
+
+# splitting the index into 10 equal parts
+splitted_index&lt;-split(index,             # Applying split() function
+                      cut(seq_along(index),
+                          10,
+                          labels = FALSE))
+# splitted_index
+tenth_1&lt;-as.vector(splitted_index[[1]])
+tenth_2&lt;-as.vector(splitted_index[[2]])
+tenth_3&lt;-as.vector(splitted_index[[3]])
+tenth_4&lt;-as.vector(splitted_index[[4]])
+tenth_5&lt;-as.vector(splitted_index[[5]])
+tenth_6&lt;-as.vector(splitted_index[[6]])
+tenth_7&lt;-as.vector(splitted_index[[7]])
+tenth_8&lt;-as.vector(splitted_index[[8]])
+tenth_9&lt;-as.vector(splitted_index[[9]])
+tenth_10&lt;-as.vector(splitted_index[[10]])
+
+# verifying that all of the 10ths together comprise the total number of users
+# in the test set
+total&lt;-length(tenth_1)+length(tenth_2)+length(tenth_3)+length(tenth_4)+length(tenth_5)+
+ length(tenth_6)+length(tenth_7)+length(tenth_8)+length(tenth_9)+length(tenth_10)
+total</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code>nrow(testmat)</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code># splitting the test set into ten parts
+testmat_10_1&lt;-testmat[tenth_1]
+testmat_10_2&lt;-testmat[tenth_2]
+testmat_10_3&lt;-testmat[tenth_3]
+testmat_10_4&lt;-testmat[tenth_4]
+testmat_10_5&lt;-testmat[tenth_5]
+testmat_10_6&lt;-testmat[tenth_6]
+testmat_10_7&lt;-testmat[tenth_7]
+testmat_10_8&lt;-testmat[tenth_8]
+testmat_10_9&lt;-testmat[tenth_9]
+testmat_10_10&lt;-testmat[tenth_10]
+
+# examining some of the tenths, to make sure that
+# they were created properly
+dim(testmat_10_1)</code></pre>
+<pre><code>## [1] 6854 9809</code></pre>
+<pre class="r"><code>dim(testmat_10_7)</code></pre>
+<pre><code>## [1] 6854 9809</code></pre>
+<pre class="r"><code>dim(testmat_10_9)</code></pre>
+<pre><code>## [1] 6853 9809</code></pre>
+<pre class="r"><code>dim(testmat_10_10)</code></pre>
+<pre><code>## [1] 6854 9809</code></pre>
+<pre class="r"><code># removing unnecessary files from the workspace
+rm(tenth_1, tenth_2, tenth_3, tenth_4, tenth_5)
+rm(tenth_6, tenth_7, tenth_8, tenth_9, tenth_10)
+
+# turning the tenths of the test set into matrices
+testmat_10_1_matrix&lt;-as(testmat_10_1, &quot;matrix&quot;)
+saveRDS(testmat_10_1_matrix, file=&quot;testmat_10_1_matrix&quot;)
+
+testmat_10_2_matrix&lt;-as(testmat_10_2, &quot;matrix&quot;)
+saveRDS(testmat_10_2_matrix, file=&quot;testmat_10_2_matrix&quot;)
+
+testmat_10_3_matrix&lt;-as(testmat_10_3, &quot;matrix&quot;)
+saveRDS(testmat_10_3_matrix, file=&quot;testmat_10_3_matrix&quot;)
+
+testmat_10_4_matrix&lt;-as(testmat_10_4, &quot;matrix&quot;)
+saveRDS(testmat_10_4_matrix, file=&quot;testmat_10_4_matrix&quot;)
+
+testmat_10_5_matrix&lt;-as(testmat_10_5, &quot;matrix&quot;)
+saveRDS(testmat_10_5_matrix, file=&quot;testmat_10_5_matrix&quot;)
+
+testmat_10_6_matrix&lt;-as(testmat_10_6, &quot;matrix&quot;)
+saveRDS(testmat_10_6_matrix, file=&quot;testmat_10_6_matrix&quot;)
+
+testmat_10_7_matrix&lt;-as(testmat_10_7, &quot;matrix&quot;)
+saveRDS(testmat_10_7_matrix, file=&quot;testmat_10_7_matrix&quot;)
+
+testmat_10_8_matrix&lt;-as(testmat_10_8, &quot;matrix&quot;)
+saveRDS(testmat_10_8_matrix, file=&quot;testmat_10_8_matrix&quot;)
+
+testmat_10_9_matrix&lt;-as(testmat_10_9, &quot;matrix&quot;)
+saveRDS(testmat_10_9_matrix, file=&quot;testmat_10_9_matrix&quot;)
+
+testmat_10_10_matrix&lt;-as(testmat_10_10, &quot;matrix&quot;)
+saveRDS(testmat_10_10_matrix, file=&quot;testmat_10_10_matrix&quot;)
+
+# removing files to free up memory
+rm(testmat_10_1, testmat_10_2, testmat_10_3, testmat_10_4, testmat_10_5)
+rm(testmat_10_6, testmat_10_7, testmat_10_8, testmat_10_9, testmat_10_10)
+rm(splitted_index, testmat)
+
+# Creating the predictions, using the &#39;popular&#39; method
+
+# Predicting the ratings in the validation set, one tenth at a time:
+predictions_pop_10_1 &lt;- predict(recommendations_pop_10, testmat_1, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_1&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_1, file=&quot;predictions_pop_10_1&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_1, file = &quot;predictions_pop_10_1&quot;): object &#39;predictions_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_2 &lt;- predict(recommendations_pop_10, testmat_2, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_2&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_2, file=&quot;predictions_pop_10_2&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_2, file = &quot;predictions_pop_10_2&quot;): object &#39;predictions_pop_10_2&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_3 &lt;- predict(recommendations_pop_10, testmat_3, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_3&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_3, file=&quot;predictions_pop_10_3&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_3, file = &quot;predictions_pop_10_3&quot;): object &#39;predictions_pop_10_3&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_4 &lt;- predict(recommendations_pop_10, testmat_4, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_4&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_4, file=&quot;predictions_pop_10_4&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_4, file = &quot;predictions_pop_10_4&quot;): object &#39;predictions_pop_10_4&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_5 &lt;- predict(recommendations_pop_10, testmat_5, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_5&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_5, file=&quot;predictions_pop_10_5&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_5, file = &quot;predictions_pop_10_5&quot;): object &#39;predictions_pop_10_5&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_6 &lt;- predict(recommendations_pop_10, testmat_6, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_6&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_6, file=&quot;predictions_pop_10_6&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_6, file = &quot;predictions_pop_10_6&quot;): object &#39;predictions_pop_10_6&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_7 &lt;- predict(recommendations_pop_10, testmat_7, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_7&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_7, file=&quot;predictions_pop_10_7&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_7, file = &quot;predictions_pop_10_7&quot;): object &#39;predictions_pop_10_7&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_8 &lt;- predict(recommendations_pop_10, testmat_8, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_8&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_8, file=&quot;predictions_pop_10_8&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_8, file = &quot;predictions_pop_10_8&quot;): object &#39;predictions_pop_10_8&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_9 &lt;- predict(recommendations_pop_10, testmat_9, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_9&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_9, file=&quot;predictions_pop_10_9&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_9, file = &quot;predictions_pop_10_9&quot;): object &#39;predictions_pop_10_9&#39; not found</code></pre>
+<pre class="r"><code>predictions_pop_10_10 &lt;- predict(recommendations_pop_10, testmat_10, type=&quot;ratingMatrix&quot;)</code></pre>
+<pre><code>## Error in is(newdata, &quot;ratingMatrix&quot;): object &#39;testmat_10&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predictions_pop_10_10, file=&quot;predictions_pop_10_10&quot;) # saving the file</code></pre>
+<pre><code>## Error in saveRDS(predictions_pop_10_10, file = &quot;predictions_pop_10_10&quot;): object &#39;predictions_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code>Sys.time()</code></pre>
+<pre><code>## [1] &quot;2022-01-08 22:25:18 CET&quot;</code></pre>
+<pre class="r"><code># turning the results into matrices
+predictions_pop_10_1&lt;-readRDS(&quot;predictions_pop_10_1&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_1&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_1&lt;-as(predictions_pop_10_1, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_1, file=&quot;predmat_pop_10_1&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_1, file = &quot;predmat_pop_10_1&quot;): object &#39;predmat_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_1, predmat_pop_10_1) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_1, predmat_pop_10_1): object
+## &#39;predictions_pop_10_1&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_1, predmat_pop_10_1): object &#39;predmat_pop_10_1&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_2&lt;-readRDS(&quot;predictions_pop_10_2&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_2&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_2&lt;-as(predictions_pop_10_2, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_2&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_2, file=&quot;predmat_pop_10_2&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_2, file = &quot;predmat_pop_10_2&quot;): object &#39;predmat_pop_10_2&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_2, predmat_pop_10_2) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_2, predmat_pop_10_2): object
+## &#39;predictions_pop_10_2&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_2, predmat_pop_10_2): object &#39;predmat_pop_10_2&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_3&lt;-readRDS(&quot;predictions_pop_10_3&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_3&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_3&lt;-as(predictions_pop_10_3, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_3&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_3, file=&quot;predmat_pop_10_3&quot;) </code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_3, file = &quot;predmat_pop_10_3&quot;): object &#39;predmat_pop_10_3&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_3, predmat_pop_10_3) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_3, predmat_pop_10_3): object
+## &#39;predictions_pop_10_3&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_3, predmat_pop_10_3): object &#39;predmat_pop_10_3&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_4&lt;-readRDS(&quot;predictions_pop_10_4&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_4&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_4&lt;-as(predictions_pop_10_4, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_4&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_4, file=&quot;predmat_pop_10_4&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_4, file = &quot;predmat_pop_10_4&quot;): object &#39;predmat_pop_10_4&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_4, predmat_pop_10_4) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_4, predmat_pop_10_4): object
+## &#39;predictions_pop_10_4&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_4, predmat_pop_10_4): object &#39;predmat_pop_10_4&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_5&lt;-readRDS(&quot;predictions_pop_10_5&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_5&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_5&lt;-as(predictions_pop_10_5, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_5&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_5, file=&quot;predmat_pop_10_5&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_5, file = &quot;predmat_pop_10_5&quot;): object &#39;predmat_pop_10_5&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_5, predmat_pop_10_5) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_5, predmat_pop_10_5): object
+## &#39;predictions_pop_10_5&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_5, predmat_pop_10_5): object &#39;predmat_pop_10_5&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_6&lt;-readRDS(&quot;predictions_pop_10_6&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_6&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_6&lt;-as(predictions_pop_10_6, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_6&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_6, file=&quot;predmat_pop_10_6&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_6, file = &quot;predmat_pop_10_6&quot;): object &#39;predmat_pop_10_6&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_6, predmat_pop_10_6) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_6, predmat_pop_10_6): object
+## &#39;predictions_pop_10_6&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_6, predmat_pop_10_6): object &#39;predmat_pop_10_6&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_7&lt;-readRDS(&quot;predictions_pop_10_7&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_7&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_7&lt;-as(predictions_pop_10_7, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_7&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_7, file=&quot;predmat_pop_10_7&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_7, file = &quot;predmat_pop_10_7&quot;): object &#39;predmat_pop_10_7&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_7, predmat_pop_10_7) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_7, predmat_pop_10_7): object
+## &#39;predictions_pop_10_7&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_7, predmat_pop_10_7): object &#39;predmat_pop_10_7&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_8&lt;-readRDS(&quot;predictions_pop_10_8&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_8&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_8&lt;-as(predictions_pop_10_8, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_8&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_8, file=&quot;predmat_pop_10_8&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_8, file = &quot;predmat_pop_10_8&quot;): object &#39;predmat_pop_10_8&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_8, predmat_pop_10_8) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_8, predmat_pop_10_8): object
+## &#39;predictions_pop_10_8&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_8, predmat_pop_10_8): object &#39;predmat_pop_10_8&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_9&lt;-readRDS(&quot;predictions_pop_10_9&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_9&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_9&lt;-as(predictions_pop_10_9, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_9&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_9, file=&quot;predmat_pop_10_9&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_9, file = &quot;predmat_pop_10_9&quot;): object &#39;predmat_pop_10_9&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_9, predmat_pop_10_9) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_9, predmat_pop_10_9): object
+## &#39;predictions_pop_10_9&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_9, predmat_pop_10_9): object &#39;predmat_pop_10_9&#39;
+## not found</code></pre>
+<pre class="r"><code>predictions_pop_10_10&lt;-readRDS(&quot;predictions_pop_10_10&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file
+## &#39;predictions_pop_10_10&#39;, probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_10&lt;-as(predictions_pop_10_10, &quot;matrix&quot;)</code></pre>
+<pre><code>## Error in .class1(object): object &#39;predictions_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(predmat_pop_10_10, file=&quot;predmat_pop_10_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_10_10, file = &quot;predmat_pop_10_10&quot;): object &#39;predmat_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code>rm(predictions_pop_10_10, predmat_pop_10_10) # removing files to free up memory</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_10, predmat_pop_10_10): object
+## &#39;predictions_pop_10_10&#39; not found</code></pre>
+<pre><code>## Warning in rm(predictions_pop_10_10, predmat_pop_10_10): object
+## &#39;predmat_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code># loading the prediction files that were created in the code above
+predmat_pop_10_1&lt;-readRDS(&quot;predmat_pop_10_1&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_1&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_2&lt;-readRDS(&quot;predmat_pop_10_2&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_2&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_3&lt;-readRDS(&quot;predmat_pop_10_3&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_3&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_4&lt;-readRDS(&quot;predmat_pop_10_4&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_4&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_5&lt;-readRDS(&quot;predmat_pop_10_5&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_5&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_6&lt;-readRDS(&quot;predmat_pop_10_6&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_6&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_7&lt;-readRDS(&quot;predmat_pop_10_7&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_7&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_8&lt;-readRDS(&quot;predmat_pop_10_8&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_8&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_9&lt;-readRDS(&quot;predmat_pop_10_9&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_9&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code>predmat_pop_10_10&lt;-readRDS(&quot;predmat_pop_10_10&quot;)</code></pre>
+<pre><code>## Warning in gzfile(file, &quot;rb&quot;): cannot open compressed file &#39;predmat_pop_10_10&#39;,
+## probable reason &#39;No such file or directory&#39;</code></pre>
+<pre><code>## Error in gzfile(file, &quot;rb&quot;): cannot open the connection</code></pre>
+<pre class="r"><code># calculating the differences
+diffmat_10_1&lt;-predmat_pop_10_1-testmat_10_1_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_1, file=&quot;diffmat_10_1&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_1, file = &quot;diffmat_10_1&quot;): object &#39;diffmat_10_1&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_2&lt;-predmat_pop_10_2-testmat_10_2_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_2&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_2, file=&quot;diffmat_10_2&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_2, file = &quot;diffmat_10_2&quot;): object &#39;diffmat_10_2&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_3&lt;-predmat_pop_10_3-testmat_10_3_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_3&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_3, file=&quot;diffmat_10_3&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_3, file = &quot;diffmat_10_3&quot;): object &#39;diffmat_10_3&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_4&lt;-predmat_pop_10_4-testmat_10_4_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_4&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_4, file=&quot;diffmat_10_4&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_4, file = &quot;diffmat_10_4&quot;): object &#39;diffmat_10_4&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_5&lt;-predmat_pop_10_5-testmat_10_5_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_5&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_5, file=&quot;diffmat_10_5&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_5, file = &quot;diffmat_10_5&quot;): object &#39;diffmat_10_5&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_6&lt;-predmat_pop_10_6-testmat_10_6_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_6&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_6, file=&quot;diffmat_10_6&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_6, file = &quot;diffmat_10_6&quot;): object &#39;diffmat_10_6&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_7&lt;-predmat_pop_10_7-testmat_10_7_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_7&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_7, file=&quot;diffmat_10_7&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_7, file = &quot;diffmat_10_7&quot;): object &#39;diffmat_10_7&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_8&lt;-predmat_pop_10_8-testmat_10_8_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_8&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_8, file=&quot;diffmat_10_8&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_8, file = &quot;diffmat_10_8&quot;): object &#39;diffmat_10_8&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_1&lt;-predmat_pop_10_1-testmat_10_1_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_1, file=&quot;diffmat_10_1&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_1, file = &quot;diffmat_10_1&quot;): object &#39;diffmat_10_1&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_9&lt;-predmat_pop_10_9-testmat_10_9_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_9&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_9, file=&quot;diffmat_10_9&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_9, file = &quot;diffmat_10_9&quot;): object &#39;diffmat_10_9&#39; not found</code></pre>
+<pre class="r"><code>diffmat_10_10&lt;-predmat_pop_10_10-testmat_10_10_matrix</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code>saveRDS(diffmat_10_10, file=&quot;diffmat_10_10&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_10_10, file = &quot;diffmat_10_10&quot;): object &#39;diffmat_10_10&#39; not found</code></pre>
+<pre class="r"><code># combining the matrices of the differences
+diffmat_all&lt;-rbind(
+  diffmat_10_1, 
+  diffmat_10_2,
+  diffmat_10_3,
+  diffmat_10_4,
+  diffmat_10_5,
+  diffmat_10_6,
+  diffmat_10_7,
+  diffmat_10_8,
+  diffmat_10_9,
+  diffmat_10_10
+)</code></pre>
+<pre><code>## Error in rbind(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4, : object &#39;diffmat_10_1&#39; not found</code></pre>
+<pre class="r"><code># making sure that the dimensions of the matrix 
+# fit the number of users in the validation set
+dim(diffmat_all)</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;diffmat_all&#39; not found</code></pre>
+<pre class="r"><code>length(unique(validation$userId))</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code># saving
+saveRDS(diffmat_all, file=&quot;diffmat_all&quot;)</code></pre>
+<pre><code>## Error in saveRDS(diffmat_all, file = &quot;diffmat_all&quot;): object &#39;diffmat_all&#39; not found</code></pre>
+<pre class="r"><code># cleaning the working space to free up memory
+rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4, diffmat_10_5)</code></pre>
+<pre><code>## Warning in rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4,
+## diffmat_10_5): object &#39;diffmat_10_1&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4,
+## diffmat_10_5): object &#39;diffmat_10_2&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4,
+## diffmat_10_5): object &#39;diffmat_10_3&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4,
+## diffmat_10_5): object &#39;diffmat_10_4&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4,
+## diffmat_10_5): object &#39;diffmat_10_5&#39; not found</code></pre>
+<pre class="r"><code>rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9, diffmat_10_10)</code></pre>
+<pre><code>## Warning in rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9,
+## diffmat_10_10): object &#39;diffmat_10_6&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9,
+## diffmat_10_10): object &#39;diffmat_10_7&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9,
+## diffmat_10_10): object &#39;diffmat_10_8&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9,
+## diffmat_10_10): object &#39;diffmat_10_9&#39; not found</code></pre>
+<pre><code>## Warning in rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9,
+## diffmat_10_10): object &#39;diffmat_10_10&#39; not found</code></pre>
+<pre class="r"><code>### calculating RMSE
+# calculating the number of non-empty cells in the test set
+number_of_ratings_in_test_set&lt;-sum(!is.na(diffmat_all))</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;diffmat_all&#39; not found</code></pre>
+<pre class="r"><code>number_of_ratings_in_test_set</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;number_of_ratings_in_test_set&#39; not found</code></pre>
+<pre class="r"><code># saving
+saveRDS(number_of_ratings_in_test_set, file=&quot;number_of_ratings_in_test_set&quot;)</code></pre>
+<pre><code>## Error in saveRDS(number_of_ratings_in_test_set, file = &quot;number_of_ratings_in_test_set&quot;): object &#39;number_of_ratings_in_test_set&#39; not found</code></pre>
+<pre class="r"><code># calculating the squared differences
+squared_differences_all&lt;-diffmat_all^2</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;diffmat_all&#39; not found</code></pre>
+<pre class="r"><code># saving
+saveRDS(squared_differences_all, file=&quot;squared_differences_all&quot;)</code></pre>
+<pre><code>## Error in saveRDS(squared_differences_all, file = &quot;squared_differences_all&quot;): object &#39;squared_differences_all&#39; not found</code></pre>
+<pre class="r"><code># dividing the sum of the squared differences by the number of ratings
+rmse&lt;-sqrt(sum(squared_differences_all, na.rm=T)/number_of_ratings_in_test_set)</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;squared_differences_all&#39; not found</code></pre>
+<pre class="r"><code>rmse</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse&#39; not found</code></pre>
+<pre class="r"><code># saving
+saveRDS(rmse, file=&quot;rmse&quot;)</code></pre>
+<pre><code>## Error in saveRDS(rmse, file = &quot;rmse&quot;): object &#39;rmse&#39; not found</code></pre>
+<p>[Text]</p>
+<pre class="r"><code>### validating by calculating RMSE in an alternative way ###
+# creating one unified matrix of predictions
+predmat_pop_all&lt;-rbind(
+  predmat_pop_10_1, 
+  predmat_pop_10_2,
+  predmat_pop_10_3,
+  predmat_pop_10_4,
+  predmat_pop_10_5,
+  predmat_pop_10_6,
+  predmat_pop_10_7,
+  predmat_pop_10_8,
+  predmat_pop_10_9,
+  predmat_pop_10_10
+)</code></pre>
+<pre><code>## Error in rbind(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, : object &#39;predmat_pop_10_1&#39; not found</code></pre>
+<pre class="r"><code># making sure that all users in the validation set are included
+dim(predmat_pop_all)</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_all&#39; not found</code></pre>
+<pre class="r"><code>length(unique(validation$userId))</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code># cleaning the working space to free up memory
+rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3, predmat_pop_10_4, predmat_pop_10_5)</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3,
+## predmat_pop_10_4, : object &#39;predmat_pop_10_1&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3,
+## predmat_pop_10_4, : object &#39;predmat_pop_10_2&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3,
+## predmat_pop_10_4, : object &#39;predmat_pop_10_3&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3,
+## predmat_pop_10_4, : object &#39;predmat_pop_10_4&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_1, predmat_pop_10_2, predmat_pop_10_3,
+## predmat_pop_10_4, : object &#39;predmat_pop_10_5&#39; not found</code></pre>
+<pre class="r"><code>rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8, predmat_pop_10_9, predmat_pop_10_10)</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8,
+## predmat_pop_10_9, : object &#39;predmat_pop_10_6&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8,
+## predmat_pop_10_9, : object &#39;predmat_pop_10_7&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8,
+## predmat_pop_10_9, : object &#39;predmat_pop_10_8&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8,
+## predmat_pop_10_9, : object &#39;predmat_pop_10_9&#39; not found</code></pre>
+<pre><code>## Warning in rm(predmat_pop_10_6, predmat_pop_10_7, predmat_pop_10_8,
+## predmat_pop_10_9, : object &#39;predmat_pop_10_10&#39; not found</code></pre>
+<pre class="r"><code># saving
+saveRDS(predmat_pop_all, file=&quot;predmat_pop_all&quot;)</code></pre>
+<pre><code>## Error in saveRDS(predmat_pop_all, file = &quot;predmat_pop_all&quot;): object &#39;predmat_pop_all&#39; not found</code></pre>
+<pre class="r"><code># creating one unified matrix of real ratings
+testmat_all&lt;-rbind(
+  testmat_10_1_matrix, 
+  testmat_10_2_matrix,
+  testmat_10_3_matrix,
+  testmat_10_4_matrix,
+  testmat_10_5_matrix,
+  testmat_10_6_matrix,
+  testmat_10_7_matrix,
+  testmat_10_8_matrix,
+  testmat_10_9_matrix,
+  testmat_10_10_matrix
+)
+
+# making sure that all users in the validation set are included
+dim(testmat_all)</code></pre>
+<pre><code>## [1] 68534  9809</code></pre>
+<pre class="r"><code>length(unique(validation$userId))</code></pre>
+<pre><code>## [1] 68534</code></pre>
+<pre class="r"><code># saving
+saveRDS(testmat_all, file=&quot;testmat_all&quot;)
+
+# cleaning the working space to free up memory
+rm(testmat_10_1_matrix, testmat_10_2_matrix, testmat_10_3_matrix, testmat_10_4_matrix, testmat_10_5_matrix)
+rm(testmat_10_6_matrix, testmat_10_7_matrix, testmat_10_8_matrix, testmat_10_9_matrix, testmat_10_10_matrix)
+
+# cleaning memory
+invisible(gc())
+
+# verifying that all observations are included
+dim(predmat_pop_all)</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;predmat_pop_all&#39; not found</code></pre>
+<pre class="r"><code>dim(testmat_all)</code></pre>
+<pre><code>## [1] 68534  9809</code></pre>
+<pre class="r"><code># calculating RMSE through the built-in function
+rmse_alternative&lt;-RMSE(testmat_all, predmat_pop_all, na.rm=T)</code></pre>
+<pre><code>## Error in RMSE(testmat_all, predmat_pop_all, na.rm = T): object &#39;predmat_pop_all&#39; not found</code></pre>
+<pre class="r"><code># comparing the two RMSEs
+rmse</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse&#39; not found</code></pre>
+<pre class="r"><code>rmse_alternative</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse_alternative&#39; not found</code></pre>
+<pre class="r"><code>difference&lt;-rmse-rmse_alternative</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;rmse&#39; not found</code></pre>
+<pre class="r"><code>difference</code></pre>
+<pre><code>## Error in eval(expr, envir, enclos): object &#39;difference&#39; not found</code></pre>
+<p>[Text]</p>
+<pre class="r"><code># removing unnecessary file from the working space
+rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10, predmat_pop_10, recommendations_pop_10)</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;breaks&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;diffmat_1&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;g&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;h&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;k&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;mtrx&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;predictions_pop_10&#39; not found</code></pre>
+<pre><code>## Warning in rm(breaks, diffmat_1, g, h, k, mtrx, predictions_pop_10,
+## predmat_pop_10, : object &#39;predmat_pop_10&#39; not found</code></pre>
+<pre class="r"><code>rm(recommendations_svdf_10, squared_differences_1, testmat_first, testmat_first_matrix)</code></pre>
+<pre><code>## Warning in rm(recommendations_svdf_10, squared_differences_1, testmat_first, :
+## object &#39;recommendations_svdf_10&#39; not found</code></pre>
+<pre><code>## Warning in rm(recommendations_svdf_10, squared_differences_1, testmat_first, :
+## object &#39;squared_differences_1&#39; not found</code></pre>
+<pre><code>## Warning in rm(recommendations_svdf_10, squared_differences_1, testmat_first, :
+## object &#39;testmat_first&#39; not found</code></pre>
+<pre><code>## Warning in rm(recommendations_svdf_10, squared_differences_1, testmat_first, :
+## object &#39;testmat_first_matrix&#39; not found</code></pre>
+<pre class="r"><code>rm(recommendations_pop, testmat_real, trainmat_real)</code></pre>
+<pre><code>## Warning in rm(recommendations_pop, testmat_real, trainmat_real): object
+## &#39;recommendations_pop&#39; not found</code></pre>
+<pre><code>## Warning in rm(recommendations_pop, testmat_real, trainmat_real): object
+## &#39;testmat_real&#39; not found</code></pre>
+<pre><code>## Warning in rm(recommendations_pop, testmat_real, trainmat_real): object
+## &#39;trainmat_real&#39; not found</code></pre>
+<pre class="r"><code>rm(testmat_all)</code></pre>
 </div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>5. Conclusion</h2>
+<p>[Text] [Restore IBCF]</p>
 </div>
 </div>
 
