@@ -68,56 +68,54 @@ invisible(gc())
 # https://grouplens.org/datasets/movielens/10m/
 # http://files.grouplens.org/datasets/movielens/ml-10m.zip
 
-#dl <- tempfile()
-#download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
+dl <- tempfile()
+download.file("http://files.grouplens.org/datasets/movielens/ml-10m.zip", dl)
 
-#ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
-#                 col.names = c("userId", "movieId", "rating", "timestamp"))
+ratings <- fread(text = gsub("::", "\t", readLines(unzip(dl, "ml-10M100K/ratings.dat"))),
+                 col.names = c("userId", "movieId", "rating", "timestamp"))
 
-#movies <- str_split_fixed(readLines(unzip(dl, "ml-10M100K/movies.dat")), "\\::", 3)
-#colnames(movies) <- c("movieId", "title", "genres")
+movies <- str_split_fixed(readLines(unzip(dl, "ml-10M100K/movies.dat")), "\\::", 3)
+colnames(movies) <- c("movieId", "title", "genres")
 
-#movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
-#                                           title = as.character(title),
-#                                           genres = as.character(genres))
+movies <- as.data.frame(movies) %>% mutate(movieId = as.numeric(movieId),
+                                           title = as.character(title),
+                                           genres = as.character(genres))
 
 
-#movielens <- left_join(ratings, movies, by = "movieId")
+movielens <- left_join(ratings, movies, by = "movieId")
 
 # Validation set will be 10% of MovieLens data
-#set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
-#test_index <- createDataPartition(y = movielens$rating, times = 1, p = 0.1, list = FALSE)
-#edx <- movielens[-test_index,]
-#temp <- movielens[test_index,]
+set.seed(1, sample.kind="Rounding") # if using R 3.5 or earlier, use `set.seed(1)`
+test_index <- createDataPartition(y = movielens$rating, times = 1, p = 0.1, list = FALSE)
+edx <- movielens[-test_index,]
+temp <- movielens[test_index,]
 
-# Make sure userId and movieId in validation set are also in edx set
-#validation <- temp %>% 
-#  semi_join(edx, by = "movieId") %>%
-#  semi_join(edx, by = "userId")
+# Making sure userId and movieId in validation set are also in edx set
+validation <- temp %>% 
+  semi_join(edx, by = "movieId") %>%
+  semi_join(edx, by = "userId")
 
-# Add rows removed from validation set back into edx set
-#removed <- anti_join(temp, validation)
-#edx <- rbind(edx, removed)
-
-edx<-readRDS("edx")
-validation<-readRDS("validation")
-
+# Adding rows removed from validation set back into edx set
+removed <- anti_join(temp, validation)
+edx <- rbind(edx, removed)
 ```
 Next, I save the files.
 
 ```{r 1b_saving_files, error=TRUE}
 
 ### saving the training and test sets ###
-#saveRDS(movies, file="movies")
-#saveRDS(ratings, file="ratings")
-#saveRDS(edx, file="edx")
-#saveRDS(validation, file="validation")
-#saveRDS(movielens, file="movielens")
+saveRDS(movies, file="movies")
+saveRDS(ratings, file="ratings")
+saveRDS(edx, file="edx")
+saveRDS(validation, file="validation")
+saveRDS(movielens, file="movielens")
 ```
 
-Now I examine the data by running some analyses and creating some plots
+Now I examine the data by running some analyses and creating some plots.
 
 ```{r 2_exploring_the_data, error=TRUE}
+
+Sys.time() # recording the start time
 
 ### Exploring the training set ###
 dim(edx)
@@ -462,11 +460,11 @@ Sys.time()
 
 Sys.time() # recording the time in order to see how long each step takes
 
-#result_rating_popular_10 <- evaluate(scheme_10,
-#                                     method = "popular",
-#                                     parameter = list(normalize = "Z-score"),
-#                                     type  = "ratings"
-#)
+result_rating_popular_10 <- evaluate(scheme_10,
+                                     method = "popular",
+                                     parameter = list(normalize = "Z-score"),
+                                     type  = "ratings"
+)
 
 # examining the results
 result_rating_popular_10@results %>%
@@ -484,11 +482,11 @@ saveRDS(result_rating_popular_10, file="result_rating_popular_10")
 
 ### svd ###
 # evaluating the svd model
-#result_rating_svd_10 <- evaluate(scheme_10,
-#                              method = "svd",
-#                              parameter = list(normalize = "Z-score", k = 5),
-#                              type  = "ratings"
-#)
+result_rating_svd_10 <- evaluate(scheme_10,
+                              method = "svd",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
 
 # examining the results
 result_rating_svd_10@results %>%
@@ -529,11 +527,11 @@ Sys.time() # recording the time in order to see how long each step takes
 ### ubcf ###
 
 # evaluating
-# result_rating_ubcf_10 <- evaluate(scheme_10,
-#                                  method = "ubcf",
-#                                  parameter = list(normalize = "Z-score", k = 5),
-#                                  type  = "ratings"
-#)
+result_rating_ubcf_10 <- evaluate(scheme_10,
+                                  method = "ubcf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
 
 Sys.time() # recording the time in order to see how long each step takes
 
@@ -555,11 +553,11 @@ saveRDS(result_rating_svd_10, file="result_rating_svd_10")
 ### svdf ###
 
 # evaluating
-# result_rating_svdf_10 <- evaluate(scheme_10,
-#                                  method = "svdf",
-#                                  parameter = list(normalize = "Z-score", k = 5),
-#                                  type  = "ratings"
-#)
+result_rating_svdf_10 <- evaluate(scheme_10,
+                                  method = "svdf",
+                                  parameter = list(normalize = "Z-score", k = 5),
+                                  type  = "ratings"
+)
 
 Sys.time() # recording the time in order to see how long each step takes
 
@@ -590,11 +588,12 @@ recommendations_pop_10 <- Recommender(trainmat_final_10, method = "popular")
 Sys.time() # noting the time in order to measure the time the next command takes
 
 # saving
-# saveRDS(recommendations_pop_10, file="recommendations_pop_10")
+saveRDS(recommendations_pop_10, file="recommendations_pop_10")
 ```
 
 4. Applying the model to the test set
-[Text XX]
+In this final part of the analysis I predict the ratings in the test set, using the trained Popular algorithm.
+Running the analysis on the whole test set took too much time, so I break it up into ten parts.
 
 ```{r 4a_applying_the_popular_model_to_the_test_set, error=TRUE}
 
@@ -893,8 +892,9 @@ rmse
 # saving
 saveRDS(rmse, file="rmse")
 ```
-
-[Text]
+The RMSE above is based on my own way of calculation. 
+In order to make sure that the calculation is correct, in the following section I calculate the RMSE
+using the existing RMSE function.
 
 ```{r 4b_alternative_rmse, error=TRUE}
 ### validating by calculating RMSE in an alternative way ###
@@ -1025,8 +1025,8 @@ rmse_alternative
 difference<-rmse-rmse_alternative
 difference
 ```
-
-[Text]
+There is no difference between the two methods of calculating the RMSE. 
+This validates the calculation.
 
 ```{r 4c_cleaning_the_working_space, include=FALSE, error=TRUE}
 # clearing the working space
@@ -1034,7 +1034,12 @@ rm(list=ls())
 ```
 
 ## 5. Conclusion
-[Text]
-[Restore IBCF]
+I learned a lot from this exercise, most importantly how to work with the Recommender package in R.
+My main conclusion is that it is important to be aware of the trade-off between performance and speed. 
+Although the SVDF model produced the lowest RMSE, due to my limited processing power it was impractical. 
+The 'Popular' model was much faster and produced a reasonable RMSE, so this seemed like a better choice.
+The 'fixed effects' model that we learned in the machine learning course performed almost as well as the 
+Popular model in terms of RMSE, and was faster, so that could also be a viable option.
+
 
 
