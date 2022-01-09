@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # MovieLens Project Submission
 ## Nir Levy, January 2022
 
@@ -502,11 +507,11 @@ Sys.time() # recording the time in order to see how long each step takes
 ### ibcf ###
 
 # evaluating
-#result_rating_ibcf_10 <- evaluate(scheme_10,
-#                                  method = "ibcf",
-#                                  parameter = list(normalize = "Z-score"),
-#                                  type  = "ratings"
-#)
+result_rating_ibcf_10 <- evaluate(scheme_10,
+                                  method = "ibcf",
+                                  parameter = list(normalize = "Z-score"),
+                                  type  = "ratings"
+)
 
 Sys.time() # recording the time in order to see how long each step takes
 
@@ -574,8 +579,8 @@ result_rating_svdf_10@results %>%
   setNames(c("RMSE", "MSE", "MAE"))
 ```
 
-The 'Popular' algorithm seems like a reasonable choice, since it's run time is much shorter than the others
-and it is fairly accurate.
+The 'Popular' algorithm seems like a reasonable choice, since it's run time is short and it is relatively accurate 
+(only the SVDF algorithm produces a lower RMSE, but SVDF takes a long time to run).
 
 Now I train the Popular algorithm on the same 10% of the data that I used for evaluation. 
 
