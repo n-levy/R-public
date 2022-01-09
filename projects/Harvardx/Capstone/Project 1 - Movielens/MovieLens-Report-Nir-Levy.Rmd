@@ -206,7 +206,8 @@ mu <- mean(core$rating)
 mu
 
 # checking the root mean squared error
-naive_rmse <- RMSE(sub$rating, mu)
+sub$average<-mu
+naive_rmse <- RMSE(sub$rating, sub$average)
 naive_rmse
 
 # creating a results table
@@ -398,6 +399,12 @@ I choose the 10% of the users who gave the most ratings.
 
 ```{r 3d_evaluating_various_algorithms, error=TRUE}
 
+# Increasing memory size
+memory.limit(size = 10^10)
+
+# cleaning memory
+invisible(gc())
+
 # Calculating the 90th percentile of the number of ratings per user
 min_n_users <- quantile(rowCounts(trainmat_reduced), 0.9)
 min_n_users
@@ -588,6 +595,9 @@ Sys.time() # noting the time in order to measure the time the next command takes
 [Text XX]
 
 ```{r 4a_applying_the_popular_model_to_the_test_set, error=TRUE}
+
+# Increasing memory size
+memory.limit(size = 10^10)
 
 # cleaning memory
 invisible(gc())

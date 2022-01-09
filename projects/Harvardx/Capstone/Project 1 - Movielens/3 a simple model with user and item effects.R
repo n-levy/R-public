@@ -49,7 +49,8 @@ mu <- mean(core$rating)
 mu
 
 # checking the root mean squared error
-naive_rmse <- RMSE(sub$rating, mu)
+rmse$average<-mu
+naive_rmse <- RMSE(sub$rating, rmse$average)
 naive_rmse
 
 # creating a results table
