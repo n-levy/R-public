@@ -44,6 +44,8 @@ See the R script or the Rmd file for the code.
 
 ```{r 1a_downloading_the_data, include=FALSE, error=TRUE}
 
+unlink('projects/Harvardx/Capstone/Project 1 - Movielens/MovieLens-Report-Nir-Levy_cache', recursive = TRUE) # clearing knitr cache
+
 ##############################################################
 # Create edx set, validation set (final hold-out test set) ###
 ##############################################################
