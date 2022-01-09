@@ -6,7 +6,7 @@ This report describes my work on the MovieLens project, within the Capstone cour
 The goal of the project was to predict ratings provided by users to movies. 
 Both users and movies in the test set were included in the training set as well. 
 After downloading, arranging and exploring the data (section 2), I evaluated the performance of several prediction algorithms on the training set (section 3).
-The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to run, so I decided to use the Popular model which performed  
+The Funk Singular Value Decomposition model (SVDF) performed best, but it took a long time to train, so I decided to use the Popular model which performed  
 reasonably well and ran quickly. 
 I applied the Popular model to the test set and received a Root Mean Squared Error (RMSE) of 0.859 (section 4).
 My main conclusion is that it is important to be aware of the trade-off between performance and speed. (section 5)
@@ -333,7 +333,7 @@ rmse_results
 
 
 ```
-Interim learning: adding genre fixed effects only slightly improves the RMSE
+Interim learning: adding genre fixed effects does not improve the RMSE
 
 ### c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
 Now let us evaluate more advanced preduction models, namely:
@@ -744,6 +744,9 @@ rm(testmat_10_1, testmat_10_2, testmat_10_3, testmat_10_4, testmat_10_5)
 rm(testmat_10_6, testmat_10_7, testmat_10_8, testmat_10_9, testmat_10_10)
 rm(splitted_index, testmat)
 
+# cleaning memory
+invisible(gc())
+
 # turning the results into matrices
 predictions_pop_10_1<-readRDS("predictions_pop_10_1")
 predmat_pop_10_1<-as(predictions_pop_10_1, "matrix")
@@ -795,6 +798,9 @@ predmat_pop_10_10<-as(predictions_pop_10_10, "matrix")
 saveRDS(predmat_pop_10_10, file="predmat_pop_10_10")
 rm(predictions_pop_10_10, predmat_pop_10_10) # removing files to free up memory
 
+# cleaning memory
+invisible(gc())
+
 # loading the prediction files that were created in the code above
 predmat_pop_10_1<-readRDS("predmat_pop_10_1")
 predmat_pop_10_2<-readRDS("predmat_pop_10_2")
@@ -832,9 +838,6 @@ saveRDS(diffmat_10_7, file="diffmat_10_7")
 diffmat_10_8<-predmat_pop_10_8-testmat_10_8_matrix
 saveRDS(diffmat_10_8, file="diffmat_10_8")
 
-diffmat_10_1<-predmat_pop_10_1-testmat_10_1_matrix
-saveRDS(diffmat_10_1, file="diffmat_10_1")
-
 diffmat_10_9<-predmat_pop_10_9-testmat_10_9_matrix
 saveRDS(diffmat_10_9, file="diffmat_10_9")
 
@@ -855,17 +858,17 @@ diffmat_all<-rbind(
   diffmat_10_10
 )
 
-# making sure that the dimensions of the matrix 
-# fit the number of users in the validation set
-dim(diffmat_all)
-length(unique(validation$userId))
-
 # saving
 saveRDS(diffmat_all, file="diffmat_all")
 
 # cleaning the working space to free up memory
 rm(diffmat_10_1, diffmat_10_2, diffmat_10_3, diffmat_10_4, diffmat_10_5)
 rm(diffmat_10_6, diffmat_10_7, diffmat_10_8, diffmat_10_9, diffmat_10_10)
+
+# making sure that the dimensions of the matrix 
+# fit the number of users in the validation set
+dim(diffmat_all)
+length(unique(validation$userId))
 
 ### calculating RMSE
 # calculating the number of non-empty cells in the test set
