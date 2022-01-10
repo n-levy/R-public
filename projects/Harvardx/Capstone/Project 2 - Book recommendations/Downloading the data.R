@@ -21,5 +21,13 @@ saveRDS(ratings, "ratings")
 
 # exploring
 dim(books)
+names(books)
+head(books)
+
 dim(users)
+names(users)
+head(users)
+
 dim(ratings)
+names(ratings)
+head(ratings)
