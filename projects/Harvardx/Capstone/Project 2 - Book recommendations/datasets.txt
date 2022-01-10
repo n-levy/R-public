@@ -1,0 +1,3 @@
+https://www.kaggle.com/ruchi798/bookcrossing-dataset
+
+http://www2.informatik.uni-freiburg.de/~cziegler/BX/
