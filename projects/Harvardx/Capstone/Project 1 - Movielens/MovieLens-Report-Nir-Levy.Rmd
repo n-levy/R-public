@@ -342,7 +342,7 @@ Interim learning: adding genre fixed effects does not improve the RMSE
 
 ### c. Evaluating various algorithms: Popular, IBCF, UBCF, SVD, SVDF
 Now let us evaluate more advanced preduction models, namely:
-1. Popular
+1. 'Popular'
 2. Item Based Collaborative Filtering (IBCF)
 3. User Based Collaborative Filtering (UBCF)
 4. Singular Value Decomposition (SVD)
@@ -501,6 +501,9 @@ result_rating_svd_10@results %>%
   as.data.frame() %>%
   summarise_all(mean) %>%
   setNames(c("RMSE", "MSE", "MAE"))
+
+# saving 
+saveRDS(result_rating_svd_10, file="result_rating_svd_10")
  
 Sys.time() # recording the time in order to see how long each step takes
 
@@ -551,9 +554,6 @@ result_rating_ubcf_10@results %>%
   as.data.frame() %>%
   summarise_all(mean) %>%
   setNames(c("RMSE", "MSE", "MAE"))
-
-# saving 
-saveRDS(result_rating_svd_10, file="result_rating_svd_10")
 
 ### svdf ###
 
