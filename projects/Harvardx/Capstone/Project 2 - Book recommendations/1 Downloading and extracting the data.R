@@ -4,9 +4,9 @@
 ###################   Nir Levy, January 2022   #####################
 ####################################################################
 
-############################
-### Downloading the data ###
-############################
+###############################
+### 1. Downloading the data ###
+###############################
 
 ### Installing packages
 if(!require(downloader)) install.packages("downloader", repos = "http://cran.us.r-project.org")
