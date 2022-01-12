@@ -1,7 +1,9 @@
 #############################
-### 2. Exploring the data ###
+### 3. Exploring the data ###
 #############################
 
+### basic explorations of the variables
+names(dat)
 
 
 

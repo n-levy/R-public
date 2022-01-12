@@ -86,7 +86,7 @@ dat<-all_together[keep]
 head(dat)
 
 ### simplifying the names
-names(dat)<- c("userid", "isbn", "rating", "location", "age", "author", "year", "publisher")
+names(dat)<- c("userid", "bookid", "rating", "location", "age", "author", "year", "publisher")
 names(dat) # making sure that the renaming worked properly
 
 ### preparing a column with the concatenation of userid and author
@@ -127,3 +127,73 @@ rm (all_together, books, comma_locations, ratings, users, users_processed)
 
 ### cleaning memory
 invisible(gc())
+
+### checking the percentage of missing values in each variable
+
+# creating a function that computes the percentage of missing values in a vector
+percent_missing<-function(x){
+  n_missing<-sum(is.na(x)) # calculate the number of missing values
+  p_missing<-n_missing/length(x) # calculate the percentage of missing values 
+  p_missing # print the percentage
+}
+
+# applying the function to the data
+apply(dat, MARGIN = 2, percent_missing)
+
+# examining the distribution of the number of ratings per user
+ratings_per_user<-train %>%
+  filter(!is.na(rating))  %>%
+  count(userid)
+
+ggplot(ratings_per_user, aes(x=n)) + 
+        geom_histogram(binwidth=1) +
+        xlim(0,20)
+
+### splitting the data into training and test sets
+### since the number of ratings per user is fairly low
+### and some variables have a high percentage of missing values,
+### I choose a 50-50 initial split to make sure that the test set is large enough.
+### In the final split, the percentage of users in the training set will be larger than 50
+### (and less than 50 in the test set) since we are going to remove users who appear only in the test set
+### from the test set and add them to the training set.
+
+# creating index of 50% 
+set.seed(1, sample.kind="Rounding") # setting the seed
+test_index <- createDataPartition(y = dat$rating, times = 1, p = 0.5, list = FALSE) # defining a 50% split
+train <- dat[-test_index,]
+temp <- dat[test_index,]
+
+# making sure that the temporary split is 50-50
+length(test_index)/nrow(dat)
+
+# creating a test set that includes only userids and bookids that are also in the training set
+test <- temp %>% 
+  semi_join(train, by = "bookid") %>%
+  semi_join(train, by = "userid")
+
+# adding rows that were included in the index, but not in the test set, to the training set
+removed <- anti_join(temp, test)
+train <- rbind(train, removed)
+
+### making sure that the number of rows in the training and test sets is equal to 
+### the number of rows in the full dataset
+nrow(dat)-(nrow(train)+nrow(test)) # this should be zero
+
+### checking the final relative sizes of the training and test sets
+nrow(train)/nrow(dat) # the train set is ~70% of the full data
+nrow(test)/nrow(dat) # the test set is ~30% of the full data
+
+### saving the files
+saveRDS(train, file="train")
+saveRDS(test, file="test")
+
+### cleaning the working space
+rm(list=ls())
+
+### cleaning memory
+invisible(gc())
+
+### reloading the training and test sets
+train<-readRDS("train")
+test<-readRDS("test")
+
