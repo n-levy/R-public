@@ -16,6 +16,8 @@ if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.
 if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.r-project.org")
 if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
 if(!require(recommenderlab)) install.packages("recommenderlab", repos = "http://cran.us.r-project.org")
+if(!require(stringr)) install.packages("stringr", repos = "http://cran.us.r-project.org")
+
 
 ### loading libraries
 library(downloader)
@@ -25,10 +27,12 @@ library(caret)
 library(data.table)
 library(ggplot2)
 library(recommenderlab)
+library(stringr)
 
 ### description of the data set
 ### by publisher: "http://www2.informatik.uni-freiburg.de/~cziegler/BX/"
 ### in Kaggle: "https://www.kaggle.com/somnambwl/bookcrossing-dataset"
+### (the website: "https://www.bookcrossing.com/")
 
 ### downloading the dataset
 # download("http://www2.informatik.uni-freiburg.de/~cziegler/BX/BX-CSV-Dump.zip", dest="dataset.zip", mode="wb") 

@@ -8,7 +8,7 @@
 ### from this point until the final validation, we will proceed with the train data only.
 ### let us examine some properties of the train data.
 
-### examining the distributions of the numerical columns
+### examining the number of unique values in each column
 dim(train)
 names(train)
 
@@ -49,7 +49,7 @@ avpu_func<-function(x){
   x<-x[!is.na(x)] # removing missing values
   n_unique_units<-n_distinct(x) # counting distinct values
   n_values<-length(x) # counting the overall number of values
-  avpu<-n_values/n_unique_units # calculating the number of times each distinct value appears in the vector
+  avpu<-round(n_values/n_unique_units,1) # calculating the number of times each distinct value appears in the vector
   avpu
 }
 
@@ -111,14 +111,34 @@ ratings_per_userid_author %>% ggplot(aes(x=n)) +
 boxplot(ratings_per_userid_author$n)
 
 ### examining the distribution of age
-n_distinct(train$age[!is.na(train$age)])
+age_without_nas<-train$age[!is.na(train$age) & train$age!="NULL"]
+length(age_without_nas)
+length(train$age)
+n_distinct(age_without_nas)
+n_distinct(train$age)
+
+head(age_without_nas)
+class(age_without_nas)
+length(age_without_nas)
+
+hist(age_without_nas)
+
+sum(age_without_nas>100, na.rm=T)
+
+# removing rows with age>100 since that is probably false
+train$age[train$age>100]<-NA
+
+# examining the age distribution
+hist(train$age)
 
 ratings_per_age<-train %>%
-  filter(!is.na(rating) & !is.na(age)) %>%
+  filter(!is.na(rating) & !is.na(age) & train$age!="NULL") %>%
   count(age)
 
 ratings_per_age %>% ggplot(aes(x=n)) + 
   geom_histogram() +
-  xlim(0,10)
+  xlim(0,100)
 
 boxplot(ratings_per_age$n)
+
+# creating age brackets for the analysis

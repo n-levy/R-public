@@ -57,7 +57,7 @@ class(users_processed$User.ID)
 class(users_processed$User.ID)
 
 ### converting the users$User.ID column to numeric form, since that is its' form in the ratings dataset
-users_processed$User.ID<-as.numeric(users_processed$User.ID) 
+suppressWarnings(users_processed$User.ID<-as.numeric(users_processed$User.ID))
 
 ### merging the files
 all_together <- left_join(ratings, users_processed, by = "User.ID") 
@@ -89,6 +89,29 @@ head(dat)
 names(dat)<- c("userid", "bookid", "rating", "age", "country", "author", "year", "publisher")
 names(dat) # making sure that the renaming worked properly
 
+### checking the classes of the columns that are supposed to be numeric
+class(dat$userid)
+class(dat$bookid)
+class(dat$rating)
+class(dat$age)
+class(dat$year)
+
+### converting columns that should be numeric to numeric class
+dat_backup<-dat # creating a backup 
+saveRDS(dat_backup, "dat_backup") # saving it
+
+### converting to numeric
+suppressWarnings(dat$bookid<-as.numeric(dat$bookid))
+suppressWarnings(dat$age<-as.numeric(dat$age))
+suppressWarnings(dat$year<-as.numeric(dat$year))
+
+### making sure that it worked
+class(dat$userid)
+class(dat$bookid)
+class(dat$rating)
+class(dat$age)
+class(dat$year)
+
 ### preparing a column with the concatenation of userid and author
 ### this will be useful for the model
 
@@ -111,6 +134,7 @@ length(index)+n_missing_author-nrow(dat) # this should be zero
 ### concatenating userid and author in rows that contain both
 dat$userid_author<-"missing" # creating default value
 dat$userid_author[index]<-paste(dat$userid[index], dat$author[index]) # concatenating
+head(dat$userid_author)
 dat$userid_author[dat$userid_author=="missing"]<-NA # replacing "missing" with NAs
 
 ### making sure that it worked properly
@@ -158,7 +182,7 @@ percent_missing<-function(x){
 apply(dat, MARGIN = 2, percent_missing)
 
 # examining the distribution of the number of ratings per user
-ratings_per_user<-train %>%
+ratings_per_user<-dat %>%
   filter(!is.na(rating))  %>%
   count(userid)
 
