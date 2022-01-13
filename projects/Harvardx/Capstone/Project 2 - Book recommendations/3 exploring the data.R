@@ -90,6 +90,8 @@ ratings_per_publisher %>% ggplot(aes(x=n)) +
 boxplot(ratings_per_publisher$n)
 
 ### examining the distribution of the ratings per year
+hist(train$year)
+
 ratings_per_year<-train %>%
   filter(!is.na(rating) & !is.na(year)) %>%
   count(year)
@@ -125,10 +127,10 @@ hist(age_without_nas)
 
 sum(age_without_nas>100, na.rm=T)
 
-# removing rows with age>100 since that is probably false
+### removing rows with age>100 since that is probably false
 train$age[train$age>100]<-NA
 
-# examining the age distribution
+### examining the age distribution
 hist(train$age)
 
 ratings_per_age<-train %>%
@@ -141,4 +143,77 @@ ratings_per_age %>% ggplot(aes(x=n)) +
 
 boxplot(ratings_per_age$n)
 
-# creating age brackets for the analysis
+### creating age brackets for the analysis
+
+### creating one variable
+train$age<-round(train$age,0) # rounding the values of the age variable, in case they aren't rounded yet
+train$age_bracket[train$age<=10]<-"0-10"
+train$age_bracket[train$age>=11 & train$age<=20]<-"11-20"
+train$age_bracket[train$age>=21 & train$age<=30]<-"21-30"
+train$age_bracket[train$age>=31 & train$age<=40]<-"31-40"
+train$age_bracket[train$age>=41 & train$age<=50]<-"41-50"
+train$age_bracket[train$age>=51 & train$age<=60]<-"51-60"
+train$age_bracket[train$age>=61 & train$age<=70]<-"61-70"
+train$age_bracket[train$age>=71 & train$age<=80]<-"71-80"
+train$age_bracket[train$age>=81 & train$age<=90]<-"81-90"
+train$age_bracket[train$age>=91 & train$age<=100]<-"91-100"
+
+### examining the distribution of the age brackets
+table(train$age_bracket)
+train %>% ggplot(aes(x=age_bracket)) + 
+  geom_bar() 
+
+### creating dummy variables for the regression analysis
+train$age_0_10<-0
+train$age_0_10[train$age<=10]<-1
+
+train$age_11_20<-0
+train$age_11_20[train$age>=11 & train$age<=20]<-1
+
+train$age_21_30<-0
+train$age_21_30[train$age>=21 & train$age<=30]<-1
+
+train$age_31_40<-0
+train$age_31_40[train$age>=31 & train$age<=40]<-1
+
+train$age_41_50<-0
+train$age_41_50[train$age>=41 & train$age<=50]<-1
+
+train$age_51_60<-0
+train$age_51_60[train$age>=51 & train$age<=60]<-1
+
+train$age_61_70<-0
+train$age_61_70[train$age>=61 & train$age<=70]<-1
+
+train$age_71_80<-0
+train$age_71_80[train$age>=71 & train$age<=80]<-1
+
+train$age_81_90<-0
+train$age_81_90[train$age>=81 & train$age<=90]<-1
+
+train$age_91_100<-0
+train$age_91_100[train$age>=91 & train$age<=100]<-1
+
+### making sure that it worked properly
+table(train$age_bracket, train$age_0_10)
+table(train$age_bracket, train$age_11_20)
+table(train$age_bracket, train$age_21_30)
+table(train$age_bracket, train$age_31_40)
+table(train$age_bracket, train$age_41_50)
+table(train$age_bracket, train$age_51_60)
+table(train$age_bracket, train$age_61_70)
+table(train$age_bracket, train$age_71_80)
+table(train$age_bracket, train$age_81_90)
+table(train$age_bracket, train$age_91_100)
+
+### saving the train set
+saveRDS(train, "train")
+
+### cleaning the working space
+rm(list=ls())
+
+### cleaning memory
+invisible(gc())
+
+### reloading the train set
+train<-readRDS("train")
