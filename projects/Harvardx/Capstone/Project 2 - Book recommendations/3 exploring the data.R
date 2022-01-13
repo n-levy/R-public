@@ -56,7 +56,16 @@ avpu_func<-function(x){
 ### applying the function to each of the columns
 apply(train, MARGIN = 2, avpu_func)
 
-### examining the distribution of ratings per user
+### examining the distribution of the average rating per user
+core %>%
+  group_by(userid) %>%
+  filter(n()>=100) %>%
+  summarize(b_u = mean(rating)) %>%
+  ggplot(aes(b_u)) +
+  geom_histogram(bins = 30, color = "black")
+
+
+### examining the distribution of the number of ratings per user
 ratings_per_user<-train %>%
   filter(!is.na(rating) & !is.na(userid)) %>%
   count(userid)
@@ -67,7 +76,7 @@ ratings_per_user %>% ggplot(aes(x=n)) +
 
 boxplot(ratings_per_user$n)
 
-### examining the distribution of the ratings per book
+### examining the distribution of the number of ratings per book
 ratings_per_book<-train %>%
   filter(!is.na(rating) & !is.na(bookid)) %>%
   count(bookid)
@@ -78,7 +87,7 @@ ratings_per_book %>% ggplot(aes(x=n)) +
 
 boxplot(ratings_per_book$n)
 
-### examining the distribution of the ratings per publisher
+### examining the distribution of the number of ratings per publisher
 ratings_per_publisher<-train %>%
   filter(!is.na(rating) & !is.na(publisher)) %>%
   count(publisher)
@@ -89,7 +98,7 @@ ratings_per_publisher %>% ggplot(aes(x=n)) +
 
 boxplot(ratings_per_publisher$n)
 
-### examining the distribution of the ratings per year
+### examining the distribution of the number of ratings per year
 hist(train$year)
 
 ratings_per_year<-train %>%
@@ -101,7 +110,7 @@ ratings_per_year %>% ggplot(aes(x=n)) +
 
 boxplot(ratings_per_year$n)
 
-### examining the distribution of the ratings per user_author pair
+### examining the distribution of the number of ratings per user_author pair
 ratings_per_userid_author<-train %>%
   filter(!is.na(rating) & !is.na(userid_author)) %>%
   count(userid_author)

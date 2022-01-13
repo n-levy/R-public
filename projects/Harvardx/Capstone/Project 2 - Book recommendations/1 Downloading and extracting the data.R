@@ -20,14 +20,14 @@ if(!require(stringr)) install.packages("stringr", repos = "http://cran.us.r-proj
 
 
 ### loading libraries
-library(downloader)
-library(dplyr)
-library(tidyverse)
-library(caret)
-library(data.table)
-library(ggplot2)
-library(recommenderlab)
-library(stringr)
+suppressWarnings(suppressMessages(library(downloader)))
+suppressWarnings(suppressMessages(library(dplyr)))
+suppressWarnings(suppressMessages(library(tidyverse)))
+suppressWarnings(suppressMessages(library(caret)))
+suppressWarnings(suppressMessages(library(data.table)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(recommenderlab)))
+suppressWarnings(suppressMessages(library(stringr)))
 
 ### description of the data set
 ### by publisher: "http://www2.informatik.uni-freiburg.de/~cziegler/BX/"
