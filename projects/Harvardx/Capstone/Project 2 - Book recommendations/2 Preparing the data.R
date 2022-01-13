@@ -52,15 +52,15 @@ names(users_processed)
 ### about both the user and the book that were involved
 
 ### adding user information
-names(users)
-class(users$User.ID) 
-class(ratings$User.ID)
+names(users_processed)
+class(users_processed$User.ID) 
+class(users_processed$User.ID)
 
 ### converting the users$User.ID column to numeric form, since that is its' form in the ratings dataset
-users$User.ID<-as.numeric(users$User.ID) 
+users_processed$User.ID<-as.numeric(users_processed$User.ID) 
 
 ### merging the files
-all_together <- left_join(ratings, users, by = "User.ID") 
+all_together <- left_join(ratings, users_processed, by = "User.ID") 
 
 ### making sure that the merged file is fine
 head(all_together)
@@ -81,12 +81,12 @@ dim(all_together)
 ### keeping the relevant columns only
 colnames<-names(all_together)
 colnames
-keep<-c(colnames[1], colnames[2], colnames[3], colnames[4], colnames[5], colnames[7], colnames[8], colnames[9])
+keep<-c(colnames[1], colnames[2], colnames[3], colnames[5], colnames[6], colnames[8], colnames[9], colnames[10])
 dat<-all_together[keep]
 head(dat)
 
 ### simplifying the names
-names(dat)<- c("userid", "bookid", "rating", "location", "age", "author", "year", "publisher")
+names(dat)<- c("userid", "bookid", "rating", "age", "country", "author", "year", "publisher")
 names(dat) # making sure that the renaming worked properly
 
 ### preparing a column with the concatenation of userid and author
@@ -119,11 +119,28 @@ nonmissing1<-sum(!is.na(dat$userid_author)) # counting non-missing values
 nonmissing2<-nrow(dat)-n_missing_author 
 nonmissing1-nonmissing2 # this should be zero
 
+### examining the distribution of ratings
+table(dat$rating)
+
+### there seem to be many rows with rating = 0
+### in the book crossing website, books are rated from 1 to 10
+### with an option to mark "haven't read" as well
+### (see the website: "https://www.bookcrossing.com/")
+### so we need to remove the rows with ratings of zero
+
+### removing the rows with ratings of zero
+dim(dat)
+dat<-dat[dat$rating!=0,]
+dim(dat)
+
 ### saving
 saveRDS(dat, file="dat")
 
-### removing all files except for the relevant one ('dat')
-rm (all_together, books, comma_locations, ratings, users, users_processed)
+### cleaning up the working space
+rm(list=ls())
+
+### reloading the dataset
+dat<-readRDS("dat")
 
 ### cleaning memory
 invisible(gc())
@@ -137,7 +154,7 @@ percent_missing<-function(x){
   p_missing # print the percentage
 }
 
-# applying the function to the data
+# applying the function to each of the columns
 apply(dat, MARGIN = 2, percent_missing)
 
 # examining the distribution of the number of ratings per user
@@ -158,7 +175,7 @@ ggplot(ratings_per_user, aes(x=n)) +
 ### from the test set and add them to the training set.
 
 # creating index of 50% 
-set.seed(1, sample.kind="Rounding") # setting the seed
+suppressWarnings(set.seed(1, sample.kind="Rounding")) # setting the seed
 test_index <- createDataPartition(y = dat$rating, times = 1, p = 0.5, list = FALSE) # defining a 50% split
 train <- dat[-test_index,]
 temp <- dat[test_index,]
@@ -193,7 +210,7 @@ rm(list=ls())
 ### cleaning memory
 invisible(gc())
 
-### reloading the training and test sets
+### reloading the training set
 train<-readRDS("train")
-test<-readRDS("test")
+
 
