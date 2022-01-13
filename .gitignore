@@ -52,3 +52,17 @@ train
 dat_backup
 train_age_backup
 train_backup
+core
+result_rating_popular
+result_rating_popular_10
+result_rating_svd
+result_rating_svd_10
+rmse_results
+scheme
+sub
+train_final
+train_mat
+train_reduced
+trainmat_final
+trainmat_final_reg
+trainmat_reduced_reg

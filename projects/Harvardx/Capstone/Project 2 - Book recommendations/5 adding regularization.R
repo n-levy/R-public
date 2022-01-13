@@ -5,8 +5,27 @@
 ### We will use the model with user and userid_author effects,
 ### since it produced the lowest RMSE (and adding author effects did not make any difference)
 
+### Choosing lambda
+lambdas <- seq(0, 10, 0.25)
+
+mu <- mean(core$rating)
+just_the_sum <- core %>% 
+  group_by(bookid) %>% 
+  summarize(s = sum(rating - mu), n_i = n())
+
+rmses <- sapply(lambdas, function(l){
+  predicted_ratings <- sub %>% 
+    left_join(just_the_sum, by='bookid') %>% 
+    mutate(b_i = s/(n_i+l)) %>%
+    mutate(pred = mu + b_i) %>%
+    pull(pred)
+  return(RMSE(predicted_ratings, sub$rating))
+})
+qplot(lambdas, rmses)  
+lambdas[which.min(rmses)]
+
 ### Regularizing with lambda = 3
-lambda <- 3
+lambda <- 8.5
 mu <- mean(core$rating)
 mu
 
@@ -42,3 +61,8 @@ rmse_results <- rbind.data.frame(rmse_results, c("User and User*Author effects w
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
+### saving files
+saveRDS(core, "core")
+saveRDS(sub, "sub")
+saveRDS(train, "train")
+saveRDS(rmse_results, "rmse_results")
