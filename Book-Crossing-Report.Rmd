@@ -45,7 +45,7 @@ Finally, I applied the model that produced the lowest RMSE to the test dataset. 
 ### Section 8 - Conclusion and discussion
 My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given to items (e.g. two books tend to receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult to handle, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis (although I tried pretty hard not to do that :)). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the very poor performance of the advanced models in comparison to the simple ones. 
   
-In sum, I feel like I learned an important lesson - in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
+In sum, I feel like I learned an important lesson, namely that in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
 
 ## Table of contents
 1. Downloading the data
@@ -560,7 +560,7 @@ train<-readRDS("train")
 ### creating a subset of the training set, for evaluating the model ###
 ### creating index of 20% 
 suppressWarnings(set.seed(1, sample.kind="Rounding")) # setting the seed
-test_index <- createDataPartition(y = train$rating, times = 1, p = 0.2, list = FALSE) # defining a 50% split
+test_index <- createDataPartition(y = train$rating, times = 1, p = 0.2, list = FALSE) # defining a 20% split
 core <- train[-test_index,]
 temp <- train[test_index,]
 
@@ -818,13 +818,17 @@ names(rmse_results)<-c("method", "RMSE")
 rmse_results
 ``` 
 
-Adding country effects does not improve the RMSE.
-This could perhaps be explained by the fact that people 
-choose which books to read. We may think of it this way:
-people implicitly 'predict' the rating they are going to give
-the book before they buy it, and their errors are centered
-around the average ratings that they give to books.
-To me that seems to be a plausible explanation
+Adding most of the effects did not improve the RMSE.
+It seems that there are no differences in the ratings
+that people provide to books that are related to their 
+age or country, or to the books' publisher or year of publication.
+Readers do tend to give higher or lower ratings to certain authors, 
+though, as indicated by the small reduction of RMSE after introducing
+user-author pair effects. There do not seem to be authors that get 
+higher or lower ratings than others, as indicated by the lack of
+improvement in RMSE after adding an author effect. 
+In sum, there seems to be an effect of an author on a readers' rating,
+but that effect is not the same for all readers. Rather, it depends on the reader.
 
 ## 5. Adding regularization
 Adding regularization, to account for the difference between average ratings provided by a few users and average ratings provided by many users. We will add regularization only to the model with the lowest RMSE so far, which is the one with user effects and interactive effects of users and authors.
@@ -892,7 +896,13 @@ saveRDS(train, "train")
 saveRDS(rmse_results, "rmse_results")
 
 ```
-Adding regularization did not improve the RMSE, perhaps since many books were only rated by a small number of people. 
+Adding regularization did not improve the RMSE, suggesting that   
+the average of ratings provided by a small number of people to a book  
+was as good as the average of ratings provided by a large number of people,
+in terms of their contribution to our ability to predict
+that book's ratings. This is a counter-intuitive finding and I don't know 
+how to explain it.
+
 ### 6. Evaluating other algorithms: Popular, SVD, SVDF
 Now let us evaluate more advanced prediction models, namely:
 1. 'Popular'
@@ -1127,7 +1137,14 @@ rmse_results <- rbind.data.frame(rmse_results, c("Funk Singular Value Decomposit
 rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
+```
 
+The advanced models performed very poorly. 
+Simply guessing the average rating of all of the books provides a much lower RMSE. 
+See discussion of possible reasons for this in the final section of this report   
+("Conclusion and discussion")
+
+```{r, error=TRUE}
 ### Identifying the model with the lowest RMSE
 ### finding the row numbers
 rows<-which(rmse_results$RMSE==min(rmse_results$RMSE))
@@ -1143,10 +1160,10 @@ chosen_model
 saveRDS(result_rating_svdf, file="result_rating_svdf")
 saveRDS(rmse_results, file="rmse_results")
 ```
-Since over 98% percent of the values are missing, we try to apply SVD and SVDF.
-These model are supposed to deal with sparse matrices well.    
-
 ## 7. Applying the chosen model to the test set
+We now apply the 'chosen' model (see above) to the test set.
+The chosen model is: 
+rating ~= beta_0 + (beta_1 x user) + (beta_2 x user x author) + e
 
 ```{r 3d_evaluating_various_algorithms, error=TRUE}
 ########################################################
@@ -1201,6 +1218,7 @@ rmse_results
 ## 8. Conclusion and discussion
 My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given to items (e.g. two books tend to receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult to handle, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis (although I tried pretty hard not to do that :)). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the very poor performance of the advanced models in comparison to the simple ones.  
 
-Interestingly, the simple model produced about the same RMSE as it produced in the first exercise of this course, in which I applied it to the MovieLens data! The RMSE in that exercise was about 0.86, and the rating scale ranged between 1 and 5 (see my results [here](https://github.com/n-levy/public/tree/master/projects/Harvardx/Capstone/Project%201%20-%20Movielens/Submission)). On a scale that is twice of 1 to 5, i.e.  1 to 10, we would expect the RMSE to also be twice as large if the method performs the same, i.e. around 1.72. That is approximately the RMSE of the simple model in this exercise! My interim learning is that it seems that the simple model performs quite well under different conditions. But we would need to see the results of additional analyses in order to become more confident about that, it could also be just a coincidence.
+Interestingly, the simple model produced about the same RMSE as it produced in the first exercise of this course, in which I applied it to the MovieLens data! The RMSE in that exercise was about 0.86, and the rating scale ranged between 1 and 5 (see my results here: https://github.com/n-levy/public/tree/master/projects/Harvardx/Capstone/Project%201%20-%20Movielens/Submission).
+On a scale that is twice of 1 to 5, i.e.  1 to 10, we would expect the RMSE to also be twice as large if the model performs the same, i.e. an RMSE of 1.72. That is approximately the RMSE of the simple models in this exercise! It seems that the simple model performs quite well under different conditions. But we would need to see the results of additional analyses in order to become more confident about that, it could also be just a coincidence.
 
-In sum, I feel like I learned an important lesson - in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
+In sum, I feel like I learned an important lesson, namely that in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
