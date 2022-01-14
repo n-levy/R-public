@@ -17,6 +17,10 @@ This report describes my work on the project of my choice, within the Capstone c
 
 The question that I investigate is: can a simple model that predicts book ratings perform better than more advanced ones, that apply singular value decomposition?
 
+The question is interesting and may lead to useful learnings, since the simple models have important advantages in a real recommendation system:
+1. They could easily be applied to new users and new books, thus providing a good way to deal with the 'cold start' problem.
+2. If a user rates an item and we are interested in recommending a new item immediately, we do not need to train the algorithm on the whole matrix again. We can immediately apply a model that requires a simple calculation, thus saving both time and processing power.
+
 The analysis was structured as follows:
 
 ### Section 1 - Downloading the data
@@ -66,14 +70,14 @@ Let us begin by downloading the data.
 ###############################
 
 ### Installing packages
-if(!require(downloader)) install.packages("downloader", repos = "http://cran.us.r-project.org")
-if(!require(dplyr)) install.packages("dplyr", repos = "http://cran.us.r-project.org")
-if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
-if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
-if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.r-project.org")
-if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
-if(!require(recommenderlab)) install.packages("recommenderlab", repos = "http://cran.us.r-project.org")
-if(!require(stringr)) install.packages("stringr", repos = "http://cran.us.r-project.org")
+suppressWarnings(suppressMessages(if(!require(downloader)) install.packages("downloader", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(dplyr)) install.packages("dplyr", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(recommenderlab)) install.packages("recommenderlab", repos = "http://cran.us.r-project.org")))
+suppressWarnings(suppressMessages(if(!require(stringr)) install.packages("stringr", repos = "http://cran.us.r-project.org")))
 
 ### loading libraries
 suppressWarnings(suppressMessages(library(downloader)))
@@ -91,18 +95,18 @@ suppressWarnings(suppressMessages(library(stringr)))
 ### (the website: "https://www.bookcrossing.com/")
 
 ### downloading the dataset
-# download("http://www2.informatik.uni-freiburg.de/~cziegler/BX/BX-CSV-Dump.zip", dest="dataset.zip", mode="wb") 
-# unzip ("dataset.zip")
+download("http://www2.informatik.uni-freiburg.de/~cziegler/BX/BX-CSV-Dump.zip", dest="dataset.zip", mode="wb") 
+unzip ("dataset.zip")
 
 ### converting the files to data frame format
-# books<-read.csv(file = 'BX-Books.csv', sep=";")
-# users<-read.csv(file = 'BX-Users.csv', sep=";")
-# ratings<-read.csv(file = 'BX-Book-Ratings.csv', sep=";")
+books<-read.csv(file = 'BX-Books.csv', sep=";")
+users<-read.csv(file = 'BX-Users.csv', sep=";")
+ratings<-read.csv(file = 'BX-Book-Ratings.csv', sep=";")
 
 ### saving the data frames
-# saveRDS(books, "books")
-# saveRDS(users, "users")
-# saveRDS(ratings, "ratings")
+saveRDS(books, "books")
+saveRDS(users, "users")
+saveRDS(ratings, "ratings")
 ```
 
 ## 2. Preparing the data
@@ -131,7 +135,6 @@ ratings<-readRDS("ratings")
 ### exploring the three data files
 dim(books)
 names(books)
-head(books)
 
 dim(users)
 names(users)
@@ -263,17 +266,17 @@ nonmissing1-nonmissing2 # this should be zero
 
 ### creating age brackets for the analysis
 ### (see rationale in the beginning of this section)
-train$age<-round(train$age,0) # rounding the values of the age variable, in case they aren't rounded yet
-train$age_bracket[train$age<=10]<-"0-10"
-train$age_bracket[train$age>=11 & train$age<=20]<-"11-20"
-train$age_bracket[train$age>=21 & train$age<=30]<-"21-30"
-train$age_bracket[train$age>=31 & train$age<=40]<-"31-40"
-train$age_bracket[train$age>=41 & train$age<=50]<-"41-50"
-train$age_bracket[train$age>=51 & train$age<=60]<-"51-60"
-train$age_bracket[train$age>=61 & train$age<=70]<-"61-70"
-train$age_bracket[train$age>=71 & train$age<=80]<-"71-80"
-train$age_bracket[train$age>=81 & train$age<=90]<-"81-90"
-train$age_bracket[train$age>=91 & train$age<=100]<-"91-100"
+dat$age<-round(dat$age,0) # rounding the values of the age variable, in case they aren't rounded yet
+dat$age_bracket[dat$age<=10]<-"0-10"
+dat$age_bracket[dat$age>=11 & dat$age<=20]<-"11-20"
+dat$age_bracket[dat$age>=21 & dat$age<=30]<-"21-30"
+dat$age_bracket[dat$age>=31 & dat$age<=40]<-"31-40"
+dat$age_bracket[dat$age>=41 & dat$age<=50]<-"41-50"
+dat$age_bracket[dat$age>=51 & dat$age<=60]<-"51-60"
+dat$age_bracket[dat$age>=61 & dat$age<=70]<-"61-70"
+dat$age_bracket[dat$age>=71 & dat$age<=80]<-"71-80"
+dat$age_bracket[dat$age>=81 & dat$age<=90]<-"81-90"
+dat$age_bracket[dat$age>=91 & dat$age<=100]<-"91-100"
 
 ### examining the distribution of ratings
 table(dat$rating)
@@ -434,7 +437,7 @@ avpu_func<-function(x){
 apply(train, MARGIN = 2, avpu_func)
 
 ### examining the distribution of the average rating per user
-core %>%
+train %>%
   group_by(userid) %>%
   filter(n()>=100) %>%
   summarize(b_u = mean(rating)) %>%
@@ -855,7 +858,6 @@ user_and_userid_author_effects_with_regularization_rmse<-RMSE(predicted_ratings,
 
 # checking the RMSE
 rmse_results <- rbind.data.frame(rmse_results, c("User and User*Author effects with regularization", round(user_and_userid_author_effects_with_regularization_rmse,5)))
-# rmse_results <- rbind(rmse_results, c("Movie and user effects with regularization", round(movie_and_user_effects_with_regularization_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
@@ -1014,11 +1016,11 @@ rmse_results<-readRDS("rmse_results")
 ### evaluating the "Popular" model
 Sys.time() # recording the time in order to see how long each step takes
 
-#result_rating_popular <- evaluate(scheme,
-#                                  method = "popular",
-#                                  parameter = list(normalize = "Z-score"),
-#                                  type  = "ratings"
-#)
+result_rating_popular <- evaluate(scheme,
+                                  method = "popular",
+                                  parameter = list(normalize = "Z-score"),
+                                  type  = "ratings"
+)
 
 ### examining the results
 results_pop<-result_rating_popular@results %>%
@@ -1047,20 +1049,20 @@ Sys.time() # recording the time in order to see how long each step takes
 
 ### svd ###
 ### evaluating the svd model
-#result_rating_svd <- evaluate(scheme,
-#                              method = "svd",
-#                              parameter = list(normalize = "Z-score", k = 5),
-#                              type  = "ratings"
-#)
+result_rating_svd <- evaluate(scheme,
+                              method = "svd",
+                              parameter = list(normalize = "Z-score", k = 5),
+                              type  = "ratings"
+)
 
 ### examining the results
-#results_svd<-result_rating_svd@results %>%
-#  map(function(x) x@cm) %>%
-#  unlist() %>%
-#  matrix(ncol = 3, byrow = T) %>%
-#  as.data.frame() %>%
-#  summarise_all(mean) %>%
-#  setNames(c("RMSE", "MSE", "MAE"))
+results_svd<-result_rating_svd@results %>%
+  map(function(x) x@cm) %>%
+  unlist() %>%
+  matrix(ncol = 3, byrow = T) %>%
+  as.data.frame() %>%
+  summarise_all(mean) %>%
+  setNames(c("RMSE", "MSE", "MAE"))
 
 results_svd
 
@@ -1076,11 +1078,11 @@ Sys.time() # recording the time in order to see how long each step takes
 ### svdf ###
 
 ### evaluating
-#result_rating_svdf <- evaluate(scheme,
-#                               method = "svdf",
-#                               parameter = list(normalize = "Z-score", k = 5),
-#                               type  = "ratings"
-#)
+result_rating_svdf <- evaluate(scheme,
+                               method = "svdf",
+                               parameter = list(normalize = "Z-score", k = 5),
+                               type  = "ratings"
+)
 
 Sys.time() # recording the time in order to see how long each step takes
 
@@ -1100,6 +1102,17 @@ rmse_results <- rbind.data.frame(rmse_results, c("Funk Singular Value Decomposit
 rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
+
+### Identifying the model with the lowest RMSE
+### finding the row numbers
+rows<-which(rmse_results$RMSE==min(rmse_results$RMSE))
+rows
+### finding the models
+rmse_results$method[c(rows)]
+
+### both models produce the same RMSE (when rounded), so we will choose the simpler one:
+chosen_model<-rmse_results$method[c(rows)[1]]
+chosen_model
 
 ### saving 
 saveRDS(result_rating_svdf, file="result_rating_svdf")
@@ -1159,17 +1172,15 @@ predicted_ratings <- test %>%
   pull(pred)
 user_and_userid_author_effects_rmse<-RMSE(predicted_ratings, test$rating, na.rm = T)
 
-rmse_results <- rbind.data.frame(rmse_results, c("Test set - user and User*Author effects", round(user_and_userid_author_effects_rmse,5)))
+rmse_results <- rbind.data.frame(rmse_results, c("Test set: user and User*Author effects", round(user_and_userid_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 ```
 
 ## 8. Conclusion
 ### Section 8 - Conclusion and discussion
-My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. The train set contained XXX ratings, and the test set contained XXX. Second, there was a small number of ratings per user (XXX on average) and a small number of ratings per book (XXX on average). This could be problematic for algorithms that rely on the associations between ratings given by users (e.g. two user give similar ratings) and the associations of ratings given to items (e.g. two books receive similar ratings). Third, the matrix was very sparse (less than XXX percent of the cells had non-missing values), and that could be too difficult, even for the advanced algorithms. Finally, I may have made a mistake, although I tried pretty hard not to do that :). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the poor performance of the advanced models in comparison to the simple ones.  
+My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per user and a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given by users (e.g. two user give similar ratings) and the associations of ratings given to items (e.g. two books receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis, although I tried pretty hard not to do that :). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the poor performance of the advanced models in comparison to the simple ones.  
 
-The simple models have important advantages in a real recommendation system:
-1. They could easily be applied to new users and new books, thus providing a good way to deal with the 'cold start' situation.
-2. If a user rates an item and we are interested in recommending a new item immediately, we do not need to train the algorithm on the whole matrix again. We can immediately apply the model, thus saving both time and processing power.
-   
-Personally, I feel like I learned an important lesson - sometimes there is no tradeoff between simplicity and accuracy. 'Simple' could sometimes be more accurate! 
+Interestingly, the simple model produced about the same RMSE as it produced in the first exercise of this course, where it was applied to MovieLens data! The RMSE in that course was about 0.86, and the rating scale ranged between 1 and 5 (see my results here: XXX). On a scale that is twofold of 1 to 5, i.e.  1 to 10, we would expect the RMSE to also be twofold if the method performs the same, and that would be around 1.72. That is approximately the level of accuracy of the model in this exercise! My learning is that it seems that this model performs quite well under different circumstances. 
+
+In sum, I feel like I learned an important lesson - in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
