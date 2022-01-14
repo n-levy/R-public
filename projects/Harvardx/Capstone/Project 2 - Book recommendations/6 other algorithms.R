@@ -163,6 +163,11 @@ Sys.time() # recording the time in order to see how long each step takes
 ### saving 
 saveRDS(result_rating_popular, file="result_rating_popular")
 
+Sys.time() # recording the time in order to see how long each step takes
+
+### saving 
+# saveRDS(result_rating_ubcf, file="result_rating_ubcf")
+
 ### svd ###
 ### evaluating the svd model
 result_rating_svd <- evaluate(scheme,
@@ -190,68 +195,6 @@ rmse_results
 saveRDS(result_rating_svd, file="result_rating_svd")
 
 Sys.time() # recording the time in order to see how long each step takes
-
-### ibcf ###
-
-### evaluating
-result_rating_ibcf <- evaluate(scheme,
-                               method = "ibcf",
-                               parameter = list(normalize = "Z-score"),
-                               type  = "ratings"
-)
-
-Sys.time() # recording the time in order to see how long each step takes
-
-### examining the results
-results_ibcf<-result_rating_ibcf@results %>%
-  map(function(x) x@cm) %>%
-  unlist() %>%
-  matrix(ncol = 3, byrow = T) %>%
-  as.data.frame() %>%
-  summarise_all(mean) %>%
-  setNames(c("RMSE", "MSE", "MAE"))
-
-results_ibcf
-
-### adding the results to the list
-rmse_results <- rbind.data.frame(rmse_results, c("Item Based Collaborative Filtering", round(results_ibcf$RMSE,5)))
-rmse_results
-
-Sys.time() # recording the time in order to see how long each step takes
-
-### saving 
-saveRDS(result_rating_ibcf, file="result_rating_ibcf")
-
-### ubcf ###
-
-### evaluating
-result_rating_ubcf <- evaluate(scheme,
-                               method = "ubcf",
-                               parameter = list(normalize = "Z-score", k = 5),
-                               type  = "ratings"
-)
-
-Sys.time() # recording the time in order to see how long each step takes
-
-### examining the results
-results_ubcf<-result_rating_ubcf@results %>%
-  map(function(x) x@cm) %>%
-  unlist() %>%
-  matrix(ncol = 3, byrow = T) %>%
-  as.data.frame() %>%
-  summarise_all(mean) %>%
-  setNames(c("RMSE", "MSE", "MAE"))
-
-results_ubcf
-
-### adding the results to the list
-rmse_results <- rbind.data.frame(rmse_results, c("User Based Collaborative Filtering", round(results_ubcf$RMSE,5)))
-rmse_results
-
-Sys.time() # recording the time in order to see how long each step takes
-
-### saving 
-saveRDS(result_rating_ubcf, file="result_rating_ubcf")
 
 ### svdf ###
 
