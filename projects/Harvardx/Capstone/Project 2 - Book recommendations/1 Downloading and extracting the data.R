@@ -18,7 +18,6 @@ if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-proj
 if(!require(recommenderlab)) install.packages("recommenderlab", repos = "http://cran.us.r-project.org")
 if(!require(stringr)) install.packages("stringr", repos = "http://cran.us.r-project.org")
 
-
 ### loading libraries
 suppressWarnings(suppressMessages(library(downloader)))
 suppressWarnings(suppressMessages(library(dplyr)))

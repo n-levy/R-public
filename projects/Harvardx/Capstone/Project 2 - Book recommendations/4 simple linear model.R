@@ -58,7 +58,7 @@ qplot(b_u, data = user_avgs, bins = 10, color = I("black"))
 predicted_ratings <- mu + sub %>% 
   left_join(user_avgs, by='userid') %>%
   pull(b_u)
-user_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User effects", round(user_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -83,7 +83,7 @@ predicted_ratings <- sub %>%
   left_join(age_bracket_avgs, by='age_bracket') %>%
   mutate(pred = mu + b_u + b_a) %>%
   pull(pred)
-user_and_age_bracket_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_age_bracket_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and age_bracket effects", round(user_and_age_bracket_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -108,7 +108,7 @@ predicted_ratings <- sub %>%
   left_join(book_avgs, by='bookid') %>%
   mutate(pred = mu + b_u + b_i) %>%
   pull(pred)
-user_and_book_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_book_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and book effects", round(user_and_book_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -129,7 +129,7 @@ predicted_ratings <- sub %>%
   left_join(country_avgs, by='country') %>%
   mutate(pred = mu + b_u + b_c) %>%
   pull(pred)
-user_and_country_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_country_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and country effects", round(user_and_country_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -150,7 +150,7 @@ predicted_ratings <- sub %>%
   left_join(author_avgs, by='author') %>%
   mutate(pred = mu + b_u + b_au) %>%
   pull(pred)
-user_and_author_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_author_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and author effects", round(user_and_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -171,7 +171,7 @@ predicted_ratings <- sub %>%
   left_join(year_avgs, by='year') %>%
   mutate(pred = mu + b_u + b_y) %>%
   pull(pred)
-user_and_year_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_year_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and year effects", round(user_and_year_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -192,7 +192,7 @@ predicted_ratings <- sub %>%
   left_join(publisher_avgs, by='publisher') %>%
   mutate(pred = mu + b_u + b_p) %>%
   pull(pred)
-user_and_publisher_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_publisher_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and publisher effects", round(user_and_publisher_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -213,7 +213,7 @@ predicted_ratings <- sub %>%
   left_join(userid_author_avgs, by='userid_author') %>%
   mutate(pred = mu + b_u + b_ua) %>%
   pull(pred)
-user_and_userid_author_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_userid_author_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and User*Author effects", round(user_and_userid_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
@@ -236,7 +236,7 @@ predicted_ratings <- sub %>%
   left_join(author_avgs, by='author') %>%
   mutate(pred = mu + b_u + b_ua +b_a) %>%
   pull(pred)
-user_and_userid_author_and_author_effects_rmse<-RMSE(predicted_ratings, sub$rating)
+user_and_userid_author_and_author_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 
 rmse_results <- rbind.data.frame(rmse_results, c("User and userid_author and author effects", round(user_and_userid_author_and_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")

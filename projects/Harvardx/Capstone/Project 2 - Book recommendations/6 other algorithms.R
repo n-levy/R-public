@@ -14,7 +14,7 @@ test<-readRDS("test")
 rmse_results<-readRDS("rmse_results")
 
 ### Preparing the data ###
-# removing books in the training set that do not appear in the test set
+### removing books in the training set that do not appear in the test set
 trainmat_final <- train %>% 
   semi_join(test, by = "bookid") 
 
@@ -62,7 +62,7 @@ trainmat_final_reg<-as(trainmat_final, "matrix")
 ### saving
 saveRDS(trainmat_final_reg, file="trainmat_final_reg")
 
-# exploring the matrix #
+### exploring the matrix #
 class(trainmat_final_reg)
 n_missing<-sum(is.na(trainmat_final_reg)) # counting missing values
 n_missing
@@ -76,51 +76,65 @@ p_non_missing<-1-p_missing
 p_non_missing
 rm(trainmat_final_reg, n_missing, all) # removing the matrix and other unnecessary objects
 
-# Increasing memory size
+### Increasing memory size
 memory.limit(size = 10^10)
 
-# cleaning memory
+### cleaning memory
 invisible(gc())
 
-# checking number of ratings per item
+### checking number of ratings per item
 number_of_ratings<-colCounts(trainmat_final)
 min(number_of_ratings)
 max(number_of_ratings)
 
-# exploring a sample of the matrix
+### exploring a sample of the matrix
 trainmat_final@data[1500:1510, 2001:2009]
 
-# normalizing the values
+### normalizing the values
 normalize(trainmat_final, method = "Z-score")
 
-# saving
+### saving
 saveRDS(trainmat_final, file="trainmat_final")
 
-# Setting up the evaluation scheme (leave one out cross validation (LOOCV), 
-# reserving 10% of the training set for validation)
+### Setting up the evaluation scheme.
+### We will use cross-validation
+
+### calculating the mean of all ratings again, in order to determine 
+### the value of a "good" rating for the evaluation function
+train<-readRDS("train")
+mean(train$rating)
+rm(train) # removing the dataset from the workspace to save memory
 
 Sys.time() # recording the time in order to see how long each step takes
 
 scheme <- trainmat_final %>% 
   evaluationScheme(method = "cross-validation",
-                   k=1,
-                   train  = 0.8,  # 80% data train
-                   given  = 1,
-                   goodRating = 7.5
+                   k=2, # 2-fold cross validation
+                   given  = 1, 
+                   goodRating = 8
   )
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# saving
+### saving
 saveRDS(scheme, file="scheme")
 
 Sys.time()
 
 ##################### Evaluating the models ################################
 
-### Popular ###
-# evaluating the "popular" model
+### cleaning the working space
+rm(list=ls())
 
+### cleaning memory
+invisible(gc())
+
+### loading the scheme and the rmse_results
+scheme<-readRDS("scheme")
+rmse_results<-readRDS("rmse_results")
+
+### Popular ###
+### evaluating the "Popular" model
 Sys.time() # recording the time in order to see how long each step takes
 
 result_rating_popular <- evaluate(scheme,
@@ -129,7 +143,7 @@ result_rating_popular <- evaluate(scheme,
                                   type  = "ratings"
 )
 
-# examining the results
+### examining the results
 results_pop<-result_rating_popular@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
@@ -146,18 +160,18 @@ rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# saving 
+### saving 
 saveRDS(result_rating_popular, file="result_rating_popular")
 
 ### svd ###
-# evaluating the svd model
+### evaluating the svd model
 result_rating_svd <- evaluate(scheme,
                               method = "svd",
                               parameter = list(normalize = "Z-score", k = 5),
                               type  = "ratings"
 )
 
-# examining the results
+### examining the results
 results_svd<-result_rating_svd@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
@@ -172,14 +186,14 @@ results_svd
 rmse_results <- rbind.data.frame(rmse_results, c("Singular Value Decomposition", round(results_svd$RMSE,5)))
 rmse_results
 
-# saving 
+### saving 
 saveRDS(result_rating_svd, file="result_rating_svd")
 
 Sys.time() # recording the time in order to see how long each step takes
 
 ### ibcf ###
 
-# evaluating
+### evaluating
 result_rating_ibcf <- evaluate(scheme,
                                method = "ibcf",
                                parameter = list(normalize = "Z-score"),
@@ -188,7 +202,7 @@ result_rating_ibcf <- evaluate(scheme,
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# examining the results
+### examining the results
 results_ibcf<-result_rating_ibcf@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
@@ -205,12 +219,12 @@ rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# saving 
+### saving 
 saveRDS(result_rating_ibcf, file="result_rating_ibcf")
 
 ### ubcf ###
 
-# evaluating
+### evaluating
 result_rating_ubcf <- evaluate(scheme,
                                method = "ubcf",
                                parameter = list(normalize = "Z-score", k = 5),
@@ -219,7 +233,7 @@ result_rating_ubcf <- evaluate(scheme,
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# examining the results
+### examining the results
 results_ubcf<-result_rating_ubcf@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
@@ -236,12 +250,12 @@ rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# saving 
+### saving 
 saveRDS(result_rating_ubcf, file="result_rating_ubcf")
 
 ### svdf ###
 
-# evaluating
+### evaluating
 result_rating_svdf <- evaluate(scheme,
                                method = "svdf",
                                parameter = list(normalize = "Z-score", k = 5),
@@ -250,7 +264,7 @@ result_rating_svdf <- evaluate(scheme,
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# examining the results
+### examining the results
 results_svdf<-result_rating_svdf@results %>%
   map(function(x) x@cm) %>%
   unlist() %>%
@@ -267,5 +281,8 @@ rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes
 
-# saving 
+### saving 
 saveRDS(result_rating_svdf, file="result_rating_svdf")
+saveRDS(rmse_results, file="rmse_results")
+
+
