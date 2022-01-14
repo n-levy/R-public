@@ -33,25 +33,19 @@ names(users_and_ratings_train_set)<-c("userid", "bookid", "rating")
 dim(users_and_ratings_train_set)
 head(users_and_ratings_train_set)
 
-### counting missing values
-n_missing<-sum(is.na(users_and_ratings_train_set))
-
-### removing rows with missing bookids 
-### (that is the only column that contains missing values)
-index<-which(is.na(users_and_ratings_train_set$bookid))
-head(index)
-length(index)
-users_and_ratings_train_set<-users_and_ratings_train_set[-index,]
-
-### making sure that it worked
-dim(users_and_ratings_train_set)
-
-### making sure that there are no missing values left
-sum(is.na(users_and_ratings_train_set)) # this should be zero
+### turning users_and_ratings_test_set into a matrix
+### (if I try to convert the dataframe into a realRatingMatrix I get an error)
+mat<-as.matrix(users_and_ratings_train_set)
 
 ### converting the matrix into a "realRatingMatrix")
-trainmat_final <- as(users_and_ratings_train_set, "realRatingMatrix")
+trainmat_final <- as(mat, "realRatingMatrix")
 dim(trainmat_final)
+
+### examining the realRatingMatrix object
+dimnames(trainmat_final)
+colCounts(trainmat_final) ## number of ratings per item
+colMeans(trainmat_final) ## average item rating
+nratings(trainmat_final) ## total number of ratings
 
 ### saving
 saveRDS(trainmat_final, file="trainmat_final")
