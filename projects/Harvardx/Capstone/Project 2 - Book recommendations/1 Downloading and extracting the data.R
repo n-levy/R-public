@@ -46,6 +46,3 @@ suppressWarnings(suppressMessages(library(stringr)))
 # saveRDS(books, "books")
 # saveRDS(users, "users")
 # saveRDS(ratings, "ratings")
-
-
-

@@ -62,7 +62,7 @@ trainmat_final_reg<-as(trainmat_final, "matrix")
 ### saving
 saveRDS(trainmat_final_reg, file="trainmat_final_reg")
 
-### exploring the matrix #
+### exploring the matrix 
 class(trainmat_final_reg)
 n_missing<-sum(is.na(trainmat_final_reg)) # counting missing values
 n_missing
@@ -166,7 +166,7 @@ saveRDS(result_rating_popular, file="result_rating_popular")
 Sys.time() # recording the time in order to see how long each step takes
 
 ### saving 
-# saveRDS(result_rating_ubcf, file="result_rating_ubcf")
+### saveRDS(result_rating_ubcf, file="result_rating_ubcf")
 
 ### svd ###
 ### evaluating the svd model
@@ -227,5 +227,3 @@ Sys.time() # recording the time in order to see how long each step takes
 ### saving 
 saveRDS(result_rating_svdf, file="result_rating_svdf")
 saveRDS(rmse_results, file="rmse_results")
-
-
