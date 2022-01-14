@@ -102,9 +102,9 @@ saveRDS(trainmat_final, file="trainmat_final")
 Sys.time() # recording the time in order to see how long each step takes
 
 scheme <- trainmat_final %>% 
-  evaluationScheme(method = "split",
+  evaluationScheme(method = "cross-validation",
                    k=1,
-                   train  = 0.9,  # 90% data train
+                   train  = 0.8,  # 80% data train
                    given  = 1,
                    goodRating = 7.5
   )
@@ -262,7 +262,7 @@ results_svdf<-result_rating_svdf@results %>%
 results_svdf
 
 ### adding the results to the list
-rmse_results <- rbind.data.frame(rmse_results, c("Fund Singular Value Decomposition", round(results_svdf$RMSE,5)))
+rmse_results <- rbind.data.frame(rmse_results, c("Funk Singular Value Decomposition", round(results_svdf$RMSE,5)))
 rmse_results
 
 Sys.time() # recording the time in order to see how long each step takes

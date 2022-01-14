@@ -66,3 +66,4 @@ train_reduced
 trainmat_final
 trainmat_final_reg
 trainmat_reduced_reg
+result_rating_svdf
