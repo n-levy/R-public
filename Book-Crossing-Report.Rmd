@@ -9,9 +9,6 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Harvardx Data Science - 'Choose Your Own Project' Report
-## Nir Levy, January 2022
-
 ## Summary
 This report describes my work on the project of my choice, within the Capstone course of Harvardx's Data Science Professional Certificate.  
 
@@ -46,9 +43,9 @@ I discovered that the simple models produced a much lower Root Mean Squared Erro
 Finally, I applied the model that produced the lowest RMSE to the test dataset. It produced an RMSE that was very similar to the one that it produced in the validation stage, indicating that the model was probably not over-fitted in the validation stage. This was expected, given the low number of features in the model and its' simplicity.
 
 ### Section 8 - Conclusion and discussion
-My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. This could be problematic for algorithms that rely on the associations between ratings given by users (e.g. two user give similar ratings) and the associations of ratings given to items (e.g. two books receive similar ratings). Third, the matrix was very sparse, and that could be too difficult, even for the advanced algorithms. Finally, I may have made a mistake in the analysis, even though I tried not to do that :). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the poor performance of the advanced models in comparison to the simple ones. 
+My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given to items (e.g. two books tend to receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult to handle, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis (although I tried pretty hard not to do that :)). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the very poor performance of the advanced models in comparison to the simple ones. 
   
-Personally, I feel like I learned an important lesson - sometimes there is no tradeoff between simplicity and accuracy. 'Simple' could sometimes be more accurate! 
+In sum, I feel like I learned an important lesson - in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
 
 ## Table of contents
 1. Downloading the data
@@ -620,31 +617,6 @@ rmse_results <- rbind.data.frame(rmse_results, c("User effects", round(user_effe
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
-### adding book effects ###
-# estimating the book effects, by computing 
-# the overall average and the user effect, and then 
-# the book effect is the average of the remainder, after they
-# are substracted from the rating (book effect= average of (rating - overall average - user effect)
-age_bracket_avgs <- core %>% 
-  left_join(user_avgs, by='userid') %>%
-  group_by(age_bracket) %>%
-  summarize(b_a = mean(rating - mu - b_u))
-
-# examining the distributions of age_bracket effects
-qplot(b_a, data = age_bracket_avgs, bins = 10, color = I("black"))
-
-# checking the rmse
-predicted_ratings <- sub %>% 
-  left_join(user_avgs, by='userid') %>%
-  left_join(age_bracket_avgs, by='age_bracket') %>%
-  mutate(pred = mu + b_u + b_a) %>%
-  pull(pred)
-user_and_age_bracket_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
-
-rmse_results <- rbind.data.frame(rmse_results, c("User and age_bracket effects", round(user_and_age_bracket_effects_rmse,5)))
-names(rmse_results)<-c("method", "RMSE")
-rmse_results
-
 ### examining book effects ###
 # estimating the book effects, by computing 
 # the overall average and the user effect, and then 
@@ -670,6 +642,9 @@ rmse_results <- rbind.data.frame(rmse_results, c("User and book effects", round(
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
+### Adding book effects does not improve the RMSE
+### Let us try to add other 'side information'
+
 ### adding country effects ###
 country_avgs <- core %>% 
   left_join(user_avgs, by='userid') %>%
@@ -690,6 +665,9 @@ user_and_country_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 rmse_results <- rbind.data.frame(rmse_results, c("User and country effects", round(user_and_country_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
+
+### Adding country effects does not improve the RMSE
+### Let us try to add other 'side information'
 
 ### adding author effects ###
 author_avgs <- core %>% 
@@ -712,6 +690,9 @@ rmse_results <- rbind.data.frame(rmse_results, c("User and author effects", roun
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
+### Adding author effects does not improve the RMSE
+### Let us try to add other 'side information'
+
 ### adding year effects ###
 year_avgs <- core %>% 
   left_join(user_avgs, by='userid') %>%
@@ -732,6 +713,9 @@ user_and_year_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
 rmse_results <- rbind.data.frame(rmse_results, c("User and year effects", round(user_and_year_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
+
+### Adding year effects does not improve the RMSE
+### Let us try to add other 'side information'
 
 ### adding publisher effects ###
 publisher_avgs <- core %>% 
@@ -754,6 +738,36 @@ rmse_results <- rbind.data.frame(rmse_results, c("User and publisher effects", r
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
 
+### Adding publisher effects does not improve the RMSE
+### Let us try to add other 'side information'
+
+### adding age bracket effects ###
+age_bracket_avgs <- core %>% 
+  left_join(user_avgs, by='userid') %>%
+  group_by(age_bracket) %>%
+  summarize(b_a = mean(rating - mu - b_u))
+
+# examining the distributions of age_bracket effects
+qplot(b_a, data = age_bracket_avgs, bins = 10, color = I("black"))
+
+# checking the rmse
+predicted_ratings <- sub %>% 
+  left_join(user_avgs, by='userid') %>%
+  left_join(age_bracket_avgs, by='age_bracket') %>%
+  mutate(pred = mu + b_u + b_a) %>%
+  pull(pred)
+user_and_age_bracket_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm = T)
+
+rmse_results <- rbind.data.frame(rmse_results, c("User and age_bracket effects", round(user_and_age_bracket_effects_rmse,5)))
+names(rmse_results)<-c("method", "RMSE")
+rmse_results
+
+### Adding country effects does not improve the RMSE.
+### Let us try to add an interaction between users and authors.
+### it seems reasonable that a users' rating of a book by a certain author 
+### would be rather similar to their rating of other books by the same author, 
+### and different than the mean rating of all books by a certain user
+
 ### adding userid_author effects ###
 userid_author_avgs <- core %>% 
   left_join(user_avgs, by='userid') %>%
@@ -774,6 +788,11 @@ user_and_userid_author_effects_rmse<-RMSE(predicted_ratings, sub$rating, na.rm =
 rmse_results <- rbind.data.frame(rmse_results, c("User and User*Author effects", round(user_and_userid_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
+
+### Adding country effects somewhat improves the RMSE.
+### Now let us add author effects
+### Are there authors who receive higher ratings, or lower
+### ratings, on average?
 
 ### adding author effects ###
 author_avgs <- core %>% 
@@ -797,13 +816,18 @@ user_and_userid_author_and_author_effects_rmse<-RMSE(predicted_ratings, sub$rati
 rmse_results <- rbind.data.frame(rmse_results, c("User and userid_author and author effects", round(user_and_userid_author_and_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
+``` 
 
-names(train)
-
-```
+Adding country effects does not improve the RMSE.
+This could perhaps be explained by the fact that people 
+choose which books to read. We may think of it this way:
+people implicitly 'predict' the rating they are going to give
+the book before they buy it, and their errors are centered
+around the average ratings that they give to books.
+To me that seems to be a plausible explanation
 
 ## 5. Adding regularization
-Adding regularization, to account for the difference between average ratings provided by a few users and average ratings provided by many users.
+Adding regularization, to account for the difference between average ratings provided by a few users and average ratings provided by many users. We will add regularization only to the model with the lowest RMSE so far, which is the one with user effects and interactive effects of users and authors.
 
 ```{r 5_adding_regularization, error=TRUE}
 ################################
@@ -868,12 +892,13 @@ saveRDS(train, "train")
 saveRDS(rmse_results, "rmse_results")
 
 ```
-
+Adding regularization did not improve the RMSE, perhaps since many books were only rated by a small number of people. 
 ### 6. Evaluating other algorithms: Popular, SVD, SVDF
 Now let us evaluate more advanced prediction models, namely:
 1. 'Popular'
 2. Singular Value Decomposition (SVD)
 3. Funk Singular Value Decomposition (SVDF)
+(I tried to evaluate both Item and User Based Collaborative Filtering as well, but it took too much time.)
 
 ```{r 6_evaluating_other_algorithims, error=TRUE}
 
@@ -1118,12 +1143,8 @@ chosen_model
 saveRDS(result_rating_svdf, file="result_rating_svdf")
 saveRDS(rmse_results, file="rmse_results")
 ```
-Since over 98% percent of the values are missing, I add SVD and SVDF to the models that I evaluate.
+Since over 98% percent of the values are missing, we try to apply SVD and SVDF.
 These model are supposed to deal with sparse matrices well.    
-
-Since my processing power is limiited, I evaluate the models on only 10% of the users in the training set.
-Otherwise the evaluation takes too much time. 
-I choose the 10% of the users who gave the most ratings.
 
 ## 7. Applying the chosen model to the test set
 
@@ -1177,10 +1198,9 @@ names(rmse_results)<-c("method", "RMSE")
 rmse_results
 ```
 
-## 8. Conclusion
-### Section 8 - Conclusion and discussion
-My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per user and a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given by users (e.g. two user give similar ratings) and the associations of ratings given to items (e.g. two books receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis, although I tried pretty hard not to do that :). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the poor performance of the advanced models in comparison to the simple ones.  
+## 8. Conclusion and discussion
+My conclusion is that under certain conditions, simple models can outperform more advanced ones. There could be several reasons for this, in this case. First, the dataset was rather small. Second, there was a small number of ratings per book. This could be problematic for algorithms that rely on the associations between ratings given to items (e.g. two books tend to receive similar ratings). Third, the matrix was extremely sparse, and that might be too difficult to handle, even for the SVD and SVDF algorithms. Finally, I may have made a mistake in the analysis (although I tried pretty hard not to do that :)). Further analyses would be required in order to find out what combination of these possibilities is indeed the cause of the very poor performance of the advanced models in comparison to the simple ones.  
 
-Interestingly, the simple model produced about the same RMSE as it produced in the first exercise of this course, where it was applied to MovieLens data! The RMSE in that course was about 0.86, and the rating scale ranged between 1 and 5 (see my results here: XXX). On a scale that is twofold of 1 to 5, i.e.  1 to 10, we would expect the RMSE to also be twofold if the method performs the same, and that would be around 1.72. That is approximately the level of accuracy of the model in this exercise! My learning is that it seems that this model performs quite well under different circumstances. 
+Interestingly, the simple model produced about the same RMSE as it produced in the first exercise of this course, in which I applied it to the MovieLens data! The RMSE in that exercise was about 0.86, and the rating scale ranged between 1 and 5 (see my results [here](https://github.com/n-levy/public/tree/master/projects/Harvardx/Capstone/Project%201%20-%20Movielens/Submission)). On a scale that is twice of 1 to 5, i.e.  1 to 10, we would expect the RMSE to also be twice as large if the method performs the same, i.e. around 1.72. That is approximately the RMSE of the simple model in this exercise! My interim learning is that it seems that the simple model performs quite well under different conditions. But we would need to see the results of additional analyses in order to become more confident about that, it could also be just a coincidence.
 
 In sum, I feel like I learned an important lesson - in machine learning, sometimes there is no trade-off between simplicity and accuracy. Under certain conditions, simple models could also be more accurate! 
