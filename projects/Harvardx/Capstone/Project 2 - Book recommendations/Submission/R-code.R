@@ -1083,3 +1083,5 @@ user_and_userid_author_effects_rmse<-RMSE(predicted_ratings, test$rating, na.rm 
 rmse_results <- rbind.data.frame(rmse_results, c("Test set: user and User*Author effects", round(user_and_userid_author_effects_rmse,5)))
 names(rmse_results)<-c("method", "RMSE")
 rmse_results
+
+### The End ###
